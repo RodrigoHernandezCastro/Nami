@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🌊 Nami Bot
+
 ### *Tu navegante de streams en Discord*
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -10,8 +11,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-blueviolet?style=flat-square)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-[![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](https://github.com/RodrigoHernandezCastro/Nami)
-[![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen?style=flat-square)](https://github.com/RodrigoHernandezCastro/Nami)
+[![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](https://github.com/tu-usuario/nami-bot)
+[![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen?style=flat-square)](https://github.com/tu-usuario/nami-bot)
 
 **Nami** es un bot de Discord profesional que monitorea streamers de Twitch en tiempo real y anuncia automáticamente cuando están en vivo, con soporte para múltiples servidores, menciones personalizadas y arquitectura escalable.
 
@@ -21,16 +22,35 @@
 
 ---
 
+## 📋 Tabla de Contenidos
+
+- [✨ Características](#-características)
+- [🎯 Demo](#-demo)
+- [🛠️ Stack Tecnológico](#️-stack-tecnológico)
+- [🚀 Instalación](#-instalación)
+- [⚙️ Configuración](#️-configuración)
+- [📖 Comandos](#-comandos)
+- [🏗️ Arquitectura](#️-arquitectura)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🧪 Testing](#-testing)
+- [🐳 Docker](#-docker)
+- [🛣️ Roadmap](#️-roadmap)
+- [🤝 Contribuir](#-contribuir)
+- [📜 Licencia](#-licencia)
+
+---
+
 ## ✨ Características
 
-- 🔴 **Monitoreo en Tiempo Real** — Detecta automáticamente cuándo tus streamers favoritos pasan a estar en vivo.
-- 🎨 **Anuncios Personalizables** — Mensajes únicos por streamer con embeds enriquecidos.
-- 👥 **Menciones Flexibles** — `@everyone`, `@here` o hasta **3 roles específicos** por streamer.
-- 🌐 **Multi-Servidor** — Un solo bot puede servir a múltiples comunidades simultáneamente.
-- ⚡ **Alta Disponibilidad** — Arquitectura asíncrona con pool de conexiones PostgreSQL.
-- 🔐 **Seguro por Diseño** — Validación a nivel de dominio y manejo robusto de errores.
-- 📊 **Logging Estructurado** — Logs en JSON listos para observabilidad (Loki, Datadog, ELK).
-- 🏛️ **Clean Architecture** — Código mantenible, testeable y extensible.
+- 🔴 **Monitoreo en Tiempo Real** — Detecta automáticamente cuándo tus streamers favoritos pasan a estar en vivo
+- 🎨 **Anuncios Personalizables** — Mensajes únicos por streamer, con embeds enriquecidos
+- 👥 **Menciones Flexibles** — `@everyone`, `@here` o hasta **3 roles específicos** por streamer
+- 🌐 **Multi-Servidor** — Un solo bot puede servir a múltiples comunidades simultáneamente
+- ⚡ **Alta Disponibilidad** — Arquitectura asíncrona con pool de conexiones PostgreSQL
+- 🔐 **Seguro por Diseño** — Validación a nivel de dominio, manejo robusto de errores
+- 📊 **Logging Estructurado** — Logs en JSON listos para observabilidad (Loki, Datadog, ELK)
+- 🏛️ **Clean Architecture** — Código mantenible, testeable y extensible
+- 🔌 **Extensible** — Añade nuevas features sin tocar el núcleo (Open/Closed Principle)
 
 ---
 
@@ -39,12 +59,13 @@
 <div align="center">
 
 ### Anuncio de Stream en Vivo
+
 > 🔴 **shroud está EN VIVO**
-> 
+>
 > **Ranked Valorant — Road to Radiant**
-> 
-> 🎮 **Jugando:** VALORANT  
-> 👥 **Espectadores:** 42,531  
+>
+> 🎮 **Jugando:** VALORANT
+> 👥 **Espectadores:** 42,531
 > 🔗 **[Ver stream](https://twitch.tv/shroud)**
 
 </div>
@@ -54,29 +75,31 @@
 ## 🛠️ Stack Tecnológico
 
 | Categoría | Tecnología |
-| :--- | :--- |
-| **Lenguaje** | Python 3.12+ |
-| **Framework Bot** | discord.py 2.4 |
-| **Base de Datos** | PostgreSQL 15 + asyncpg |
-| **API Externa** | Twitch Helix API |
-| **Configuración** | Pydantic Settings |
-| **Logging** | structlog (JSON) |
-| **Testing** | pytest + pytest-asyncio |
-| **Arquitectura** | Clean Architecture / Hexagonal |
+|-----------|------------|
+| Lenguaje | Python 3.11+ |
+| Framework Bot | discord.py 2.4 |
+| Base de Datos | PostgreSQL 15 + asyncpg |
+| API Externa | Twitch Helix API |
+| Configuración | Pydantic Settings |
+| Logging | structlog (JSON) |
+| Testing | pytest + pytest-asyncio |
+| Linting | ruff + black + mypy |
+| Arquitectura | Clean Architecture / Hexagonal |
 
 ---
 
 ## 🚀 Instalación
 
 ### 📦 Requisitos Previos
-- Python 3.12 o superior.
-- PostgreSQL 15 o superior.
-- Una aplicación en el [Discord Developer Portal](https://discord.com/developers/applications).
-- Credenciales en el [Twitch Developer Console](https://dev.twitch.tv/console).
+
+- Python 3.11 o superior
+- PostgreSQL 15 o superior
+- Una aplicación de [Discord Developer Portal](https://discord.com/developers/applications)
+- Credenciales de [Twitch Developer Console](https://dev.twitch.tv/console)
 
 ### 🔧 Pasos de Instalación
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone [https://github.com/RodrigoHernandezCastro/Nami.git](https://github.com/RodrigoHernandezCastro/Nami.git)
-   cd nami-bot
+#### 1️⃣ Clonar el repositorio
+```bash
+git clone https://github.com/tu-usuario/nami-bot.git
+cd nami-bot
