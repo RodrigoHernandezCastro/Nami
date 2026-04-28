@@ -4,4 +4,8 @@ __pycache__/
 *.log
 venv/
 .vscode/
+<<<<<<< HEAD
 env/
+=======
+env/
+>>>>>>> 9ecb311eec0098fb8897b4a3609828f9338c3893
