@@ -3,7 +3,6 @@
 
 ## **📄 `docs/01-architecture.md`**
 
-````markdown
 # 🏛️ Arquitectura del Proyecto
 
 ## Clean Architecture Aplicada
