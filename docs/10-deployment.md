@@ -3,7 +3,6 @@
 
 ## **📄 `docs/10-deployment.md`**
 
-````markdown
 # 🚀 Despliegue en Teramont
 
 Guía paso a paso para desplegar Nami Bot en el servidor de Teramont con MariaDB.
