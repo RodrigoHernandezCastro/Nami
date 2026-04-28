@@ -3,7 +3,6 @@
 
 ## **📄 `docs/08-error-handling.md`**
 
-````markdown
 # ⚠️ Manejo de Errores
 
 Nami usa un sistema de errores en **dos niveles**:
