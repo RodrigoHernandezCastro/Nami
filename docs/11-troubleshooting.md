@@ -3,7 +3,6 @@
 
 ## **📄 `docs/11-troubleshooting.md`**
 
-````markdown
 # 🐛 Troubleshooting
 
 Errores comunes y cómo resolverlos.
