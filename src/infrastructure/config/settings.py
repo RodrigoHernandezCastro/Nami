@@ -15,8 +15,12 @@ class Settings(BaseSettings):
     TWITCH_CLIENT_ID: str
     TWITCH_CLIENT_SECRET: str
 
-    # PostgreSQL
-    DATABASE_URL: str  # postgresql://user:pass@host:5432/db
+    # MariaDB / MySQL
+    DB_HOST: str
+    DB_PORT: int = 3306
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
 
     # Logging
     LOG_LEVEL: str = "INFO"

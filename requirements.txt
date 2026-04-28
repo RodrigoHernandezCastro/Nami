@@ -4,9 +4,10 @@
 discord.py==2.4.0
 
 # ============================================
-# BASE DE DATOS - PostgreSQL asíncrono
+# BASE DE DATOS - MariaDB / MySQL asíncrono
 # ============================================
-asyncpg==0.29.0
+aiomysql==0.2.0
+PyMySQL==1.1.1
 
 # ============================================
 # HTTP / APIs externas (Twitch)

@@ -1,11 +1,10 @@
-# src/composition_root/container.py
-import asyncpg
+import aiomysql
 from src.infrastructure.config.settings import Settings
-from src.infrastructure.persistence.postgres.streamer_repository_pg import (
-    PostgresStreamerRepository,
+from src.infrastructure.persistence.mariadb.streamer_repository_mysql import (
+    MariaDBStreamerRepository,
 )
-from src.infrastructure.persistence.postgres.guild_repository_pg import (
-    PostgresGuildRepository,
+from src.infrastructure.persistence.mariadb.guild_repository_mysql import (
+    MariaDBGuildRepository,
 )
 from src.infrastructure.external_apis.twitch_api_client import TwitchAPIClient
 from src.infrastructure.logging.structured_logger import StructuredLogger
@@ -17,25 +16,29 @@ from src.application.use_cases.check_live_streams import CheckLiveStreamsUseCase
 
 
 class Container:
-    """Composition Root: único lugar donde se ensamblan las dependencias."""
-
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self._pool: asyncpg.Pool | None = None
+        self._pool: aiomysql.Pool | None = None
         self._logger = StructuredLogger(level=settings.LOG_LEVEL)
 
     async def startup(self) -> None:
-        # 1) Pool de PostgreSQL
-        self._pool = await asyncpg.create_pool(
-            dsn=self.settings.DATABASE_URL,
-            min_size=2,
-            max_size=10,
+        # 1) Pool de MariaDB
+        self._pool = await aiomysql.create_pool(
+            host=self.settings.DB_HOST,
+            port=self.settings.DB_PORT,
+            user=self.settings.DB_USER,
+            password=self.settings.DB_PASSWORD,
+            db=self.settings.DB_NAME,
+            minsize=2,
+            maxsize=10,
+            autocommit=True,
+            charset="utf8mb4",
         )
-        self._logger.info("postgres_pool_created")
+        self._logger.info("mariadb_pool_created")
 
         # 2) Repositorios
-        self.streamer_repo = PostgresStreamerRepository(self._pool)
-        self.guild_repo = PostgresGuildRepository(self._pool)
+        self.streamer_repo = MariaDBStreamerRepository(self._pool)
+        self.guild_repo = MariaDBGuildRepository(self._pool)
 
         # 3) Servicios externos
         self.twitch_service = TwitchAPIClient(
@@ -73,8 +76,9 @@ class Container:
 
     async def shutdown(self) -> None:
         if self._pool:
-            await self._pool.close()
-            self._logger.info("postgres_pool_closed")
+            self._pool.close()
+            await self._pool.wait_closed()
+            self._logger.info("mariadb_pool_closed")
         await self.twitch_service.close()
         self._logger.info("container_shutdown_complete")
 
