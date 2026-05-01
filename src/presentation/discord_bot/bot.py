@@ -24,6 +24,7 @@ class NamiBot(commands.Bot):
                 remove_streamer_uc=self.container.remove_streamer_uc,
                 list_streamers_uc=self.container.list_streamers_uc,
                 configure_channel_uc=self.container.configure_channel_uc,
+                configure_youtube_uc=self.container.configure_youtube_uc,
             )
         )
         await self.add_cog(

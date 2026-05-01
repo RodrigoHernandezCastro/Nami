@@ -39,6 +39,7 @@ class TwitchAPIClient(ITwitchService):
         """Cierra la sesión HTTP al apagar el bot."""
         if self._session and not self._session.closed:
             await self._session.close()
+            self._session = None
             self._logger.info("twitch_client_closed")
 
     async def _refresh_token(self) -> None:

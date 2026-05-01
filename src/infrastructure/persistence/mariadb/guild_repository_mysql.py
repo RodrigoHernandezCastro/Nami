@@ -13,8 +13,8 @@ class MariaDBGuildRepository(IGuildRepository):
 
     async def get_by_id(self, guild_id: int) -> Optional[GuildConfig]:
         query = """
-            SELECT guild_id, announcement_channel_id, streamer_limit,
-                   default_mention_type, language
+            SELECT guild_id, announcement_channel_id, youtube_channel_id,
+                   streamer_limit, default_mention_type, language
             FROM guild_configs
             WHERE guild_id = %s;
         """
@@ -29,14 +29,15 @@ class MariaDBGuildRepository(IGuildRepository):
     async def create_or_update(self, config: GuildConfig) -> GuildConfig:
         query = """
             INSERT INTO guild_configs
-                (guild_id, announcement_channel_id, streamer_limit,
-                 default_mention_type, language)
-            VALUES (%s, %s, %s, %s, %s)
+                (guild_id, announcement_channel_id, youtube_channel_id,
+                 streamer_limit, default_mention_type, language)
+            VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 announcement_channel_id = VALUES(announcement_channel_id),
-                streamer_limit = VALUES(streamer_limit),
-                default_mention_type = VALUES(default_mention_type),
-                language = VALUES(language);
+                youtube_channel_id      = VALUES(youtube_channel_id),
+                streamer_limit          = VALUES(streamer_limit),
+                default_mention_type    = VALUES(default_mention_type),
+                language                = VALUES(language);
         """
         async with self._pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -45,6 +46,7 @@ class MariaDBGuildRepository(IGuildRepository):
                     (
                         config.guild_id,
                         config.announcement_channel_id,
+                        config.youtube_channel_id,
                         config.streamer_limit,
                         config.default_mention_type,
                         config.language,
@@ -76,7 +78,8 @@ class MariaDBGuildRepository(IGuildRepository):
     def _row_to_entity(row: dict) -> GuildConfig:
         return GuildConfig(
             guild_id=row["guild_id"],
-            announcement_channel_id=row["announcement_channel_id"],
+            announcement_channel_id=row.get("announcement_channel_id"),
+            youtube_channel_id=row.get("youtube_channel_id"),
             streamer_limit=row["streamer_limit"],
             default_mention_type=row["default_mention_type"],
             language=row["language"],

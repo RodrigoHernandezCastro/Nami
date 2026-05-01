@@ -1,5 +1,4 @@
 # src/composition_root/container.py
-import importlib
 import aiomysql
 import asyncpg
 from src.infrastructure.config.settings import Settings
@@ -18,19 +17,13 @@ class Container:
         else:
             await self._setup_mariadb()
 
-        # Repositorios (automático según driver)
         await self._setup_repositories()
-
-        # Servicios externos
         await self._setup_external_services()
-
-        # Use Cases
         self._setup_use_cases()
 
         self._logger.info("container_startup_complete", driver=self.settings.db_driver)
 
     async def _setup_postgres(self) -> None:
-        """Configuración para PostgreSQL local."""
         self._pool = await asyncpg.create_pool(
             dsn=self.settings.database_url,
             min_size=2,
@@ -38,7 +31,6 @@ class Container:
         )
         self._logger.info("postgres_pool_created")
 
-        # Importar repositorios PostgreSQL
         from src.infrastructure.persistence.postgres.streamer_repository_pg import PostgresStreamerRepository
         from src.infrastructure.persistence.postgres.guild_repository_pg import PostgresGuildRepository
         from src.infrastructure.persistence.postgres.youtube_repository_pg import PostgresYouTubeRepository
@@ -48,7 +40,6 @@ class Container:
         self.youtube_repo = PostgresYouTubeRepository(self._pool, logger=self._logger)
 
     async def _setup_mariadb(self) -> None:
-        """Configuración para MariaDB Teramont."""
         self._pool = await aiomysql.create_pool(
             host=self.settings.DB_HOST,
             port=self.settings.DB_PORT,
@@ -62,7 +53,6 @@ class Container:
         )
         self._logger.info("mariadb_pool_created")
 
-        # Importar repositorios MariaDB
         from src.infrastructure.persistence.mariadb.streamer_repository_mysql import MariaDBStreamerRepository
         from src.infrastructure.persistence.mariadb.guild_repository_mysql import MariaDBGuildRepository
         from src.infrastructure.persistence.mariadb.youtube_repository_mysql import MariaDBYouTubeRepository
@@ -72,11 +62,9 @@ class Container:
         self.youtube_repo = MariaDBYouTubeRepository(self._pool)
 
     async def _setup_repositories(self) -> None:
-        """Configuración de repositorios (ya hecho arriba)."""
         pass
 
     async def _setup_external_services(self) -> None:
-        """Twitch + YouTube."""
         from src.infrastructure.external_apis.twitch_api_client import TwitchAPIClient
         from src.infrastructure.external_apis.youtube_api_client import YouTubeAPIClient
 
@@ -94,11 +82,11 @@ class Container:
         await self.youtube_service.initialize()
 
     def _setup_use_cases(self) -> None:
-        """Ensamblar todos los casos de uso."""
         from src.application.use_cases.add_streamer import AddStreamerUseCase
         from src.application.use_cases.remove_streamer import RemoveStreamerUseCase
         from src.application.use_cases.list_streamers import ListStreamersUseCase
         from src.application.use_cases.configure_channel import ConfigureChannelUseCase
+        from src.application.use_cases.configure_channel_youtube import ConfigureChannelYouTubeUseCase
         from src.application.use_cases.check_live_streams import CheckLiveStreamsUseCase
         from src.application.use_cases.add_youtube_channel import AddYouTubeChannelUseCase
         from src.application.use_cases.remove_youtube_channel import RemoveYouTubeChannelUseCase
@@ -144,9 +132,12 @@ class Container:
             youtube_service=self.youtube_service,
             logger=self._logger,
         )
+        self.configure_youtube_uc = ConfigureChannelYouTubeUseCase(
+            guild_repo=self.guild_repo,
+            logger=self._logger,
+        )
 
     async def shutdown(self) -> None:
-        """Cierra todas las conexiones."""
         if hasattr(self, '_pool') and self._pool:
             if self.settings.db_driver == "postgres":
                 await self._pool.close()

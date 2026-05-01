@@ -1,18 +1,15 @@
+# src/presentation/discord_bot/cogs/monitor_cog.py
 import discord
 from discord import app_commands
 from discord.ext import commands
 from typing import Optional, List
-from src.application.use_cases.add_streamer import (
-    AddStreamerUseCase, AddStreamerCommand,
-)
-from src.application.use_cases.remove_streamer import (
-    RemoveStreamerUseCase, RemoveStreamerCommand,
-)
-from src.application.use_cases.list_streamers import (
-    ListStreamersUseCase, ListStreamersQuery,
-)
-from src.application.use_cases.configure_channel import (
-    ConfigureChannelUseCase, ConfigureChannelCommand,
+
+from src.application.use_cases.add_streamer import AddStreamerUseCase, AddStreamerCommand
+from src.application.use_cases.remove_streamer import RemoveStreamerUseCase, RemoveStreamerCommand
+from src.application.use_cases.list_streamers import ListStreamersUseCase, ListStreamersQuery
+from src.application.use_cases.configure_channel import ConfigureChannelUseCase, ConfigureChannelCommand
+from src.application.use_cases.configure_channel_youtube import (
+    ConfigureChannelYouTubeUseCase, ConfigureChannelYouTubeCommand,
 )
 from src.domain.exceptions.domain_exceptions import DomainError
 
@@ -27,19 +24,21 @@ class MonitorCog(commands.Cog):
         remove_streamer_uc: RemoveStreamerUseCase,
         list_streamers_uc: ListStreamersUseCase,
         configure_channel_uc: ConfigureChannelUseCase,
+        configure_youtube_uc: ConfigureChannelYouTubeUseCase,
     ) -> None:
         self.bot = bot
         self._add_uc = add_streamer_uc
         self._remove_uc = remove_streamer_uc
         self._list_uc = list_streamers_uc
         self._configure_uc = configure_channel_uc
+        self._configure_youtube_uc = configure_youtube_uc
 
     # ----------- /configurar -----------
     @app_commands.command(
         name="configurar",
-        description="Configura el canal donde se anunciarán los streams",
+        description="Configura el canal donde se anunciarán los streams en vivo (Twitch y YouTube Live)",
     )
-    @app_commands.describe(canal="Canal donde se publicarán los anuncios")
+    @app_commands.describe(canal="Canal donde se publicarán los anuncios de streams en vivo")
     @app_commands.default_permissions(administrator=True)
     async def configure(
         self,
@@ -55,7 +54,35 @@ class MonitorCog(commands.Cog):
                 )
             )
             await interaction.followup.send(
-                f"✅ Canal de anuncios configurado: {canal.mention}",
+                f"✅ Canal de **streams en vivo** configurado: {canal.mention}\n"
+                f"💡 Para configurar dónde se publican los videos de YouTube usa `/configurar-youtube`.",
+                ephemeral=True,
+            )
+        except DomainError as e:
+            await interaction.followup.send(f"⚠️ {e}", ephemeral=True)
+
+    # ----------- /configurar-youtube -----------
+    @app_commands.command(
+        name="configurar-youtube",
+        description="Configura el canal donde se publicarán los videos y shorts de YouTube",
+    )
+    @app_commands.describe(canal="Canal donde se publicarán los videos de YouTube")
+    @app_commands.default_permissions(administrator=True)
+    async def configure_youtube(
+        self,
+        interaction: discord.Interaction,
+        canal: discord.TextChannel,
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await self._configure_youtube_uc.execute(
+                ConfigureChannelYouTubeCommand(
+                    guild_id=interaction.guild_id,
+                    channel_id=canal.id,
+                )
+            )
+            await interaction.followup.send(
+                f"✅ Canal de **videos de YouTube** configurado: {canal.mention}",
                 ephemeral=True,
             )
         except DomainError as e:
@@ -74,6 +101,8 @@ class MonitorCog(commands.Cog):
         rol2="Segundo rol a mencionar (opcional)",
         rol3="Tercer rol a mencionar (opcional)",
     )
+    @app_commands.default_permissions(administrator=True)
+
     @app_commands.choices(
         mencion=[
             app_commands.Choice(name="Ninguno", value="ninguno"),
@@ -96,7 +125,6 @@ class MonitorCog(commands.Cog):
 
         mention_type = mencion.value if mencion else "ninguno"
 
-        # Recolectar roles proporcionados (sin duplicados, preservando orden)
         mention_role_ids: Optional[List[int]] = None
         if mention_type == "rol":
             provided_roles = [r for r in (rol1, rol2, rol3) if r is not None]
@@ -108,7 +136,6 @@ class MonitorCog(commands.Cog):
                 )
                 return
 
-            # Evitar duplicados manteniendo el orden
             seen = set()
             unique_roles = []
             for role in provided_roles:
@@ -128,7 +155,6 @@ class MonitorCog(commands.Cog):
             )
             streamer = await self._add_uc.execute(cmd)
 
-            # Respuesta con detalle de la configuración aplicada
             embed = discord.Embed(
                 title="Streamer añadido correctamente",
                 color=discord.Color.green(),
@@ -156,7 +182,6 @@ class MonitorCog(commands.Cog):
         role_ids: Optional[List[int]],
         guild: discord.Guild,
     ) -> str:
-        """Devuelve un texto legible sobre la configuración de mención."""
         if mention_type == "ninguno":
             return "Ninguna"
         if mention_type == "everyone":
@@ -177,6 +202,7 @@ class MonitorCog(commands.Cog):
         description="Deja de monitorear a un streamer",
     )
     @app_commands.describe(usuario="Nombre de usuario de Twitch a eliminar")
+    @app_commands.default_permissions(administrator=True)
     async def remove_streamer(
         self,
         interaction: discord.Interaction,

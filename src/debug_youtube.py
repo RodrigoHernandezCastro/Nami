@@ -11,10 +11,10 @@ async def debug():
     container = Container(settings)
     await container.startup()
 
-    print("🔍 === DEBUG YOUTUBE ===")
+    print("=== DEBUG YOUTUBE ===")
     
     # 1. Ver todos los canales
-    channels = await container.youtube_repo.find_by_guild(1071924718556430529)  # CAMBIA POR TU GUILD_ID
+    channels = await container.youtube_repo.find_by_guild(1071924718556430529)
     print(f"Canales encontrados: {len(channels)}")
     
     if not channels:
@@ -34,7 +34,7 @@ async def debug():
 
     # 3. Verificar se guardó
     updated = await container.youtube_repo.find_by_guild(1071924718556430529)
-    print(f"🔄 Verificación: {updated[0].last_announced_video_id}")
+    print(f"Verificación: {updated[0].last_announced_video_id}")
 
     await container.shutdown()
 

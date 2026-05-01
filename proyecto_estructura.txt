@@ -14,6 +14,7 @@
 │   └── README.md
 ├── scripts
 │   ├── migrate_data.py
+│   ├── pg_to_mariadb.py
 │   ├── run_migrations.py
 │   └── run_migrations2.py
 ├── src
@@ -37,6 +38,7 @@
 │   │       ├── check_live_streams.py
 │   │       ├── check_youtube_videos.py
 │   │       ├── configure_channel.py
+│   │       ├── configure_channel_youtube.py
 │   │       ├── list_streamers.py
 │   │       ├── list_youtube_channels.py
 │   │       ├── remove_streamer.py
@@ -75,6 +77,7 @@
 │   │       │   ├── streamer_repository_mysql.py
 │   │       │   └── youtube_repository_mysql.py
 │   │       ├── migrations
+│   │       │   ├── 000_schema_completo_mariadb.sql
 │   │       │   ├── 001_initial_schema.sql
 │   │       │   ├── 002_initial_schema_mariadb.sql
 │   │       │   ├── 003_youtube_channels.sql

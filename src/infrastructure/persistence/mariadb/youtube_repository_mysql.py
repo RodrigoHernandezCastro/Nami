@@ -60,13 +60,18 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 return [self._row_to_entity(r) for r in rows]
 
     async def find_all_with_channel(self) -> List[YouTubeChannel]:
+        """
+        Devuelve todos los canales de YouTube cuyo servidor tenga configurado
+        al menos uno de los dos canales de anuncio (streams o videos).
+        """
         query = """
             SELECT y.id, y.guild_id, y.channel_id, y.channel_name, y.custom_message,
                    y.mention_type, y.mention_role_ids, y.last_announced_video_id,
                    y.announced_video_history, y.added_at
             FROM youtube_channels y
             INNER JOIN guild_configs g ON y.guild_id = g.guild_id
-            WHERE g.announcement_channel_id IS NOT NULL;
+            WHERE g.announcement_channel_id IS NOT NULL
+               OR g.youtube_channel_id IS NOT NULL;
         """
         async with self._pool.acquire() as conn:
             async with conn.cursor(aiomysql.DictCursor) as cur:
@@ -82,29 +87,10 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 row = await cur.fetchone()
                 return row["total"] if row else 0
 
-    async def update_last_video(self, channel_id: int, video_id: str) -> bool:
-        """Actualiza el último video anunciado y verifica que se guardó."""
-        query = """
-            UPDATE youtube_channels
-            SET last_announced_video_id = %s
-            WHERE id = %s;
-        """
-        async with self._pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(query, (video_id, channel_id))
-                updated = cur.rowcount > 0
-                if updated and self._logger:
-                    self._logger.debug(
-                        "youtube_last_video_updated",
-                        channel_id=channel_id,
-                        video_id=video_id,
-                    )
-                return updated
-
     async def update_video_history(self, channel_id: int, video_id: str) -> bool:
         """
-        Añade video al historial (últimos 5).
-        MariaDB no tiene JSONB nativo, así que leemos, modificamos y guardamos.
+        Añade video_id al historial (últimos 5).
+        Firma correcta: recibe el video_id como string, NO la lista completa.
         """
         select_q = "SELECT announced_video_history FROM youtube_channels WHERE id = %s;"
         update_q = "UPDATE youtube_channels SET announced_video_history = %s WHERE id = %s;"
@@ -124,7 +110,7 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
 
                 if video_id not in history:
                     history.insert(0, video_id)
-                    history = history[:5]           # conserva los últimos 5
+                    history = history[:5]
 
                 await cur.execute(update_q, (json.dumps(history), channel_id))
                 return cur.rowcount > 0
@@ -143,7 +129,7 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
             id=row["id"],
             guild_id=row["guild_id"],
             channel_id=row["channel_id"],
-            channel_name=row.get("channel_name"),   # ← campo que faltaba
+            channel_name=row.get("channel_name"),
             custom_message=row["custom_message"],
             mention_type=row["mention_type"],
             mention_role_ids=role_ids,
