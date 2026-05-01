@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 from src.domain.exceptions.domain_exceptions import (
-    DomainError, StreamerAlreadyExistsError, StreamerLimitReachedError,
-    StreamerNotOnTwitchError, ChannelNotConfiguredError, StreamerNotFoundError,
+    ChannelLimitReachedError, ChannelNotFoundError, DomainError, StreamerAlreadyExistsError, StreamerLimitReachedError,
+    StreamerNotOnTwitchError, ChannelNotConfiguredError, StreamerNotFoundError, YouTubeChannelNotFoundError,
 )
 
 
@@ -15,6 +15,9 @@ class GlobalErrorHandler:
         StreamerNotOnTwitchError:   ("❌", "Ese usuario no existe en Twitch."),
         ChannelNotConfiguredError:  ("⚙️", "Configura primero el canal con `/configurar`."),
         StreamerNotFoundError:      ("🔍", "No encontré ese streamer."),
+        YouTubeChannelNotFoundError:("📺", "Ese canal de YouTube no está monitoreado."),
+        ChannelNotFoundError:       ("❌", "El canal de YouTube no existe."),
+        ChannelLimitReachedError:   ("📛", "Has alcanzado el límite de canales."),
     }
 
     def __init__(self, bot: commands.Bot, logger) -> None:
@@ -44,7 +47,7 @@ class GlobalErrorHandler:
                 return
 
         if isinstance(original, DomainError):
-            await self._respond(interaction, f"⚠️ {original}")
+            await self._respond(interaction, f"{original}")
             return
 
         self.logger.error(
@@ -57,7 +60,7 @@ class GlobalErrorHandler:
         )
         await self._respond(
             interaction,
-            "💥 Ocurrió un error inesperado. El equipo ha sido notificado.",
+            "Ocurrió un error inesperado. El equipo ha sido notificado.",
         )
 
     @staticmethod

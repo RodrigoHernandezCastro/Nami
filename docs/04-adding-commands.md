@@ -3,12 +3,10 @@
 
 ## **📄 `docs/04-adding-commands.md`**
 
-````markdown
 # ➕ Cómo Añadir un Comando Nuevo
 
 Esta guía te lleva paso a paso para añadir un comando `/ping` que responde con la latencia del bot. Después lo extrapolas a cualquier comando.
 
----
 
 ## 🎯 Caso 1: Comando Simple (sin BD ni APIs)
 

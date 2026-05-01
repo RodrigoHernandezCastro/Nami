@@ -1,0 +1,127 @@
+/
+├── docs
+│   ├── 01-architecture.md
+│   ├── 02-project-structure.md
+│   ├── 03-database.md
+│   ├── 04-adding-commands.md
+│   ├── 05-use-cases.md
+│   ├── 06-repositories.md
+│   ├── 07-inheritance.patters.md
+│   ├── 08-error-handling.md
+│   ├── 09-logging.md
+│   ├── 10-deployment.md
+│   ├── 11-troubleshooting.md
+│   └── README.md
+├── scripts
+│   ├── migrate_data.py
+│   ├── run_migrations.py
+│   └── run_migrations2.py
+├── src
+│   ├── application
+│   │   ├── dtos
+│   │   │   ├── __init__.py
+│   │   │   └── streamer_dto.py
+│   │   ├── interfaces
+│   │   │   ├── __init__.py
+│   │   │   ├── guild_repository.py
+│   │   │   ├── logger.py
+│   │   │   ├── notification_service.py
+│   │   │   ├── streamer_repository.py
+│   │   │   ├── twitch_service.py
+│   │   │   ├── youtube_repository.py
+│   │   │   └── youtube_service.py
+│   │   └── use_cases
+│   │       ├── __init__.py
+│   │       ├── add_streamer.py
+│   │       ├── add_youtube_channel.py
+│   │       ├── check_live_streams.py
+│   │       ├── check_youtube_videos.py
+│   │       ├── configure_channel.py
+│   │       ├── list_streamers.py
+│   │       ├── list_youtube_channels.py
+│   │       ├── remove_streamer.py
+│   │       └── remove_youtube_channel.py
+│   ├── composition_root
+│   │   ├── __init__.py
+│   │   └── container.py
+│   ├── domain
+│   │   ├── entities
+│   │   │   ├── __init__.py
+│   │   │   ├── guild_config.py
+│   │   │   ├── stream_status.py
+│   │   │   ├── streamer.py
+│   │   │   └── youtube_channel.py
+│   │   ├── exceptions
+│   │   │   ├── __init__.py
+│   │   │   └── domain_exceptions.py
+│   │   └── value_objects
+│   │       ├── __init__.py
+│   │       └── twitch_username.py
+│   ├── infrastructure
+│   │   ├── config
+│   │   │   ├── __init__.py
+│   │   │   ├── settings.py
+│   │   │   └── settings_desarrollo.py
+│   │   ├── external_apis
+│   │   │   ├── __init__.py
+│   │   │   ├── twitch_api_client.py
+│   │   │   └── youtube_api_client.py
+│   │   ├── logging
+│   │   │   ├── __init__.py
+│   │   │   └── structured_logger.py
+│   │   └── persistence
+│   │       ├── mariadb
+│   │       │   ├── guild_repository_mysql.py
+│   │       │   ├── streamer_repository_mysql.py
+│   │       │   └── youtube_repository_mysql.py
+│   │       ├── migrations
+│   │       │   ├── 001_initial_schema.sql
+│   │       │   ├── 002_initial_schema_mariadb.sql
+│   │       │   ├── 003_youtube_channels.sql
+│   │       │   ├── 004_last_video_id.sql
+│   │       │   ├── 006_channel_name.sql
+│   │       │   └── 007_video_history.sql
+│   │       ├── postgres
+│   │       │   ├── __init__.py
+│   │       │   ├── connection.py
+│   │       │   ├── guild_repository_pg.py
+│   │       │   ├── streamer_repository_pg.py
+│   │       │   └── youtube_repository_pg.py
+│   │       └── __init__.py
+│   ├── presentation
+│   │   ├── discord_bot
+│   │   │   ├── cogs
+│   │   │   │   ├── __init__,.py
+│   │   │   │   ├── admin_cog.py
+│   │   │   │   ├── monitor_cog.py
+│   │   │   │   ├── monitor_cog_factory.py
+│   │   │   │   └── youtube_cog.py
+│   │   │   ├── tasks
+│   │   │   │   ├── stream_checker.py
+│   │   │   │   └── youtube_checker.py
+│   │   │   ├── views
+│   │   │   │   ├── stream_embed.py
+│   │   │   │   └── youtube_embed.py
+│   │   │   ├── __init__.py
+│   │   │   ├── bot.py
+│   │   │   ├── cog_registry.py
+│   │   │   └── error_handler.py
+│   │   └── event_bus
+│   │       ├── __init__.py
+│   │       └── events.py
+│   ├── __init__.py
+│   ├── debug_youtube.py
+│   └── test_api.py
+├── tests
+│   ├── integration
+│   │   └── infraestructure
+│   └── unit
+│       ├── application
+│       └── domain
+├── .env.example
+├── .gitignore
+├── generar_estructura.py
+├── main.py
+├── proyecto_estructura.txt
+├── pyproject.toml
+└── requirements.txt

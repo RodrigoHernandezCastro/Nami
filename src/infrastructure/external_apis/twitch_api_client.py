@@ -1,5 +1,7 @@
 import aiohttp
 from typing import Dict, List, Optional
+
+from aiohttp_retry import ExponentialRetry, RetryClient, retry_options
 from src.application.interfaces.twitch_service import ITwitchService
 from src.application.interfaces.logger import ILogger
 
@@ -23,10 +25,13 @@ class TwitchAPIClient(ITwitchService):
         self._logger = logger
         self._access_token: Optional[str] = None
         self._session: Optional[aiohttp.ClientSession] = None
+        self._session: Optional[RetryClient] = None
 
     async def initialize(self) -> None:
         """Crea la sesión HTTP y obtiene el primer token."""
-        self._session = aiohttp.ClientSession()
+        retry_options = ExponentialRetry(attempts=3, start_timeout=1.0, max_timeout=5.0)
+        client_session = aiohttp.ClientSession()
+        self._session = RetryClient(client_session=client_session, retry_options=retry_options)
         await self._refresh_token()
         self._logger.info("twitch_client_initialized")
 

@@ -1,3 +1,4 @@
+# src/infrastructure/persistence/postgres/streamer_repository_pg.py
 import asyncpg
 import json
 from typing import List, Optional
@@ -45,15 +46,19 @@ class PostgresStreamerRepository(IStreamerRepository):
     async def remove(self, guild_id: int, username: str) -> bool:
         query = """
             DELETE FROM streamers
-            WHERE guild_id = $1 AND username = $2
+            WHERE guild_id = $1 AND LOWER(username) = LOWER($2)
             RETURNING id;
         """
         async with self._pool.acquire() as conn:
-            row = await conn.fetchrow(query, guild_id, username.lower())
+            row = await conn.fetchrow(query, guild_id, username)
             return row is not None
 
     async def find_by_guild(self, guild_id: int) -> List[Streamer]:
-        query = "SELECT * FROM streamers WHERE guild_id = $1 ORDER BY username;"
+        query = """
+            SELECT * FROM streamers 
+            WHERE guild_id = $1 
+            ORDER BY username;
+        """
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(query, guild_id)
             return [self._row_to_entity(r) for r in rows]
@@ -71,16 +76,43 @@ class PostgresStreamerRepository(IStreamerRepository):
     async def count_by_guild(self, guild_id: int) -> int:
         query = "SELECT COUNT(*) FROM streamers WHERE guild_id = $1;"
         async with self._pool.acquire() as conn:
-            return await conn.fetchval(query, guild_id)
+            count = await conn.fetchval(query, guild_id)
+            return int(count) if count is not None else 0
 
     async def update_status(self, streamer_id: int, is_online: bool) -> None:
-        query = "UPDATE streamers SET is_online = $1 WHERE id = $2;"
+        query = """
+            UPDATE streamers 
+            SET is_online = $1 
+            WHERE id = $2;
+        """
         async with self._pool.acquire() as conn:
             await conn.execute(query, is_online, streamer_id)
 
+    async def find_by_username(self, username: str) -> Optional[Streamer]:
+        """Busca streamer por username (case insensitive)."""
+        query = """
+            SELECT * FROM streamers 
+            WHERE LOWER(username) = LOWER($1) 
+            LIMIT 1;
+        """
+        async with self._pool.acquire() as conn:
+            row = await conn.fetchrow(query, username)
+            return self._row_to_entity(row) if row else None
+
+    async def find_live_streamers(self) -> List[Streamer]:
+        """Streamers actualmente en vivo."""
+        query = "SELECT * FROM streamers WHERE is_online = true;"
+        async with self._pool.acquire() as conn:
+            rows = await conn.fetch(query)
+            return [self._row_to_entity(r) for r in rows]
+
     @staticmethod
     def _row_to_entity(row: asyncpg.Record) -> Streamer:
-        role_ids = json.loads(row["mention_role_ids"] or "[]")
+        """Convierte fila PG → entidad Streamer."""
+        # PostgreSQL guarda JSON como jsonb → json.loads funciona
+        role_ids_json = row["mention_role_ids"] or "[]"
+        role_ids = json.loads(role_ids_json)
+
         return Streamer(
             id=row["id"],
             guild_id=row["guild_id"],

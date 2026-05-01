@@ -1,3 +1,6 @@
+import asyncio
+
+import aiohttp
 import discord
 from discord.ext import commands, tasks
 from src.application.use_cases.check_live_streams import CheckLiveStreamsUseCase
@@ -39,7 +42,15 @@ class StreamCheckerTask(commands.Cog):
 
             for streamer, stream_data in newly_live:
                 await self._announce_stream(streamer, stream_data)
-
+        except aiohttp.ClientConnectorError as e:
+            # Capturamos el error de DNS/Red y evitamos el crash loop
+            self._logger.warning(
+                "check_streams_network_error",
+                error=str(e),
+                msg="Fallo de conexión o DNS con Twitch. Se intentará en el próximo ciclo."
+            )
+            # Pequeña pausa para no saturar si la red está intermitente
+            await asyncio.sleep(5)
         except Exception as e:
             self._logger.error(
                 "check_streams_task_failed",

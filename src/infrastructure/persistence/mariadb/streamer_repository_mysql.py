@@ -1,6 +1,7 @@
+# src/infrastructure/persistence/mariadb/streamer_repository_mysql.py
 import aiomysql
 import json
-from typing import List
+from typing import List, Optional
 from src.domain.entities.streamer import Streamer
 from src.domain.exceptions.domain_exceptions import StreamerAlreadyExistsError
 from src.application.interfaces.streamer_repository import IStreamerRepository
@@ -37,18 +38,18 @@ class MariaDBStreamerRepository(IStreamerRepository):
                     streamer.id = cur.lastrowid
                     return streamer
                 except aiomysql.IntegrityError as e:
-                    # Código 1062 = Duplicate entry
-                    if e.args[0] == 1062:
+                    if e.args[0] == 1062:  # Duplicate entry
                         raise StreamerAlreadyExistsError(
                             f"'{streamer.username}' ya existe en este servidor."
                         ) from e
                     raise
 
     async def remove(self, guild_id: int, username: str) -> bool:
-        query = "DELETE FROM streamers WHERE guild_id = %s AND username = %s;"
+        # MariaDB no hace LOWER() en índices por defecto, lo forzamos en Python
+        query = "DELETE FROM streamers WHERE guild_id = %s AND LOWER(username) = LOWER(%s);"
         async with self._pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(query, (guild_id, username.lower()))
+                await cur.execute(query, (guild_id, username))
                 return cur.rowcount > 0
 
     async def find_by_guild(self, guild_id: int) -> List[Streamer]:
@@ -93,9 +94,37 @@ class MariaDBStreamerRepository(IStreamerRepository):
             async with conn.cursor() as cur:
                 await cur.execute(query, (is_online, streamer_id))
 
+    async def find_by_username(self, username: str) -> Optional[Streamer]:
+        """Busca streamer por username (case insensitive). Paridad con PG."""
+        query = """
+            SELECT id, guild_id, username, custom_message, mention_type,
+                   mention_role_ids, is_online, added_at
+            FROM streamers
+            WHERE LOWER(username) = LOWER(%s)
+            LIMIT 1;
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.cursor(aiomysql.DictCursor) as cur:
+                await cur.execute(query, (username,))
+                row = await cur.fetchone()
+                return self._row_to_entity(row) if row else None
+
+    async def find_live_streamers(self) -> List[Streamer]:
+        """Streamers actualmente en vivo. Paridad con PG."""
+        query = """
+            SELECT id, guild_id, username, custom_message, mention_type,
+                   mention_role_ids, is_online, added_at
+            FROM streamers
+            WHERE is_online = TRUE;
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.cursor(aiomysql.DictCursor) as cur:
+                await cur.execute(query)
+                rows = await cur.fetchall()
+                return [self._row_to_entity(r) for r in rows]
+
     @staticmethod
     def _row_to_entity(row: dict) -> Streamer:
-        # MariaDB guarda JSON como string en LONGTEXT → parseamos manualmente
         raw_roles = row.get("mention_role_ids") or "[]"
         try:
             role_ids = json.loads(raw_roles) if isinstance(raw_roles, str) else raw_roles
