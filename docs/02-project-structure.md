@@ -3,7 +3,6 @@
 
 ## **📄 `docs/02-project-structure.md`**
 
-````markdown
 # 📁 Estructura del Proyecto
 
 ## Árbol de Directorios
