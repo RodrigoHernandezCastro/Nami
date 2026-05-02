@@ -48,7 +48,7 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
         query = """
             SELECT id, guild_id, channel_id, channel_name, custom_message,
                    mention_type, mention_role_ids, last_announced_video_id,
-                   announced_video_history, added_at
+                   announced_video_history, added_at, uploads_playlist_id
             FROM youtube_channels
             WHERE guild_id = %s
             ORDER BY channel_id;
@@ -60,14 +60,10 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 return [self._row_to_entity(r) for r in rows]
 
     async def find_all_with_channel(self) -> List[YouTubeChannel]:
-        """
-        Devuelve todos los canales de YouTube cuyo servidor tenga configurado
-        al menos uno de los dos canales de anuncio (streams o videos).
-        """
         query = """
             SELECT y.id, y.guild_id, y.channel_id, y.channel_name, y.custom_message,
                    y.mention_type, y.mention_role_ids, y.last_announced_video_id,
-                   y.announced_video_history, y.added_at
+                   y.announced_video_history, y.added_at, y.uploads_playlist_id
             FROM youtube_channels y
             INNER JOIN guild_configs g ON y.guild_id = g.guild_id
             WHERE g.announcement_channel_id IS NOT NULL
@@ -88,10 +84,6 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 return row["total"] if row else 0
 
     async def update_video_history(self, channel_id: int, video_id: str) -> bool:
-        """
-        Añade video_id al historial (últimos 5).
-        Firma correcta: recibe el video_id como string, NO la lista completa.
-        """
         select_q = "SELECT announced_video_history FROM youtube_channels WHERE id = %s;"
         update_q = "UPDATE youtube_channels SET announced_video_history = %s WHERE id = %s;"
 
@@ -115,6 +107,13 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 await cur.execute(update_q, (json.dumps(history), channel_id))
                 return cur.rowcount > 0
 
+    async def update_uploads_playlist_id(self, channel_id: int, playlist_id: str) -> bool:
+        query = "UPDATE youtube_channels SET uploads_playlist_id = %s WHERE id = %s;"
+        async with self._pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(query, (playlist_id, channel_id))
+                return cur.rowcount > 0
+
     @staticmethod
     def _row_to_entity(row: dict) -> YouTubeChannel:
         role_ids = json.loads(row.get("mention_role_ids") or "[]")
@@ -136,4 +135,5 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
             last_announced_video_id=row.get("last_announced_video_id"),
             added_at=row["added_at"],
             announced_video_history=[str(v) for v in history],
+            uploads_playlist_id=row.get("uploads_playlist_id"),
         )

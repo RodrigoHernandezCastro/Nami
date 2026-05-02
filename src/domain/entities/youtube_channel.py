@@ -16,12 +16,13 @@ class YouTubeChannel:
     id: Optional[int] = None
     added_at: datetime = field(default_factory=datetime.utcnow)
     announced_video_history: List[str] = field(default_factory=list)
+    uploads_playlist_id: Optional[str] = None
 
     @property
     def display_name(self) -> str:
         """@nombre o channel_id."""
         return f"@{self.channel_name}" if self.channel_name else self.channel_id
-    
+
     def add_announced_video(self, video_id: str) -> None:
         """Añade al historial (mantiene últimos 5)."""
         self.announced_video_history.insert(0, video_id)

@@ -26,3 +26,11 @@ class IYouTubeRepository(ABC):
     async def update_video_history(self, channel_id: int, video_id: str) -> bool:
         """Añade video_id al historial de anunciados (últimos 5)."""
         ...
+
+    @abstractmethod
+    async def update_uploads_playlist_id(self, channel_id: int, playlist_id: str) -> bool:
+        """
+        Persiste el uploads_playlist_id del canal para evitar llamadas
+        repetidas a channels.list en cada ciclo de chequeo.
+        """
+        ...

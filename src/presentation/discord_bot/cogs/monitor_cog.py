@@ -4,6 +4,8 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional, List
 
+from faker.generator import random
+
 from src.application.use_cases.add_streamer import AddStreamerUseCase, AddStreamerCommand
 from src.application.use_cases.remove_streamer import RemoveStreamerUseCase, RemoveStreamerCommand
 from src.application.use_cases.list_streamers import ListStreamersUseCase, ListStreamersQuery
@@ -13,7 +15,7 @@ from src.application.use_cases.configure_channel_youtube import (
 )
 from src.domain.exceptions.domain_exceptions import DomainError
 
-
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 class MonitorCog(commands.Cog):
     """Comandos slash para gestionar el monitoreo de streamers."""
 
@@ -263,3 +265,36 @@ class MonitorCog(commands.Cog):
 
         embed.set_footer(text=f"Total: {len(streamers)} streamers")
         await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+    # ----------- /Comandos -----------
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print(f"Bot conectado como {self.bot.user} (ID: {self.bot.user.id})")
+        print("Cog de monitoreo listo para usar.")
+
+    # ----------- /jan-ken-pon -----------
+    @commands.command()
+    async def jan_ken_pon(self, ctx, message: str):
+        respuesta = message.lower()
+        choices = ["piedra", "papel", "tijera"]
+        namis_choice = random.choice(choices)
+ 
+        if respuesta not in choices:
+            await ctx.reply("¡Debes elegir piedra, papel o tijera!")
+            return
+ 
+        wins_against = {
+            "piedra": "tijera",
+            "papel": "piedra",
+            "tijera": "papel",
+        }
+ 
+        await ctx.reply(f"Yo elegí **{namis_choice}**.")
+ 
+        if respuesta == namis_choice:
+            await ctx.reply("¡Empate!")
+        elif wins_against[respuesta] == namis_choice:
+            await ctx.reply("¡Ganaste!")
+        else:
+            await ctx.reply("¡Perdiste!")
