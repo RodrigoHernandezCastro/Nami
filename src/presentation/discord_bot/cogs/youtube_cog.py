@@ -61,6 +61,11 @@ class YouTubeCog(commands.Cog):
         rol2: Optional[discord.Role] = None,
         rol3: Optional[discord.Role] = None,
     ) -> None:
+        """
+        Slash /añadir-youtube.
+        Resuelve @username → channel_id antes de ejecutar el use case.
+        Si mencion='rol' y no se proporciona ningún rol, aborta antes de llamar a la API.
+        """
         await interaction.response.defer(ephemeral=True)
 
         mention_type = mencion.value if mencion else "ninguno"
@@ -110,6 +115,7 @@ class YouTubeCog(commands.Cog):
         description="Lista los canales de YouTube monitoreados",
     )
     async def list_youtube(self, interaction: discord.Interaction) -> None:
+        """Slash /listar-youtube. Muestra nombre y mensaje de cada canal monitorizado."""
         await interaction.response.defer(ephemeral=True)
 
         channels = await self._list_uc.execute(
@@ -143,6 +149,11 @@ class YouTubeCog(commands.Cog):
         interaction: discord.Interaction,
         usuario: str,
     ) -> None:
+        """
+        Slash /eliminar-youtube.
+        Acepta tanto @username como channel_id directo (UCxxxx).
+        Si la resolución de @username falla, intenta usar el valor tal cual como fallback.
+        """
         await interaction.response.defer(ephemeral=True)
 
         try:
@@ -164,7 +175,7 @@ class YouTubeCog(commands.Cog):
                 )
             )
             await interaction.followup.send(
-                f"✅ Canal `{usuario}` eliminado del monitoreo.",
+                f"Canal `{usuario}` eliminado del monitoreo.",
                 ephemeral=True,
             )
         except DomainError as e:
@@ -176,6 +187,10 @@ class YouTubeCog(commands.Cog):
         role_ids: Optional[List[int]],
         guild: discord.Guild,
     ) -> str:
+        """
+        Igual que MonitorCog._format_mention_info pero devuelve mention directamente.
+        Candidato a extraerse a un helper compartido en un futuro refactor.
+        """
         if mention_type == "ninguno":
             return "Ninguna"
         if mention_type == "everyone":

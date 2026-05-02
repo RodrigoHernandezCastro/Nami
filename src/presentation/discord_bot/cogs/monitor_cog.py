@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from typing import Optional, List
 
-from faker.generator import random
+import random
 
 from src.application.use_cases.add_streamer import AddStreamerUseCase, AddStreamerCommand
 from src.application.use_cases.remove_streamer import RemoveStreamerUseCase, RemoveStreamerCommand
@@ -15,7 +15,6 @@ from src.application.use_cases.configure_channel_youtube import (
 )
 from src.domain.exceptions.domain_exceptions import DomainError
 
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 class MonitorCog(commands.Cog):
     """Comandos slash para gestionar el monitoreo de streamers."""
 
@@ -47,6 +46,11 @@ class MonitorCog(commands.Cog):
         interaction: discord.Interaction,
         canal: discord.TextChannel,
     ) -> None:
+        """
+        Slash /configurar. Solo administradores.
+        Establece el canal de anuncios de streams en vivo (Twitch + YouTube Live).
+        No afecta al canal de videos de YouTube, que se configura por separado.
+        """
         await interaction.response.defer(ephemeral=True)
         try:
             await self._configure_uc.execute(
@@ -75,6 +79,11 @@ class MonitorCog(commands.Cog):
         interaction: discord.Interaction,
         canal: discord.TextChannel,
     ) -> None:
+        """
+        Slash /configurar-youtube. Solo administradores.
+        Establece el canal exclusivo para videos y shorts de YouTube.
+        Si no se configura, los videos caen al canal de anuncios general.
+        """
         await interaction.response.defer(ephemeral=True)
         try:
             await self._configure_youtube_uc.execute(
@@ -123,6 +132,11 @@ class MonitorCog(commands.Cog):
         rol2: Optional[discord.Role] = None,
         rol3: Optional[discord.Role] = None,
     ) -> None:
+        """
+        Slash /añadir. Solo administradores.
+        Deduplica roles antes de pasarlos al use case para evitar menciones repetidas.
+        Delega todas las validaciones de negocio a AddStreamerUseCase.
+        """
         await interaction.response.defer(ephemeral=True)
 
         mention_type = mencion.value if mencion else "ninguno"
@@ -184,6 +198,11 @@ class MonitorCog(commands.Cog):
         role_ids: Optional[List[int]],
         guild: discord.Guild,
     ) -> str:
+        """
+        Formatea el tipo de mención para mostrar en embeds.
+        Si un rol ya no existe en el servidor, usa la mención cruda <@&id>
+        en lugar de fallar.
+        """
         if mention_type == "ninguno":
             return "Ninguna"
         if mention_type == "everyone":
@@ -210,6 +229,7 @@ class MonitorCog(commands.Cog):
         interaction: discord.Interaction,
         usuario: str,
     ) -> None:
+        """Slash /eliminar. Solo administradores."""
         await interaction.response.defer(ephemeral=True)
         try:
             await self._remove_uc.execute(
@@ -231,6 +251,10 @@ class MonitorCog(commands.Cog):
         description="Muestra los streamers que estás monitoreando",
     )
     async def list_streamers(self, interaction: discord.Interaction) -> None:
+        """
+        Slash /listar. Visible para todos.
+        Muestra estado en vivo (EN VIVO / Offline) en tiempo real según BD.
+        """
         await interaction.response.defer(ephemeral=True)
 
         streamers = await self._list_uc.execute(
@@ -270,17 +294,23 @@ class MonitorCog(commands.Cog):
     # ----------- /Comandos -----------
     @commands.Cog.listener()
     async def on_ready(self):
+        """Listener de depuración. No usar en producción para lógica de arranque."""
         print(f"Bot conectado como {self.bot.user} (ID: {self.bot.user.id})")
         print("Cog de monitoreo listo para usar.")
 
-    # ----------- /jan-ken-pon -----------
-    @commands.command()
-    async def jan_ken_pon(self, ctx, message: str):
-        respuesta = message.lower()
+    # ----------- /jankenpon -----------
+    @commands.command(name="jankenpon")
+    async def jankenpon(self, ctx, eleccion: str):
+        """
+        Comando de prefijo (!jankenpon piedra|papel|tijera).
+        Requiere message_content intent activo tanto en bot.py como en
+        el portal de Discord (https://discord.com/developers/applications).
+        """
+        eleccion = eleccion.lower()
         choices = ["piedra", "papel", "tijera"]
-        namis_choice = random.choice(choices)
+        bot_choice = random.choice(choices)
  
-        if respuesta not in choices:
+        if eleccion not in choices:
             await ctx.reply("¡Debes elegir piedra, papel o tijera!")
             return
  
@@ -290,11 +320,11 @@ class MonitorCog(commands.Cog):
             "tijera": "papel",
         }
  
-        await ctx.reply(f"Yo elegí **{namis_choice}**.")
- 
-        if respuesta == namis_choice:
-            await ctx.reply("¡Empate!")
-        elif wins_against[respuesta] == namis_choice:
-            await ctx.reply("¡Ganaste!")
+        if eleccion == bot_choice:
+            resultado = "¡Empate!"
+        elif wins_against[eleccion] == bot_choice:
+            resultado = "¡Ganaste!"
         else:
-            await ctx.reply("¡Perdiste!")
+            resultado = "¡Perdiste!"
+ 
+        await ctx.reply(f"Yo elegí **{bot_choice}**. {resultado}")

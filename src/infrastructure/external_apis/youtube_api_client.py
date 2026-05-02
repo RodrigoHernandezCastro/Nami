@@ -34,10 +34,12 @@ class YouTubeAPIClient(IYouTubeService):
         self._api_lock: asyncio.Lock = asyncio.Lock()
 
     async def initialize(self) -> None:
+        """Construye el cliente de googleapiclient. Llamar una vez al arrancar el bot."""
         self._youtube = build("youtube", "v3", developerKey=self.api_key)
         self._logger.info("youtube_client_initialized")
 
     async def close(self) -> None:
+        """No-op: googleapiclient no mantiene sesión persistente."""
         pass
 
     # ------------------------------------------------------------------
@@ -173,6 +175,10 @@ class YouTubeAPIClient(IYouTubeService):
     # ------------------------------------------------------------------
 
     async def channel_exists(self, channel_id: str) -> bool:
+        """
+        Verifica si un channel_id es válido.
+        Coste: 1 unidad (channels.list). Usar al añadir un canal nuevo.
+        """
         try:
             response = await self._execute(
                 self._youtube.channels().list(part="snippet", id=channel_id)
@@ -185,6 +191,11 @@ class YouTubeAPIClient(IYouTubeService):
             return False
 
     async def get_channel_details(self, channel_id: str) -> Optional[dict]:
+        """
+        Obtiene nombre, descripción, suscriptores y thumbnail de un canal.
+        Coste: 1 unidad (channels.list con snippet + statistics).
+        Devuelve None si el canal no existe o la API falla.
+        """
         try:
             response = await self._execute(
                 self._youtube.channels().list(part="snippet,statistics", id=channel_id)
@@ -203,6 +214,11 @@ class YouTubeAPIClient(IYouTubeService):
             return None
 
     async def username_to_channel_id(self, username: str) -> Optional[str]:
+        """
+        Resuelve un handle (@nombre) a su channel_id canónico.
+        Coste: 1 unidad (channels.list con forHandle).
+        Antepone '@' automáticamente si el username no lo incluye.
+        """
         try:
             handle = username if username.startswith("@") else f"@{username}"
             response = await self._execute(
@@ -255,6 +271,11 @@ class YouTubeAPIClient(IYouTubeService):
 
     @staticmethod
     def _parse_playlist_items(response: dict) -> List[dict]:
+        """
+        Transforma la respuesta cruda de playlistItems.list en una lista de dicts
+        normalizados. liveBroadcastContent se marca como 'unknown' porque
+        playlistItems.list no lo devuelve; se enriquece después con videos.list.
+        """
         videos = []
         for item in response.get("items", []):
             snippet = item["snippet"]

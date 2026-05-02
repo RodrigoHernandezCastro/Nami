@@ -41,6 +41,15 @@ class AddStreamerUseCase:
         self._logger = logger
 
     async def execute(self, command: AddStreamerCommand) -> Streamer:
+        """
+        Valida y persiste un nuevo streamer. Orden de validaciones:
+        1. Formato de username (TwitchUsername value object)
+        2. Canal de anuncios configurado en el servidor
+        3. Límite de streamers no superado
+        4. Usuario existe en Twitch (llamada a API)
+        Lanza StreamerAlreadyExistsError si el repo detecta duplicado.
+        """
+
         # 1) Validación de dominio
         username = TwitchUsername(command.username)
 

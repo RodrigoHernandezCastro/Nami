@@ -23,6 +23,13 @@ class CheckLiveStreamsUseCase:
         self._logger = logger
 
     async def execute(self) -> List[tuple[Streamer, dict]]:
+        """
+        Consulta Twitch con todos los usernames registrados (1 sola petición
+        por cada chunk de 100) y detecta transiciones de estado.
+        Persiste el cambio en BD antes de retornar para evitar doble anuncio
+        si el ciclo siguiente llega antes de que el bot procese la notificación.
+        Devuelve solo los streamers que acaban de pasar a online este ciclo.
+        """
         # 1) Obtener todos los streamers con canal configurado
         streamers = await self._streamer_repo.find_all_with_channel()
         if not streamers:

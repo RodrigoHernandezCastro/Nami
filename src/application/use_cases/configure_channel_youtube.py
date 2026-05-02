@@ -27,6 +27,12 @@ class ConfigureChannelYouTubeUseCase:
         self._logger = logger
 
     async def execute(self, command: ConfigureChannelYouTubeCommand) -> GuildConfig:
+        """
+        Crea o actualiza la configuración del servidor con el canal de
+        anuncios de YouTube. Independiente de announcement_channel_id:
+        ambos canales pueden apuntar al mismo o a distintos canales de Discord.
+        Preserva el resto de campos si el GuildConfig ya existía.
+        """
         existing = await self._guild_repo.get_by_id(command.guild_id)
 
         if existing:

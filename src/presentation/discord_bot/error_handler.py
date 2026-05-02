@@ -25,6 +25,7 @@ class GlobalErrorHandler:
         self.logger = logger
 
     def register(self) -> None:
+        """Sobreescribe on_error del árbol de slash commands con el handler centralizado."""
         self.bot.tree.on_error = self._on_app_command_error
 
     async def _on_app_command_error(
@@ -32,6 +33,12 @@ class GlobalErrorHandler:
         interaction: discord.Interaction,
         error: discord.app_commands.AppCommandError,
     ) -> None:
+        """
+        Resuelve el error original quitando el wrapper AppCommandError.
+        Busca primero en ERROR_MAP para errores de dominio conocidos.
+        Si es DomainError no mapeado, muestra el mensaje directamente.
+        Cualquier otro error se loguea como inesperado y se muestra un mensaje genérico.
+        """
         original = getattr(error, "original", error)
 
         for exc_type, (emoji, default_msg) in self.ERROR_MAP.items():
@@ -65,6 +72,11 @@ class GlobalErrorHandler:
 
     @staticmethod
     async def _respond(interaction: discord.Interaction, msg: str) -> None:
+        """
+        Envía respuesta efímera independientemente de si la interacción
+        ya fue respondida (followup) o no (response). Silencia HTTPException
+        para no crashear si Discord ya cerró la interacción.
+        """
         try:
             if interaction.response.is_done():
                 await interaction.followup.send(msg, ephemeral=True)

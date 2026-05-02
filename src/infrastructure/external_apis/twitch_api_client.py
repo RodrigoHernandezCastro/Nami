@@ -58,6 +58,10 @@ class TwitchAPIClient(ITwitchService):
             self._logger.info("twitch_token_refreshed")
 
     def _headers(self) -> dict:
+        """
+        Construye los headers requeridos por la API de Twitch Helix.
+        Requiere que _access_token esté vigente antes de llamar.
+        """
         return {
             "Client-ID": self.client_id,
             "Authorization": f"Bearer {self._access_token}",

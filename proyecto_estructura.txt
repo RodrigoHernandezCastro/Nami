@@ -25,6 +25,7 @@
 │   │   ├── interfaces
 │   │   │   ├── __init__.py
 │   │   │   ├── guild_repository.py
+│   │   │   ├── instagram_service.py
 │   │   │   ├── logger.py
 │   │   │   ├── notification_service.py
 │   │   │   ├── streamer_repository.py

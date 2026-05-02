@@ -16,4 +16,9 @@ class ListStreamersUseCase:
         self._streamer_repo = streamer_repo
 
     async def execute(self, query: ListStreamersQuery) -> List[Streamer]:
+        """
+        Devuelve todos los streamers del servidor, incluyendo los que
+        actualmente están online. Sin paginación: el límite de streamers
+        por servidor garantiza que el resultado siempre es manejable.
+        """
         return await self._streamer_repo.find_by_guild(query.guild_id)

@@ -22,6 +22,12 @@ class RemoveStreamerUseCase:
         self._logger = logger
 
     async def execute(self, command: RemoveStreamerCommand) -> None:
+        """
+        Elimina un streamer del monitoreo. El username se normaliza a
+        minúsculas antes de buscarlo en BD. Lanza StreamerNotFoundError
+        si no existe en el servidor, sin distinguir entre "nunca añadido"
+        y "ya eliminado".
+        """
         removed = await self._streamer_repo.remove(
             command.guild_id,
             command.username.lower(),

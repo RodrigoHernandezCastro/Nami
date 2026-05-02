@@ -6,6 +6,13 @@ from typing import Optional, List
 
 @dataclass
 class YouTubeChannel:
+    """
+    Canal de YouTube vinculado a un servidor Discord.
+    uploads_playlist_id se cachea tras la primera llamada a channels.list
+    para reducir el coste de cuota de 2 → 1 unidad por ciclo de chequeo.
+    announced_video_history mantiene los últimos 5 video_id anunciados
+    como protección contra re-anuncios en caso de fallo de BD.
+    """
     guild_id: int
     channel_id: str
     channel_name: Optional[str] = None

@@ -8,14 +8,26 @@ from src.presentation.discord_bot.tasks.youtube_checker import YouTubeCheckerTas
 
 
 class NamiBot(commands.Bot):
+    """
+    Bot principal. Recibe el contenedor DI y los settings para
+    no instanciar dependencias directamente aquí.
+    message_content intent desactivado: no se necesita con slash commands.
+    """
     def __init__(self, container, settings) -> None:
+        """Configura intents mínimos y almacena el contenedor y settings."""
         intents = discord.Intents.default()
-        intents.message_content = False  # No lo necesitamos con slash commands
+        intents.message_content = True  # No lo necesitamos con slash commands
         super().__init__(command_prefix="!", intents=intents)
         self.container = container
         self.settings = settings
 
     async def setup_hook(self) -> None:
+        """
+        Registra todos los Cogs y sincroniza el árbol de slash commands.
+        Orden obligatorio: Cogs primero, sync después.
+        Si DEV_GUILD_ID está definido, sincroniza solo en ese servidor
+        (instantáneo). Sin él, hace global sync (hasta 1h de propagación).
+        """
         # 1) Todos los cogs PRIMERO
         await self.add_cog(
             MonitorCog(

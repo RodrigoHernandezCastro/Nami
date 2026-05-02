@@ -30,13 +30,20 @@ class StreamCheckerTask(commands.Cog):
         self.check_streams.change_interval(seconds=interval_seconds)
 
     async def cog_load(self) -> None:
+        """Arranca el loop al registrar el Cog en el bot."""
         self.check_streams.start()
 
     async def cog_unload(self) -> None:
+        """Detiene el loop limpiamente al desregistrar el Cog."""
         self.check_streams.cancel()
 
     @tasks.loop(seconds=60)
     async def check_streams(self) -> None:
+        """
+        Loop principal. Intervalo configurable vía interval_seconds en el constructor.
+        Captura ClientConnectorError por separado para evitar crash loops
+        en fallos de red transitorios, con pausa de 5s antes del siguiente ciclo.
+        """
         try:
             newly_live = await self._check_live_uc.execute()
 
@@ -60,6 +67,7 @@ class StreamCheckerTask(commands.Cog):
 
     @check_streams.before_loop
     async def before_check(self) -> None:
+        """Espera a que el bot esté completamente listo antes del primer ciclo."""
         await self.bot.wait_until_ready()
         self._logger.info("stream_checker_started")
 

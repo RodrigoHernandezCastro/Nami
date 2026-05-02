@@ -22,6 +22,12 @@ class ConfigureChannelUseCase:
         self._logger = logger
 
     async def execute(self, command: ConfigureChannelCommand) -> GuildConfig:
+        """
+        Crea o actualiza la configuración del servidor con el canal de
+        anuncios de Twitch. Si ya existe un GuildConfig, preserva el
+        resto de campos (youtube_channel_id, límite, idioma, etc.).
+        Devuelve la entidad actualizada tal como quedó en BD.
+        """
         existing = await self._guild_repo.get_by_id(command.guild_id)
 
         if existing:

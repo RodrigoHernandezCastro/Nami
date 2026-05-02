@@ -27,13 +27,20 @@ class YouTubeCheckerTask(commands.Cog):
         self.check_videos.change_interval(minutes=interval_minutes)
 
     async def cog_load(self) -> None:
+        """Arranca el loop al registrar el Cog en el bot."""
         self.check_videos.start()
 
     async def cog_unload(self) -> None:
+        """Detiene el loop limpiamente al desregistrar el Cog."""
         self.check_videos.cancel()
 
     @tasks.loop(minutes=5)
     async def check_videos(self) -> None:
+        """
+        Loop principal. Intervalo configurable vía interval_minutes en el constructor.
+        El intervalo de 5 min es suficiente dado el coste bajo de cuota de la estrategia
+        de playlist_id cacheado (1 unidad por canal por ciclo).
+        """
         try:
             new_videos = await self._check_uc.execute()
             for channel, video in new_videos:
@@ -47,6 +54,7 @@ class YouTubeCheckerTask(commands.Cog):
 
     @check_videos.before_loop
     async def before_check(self) -> None:
+        """Espera a que el bot esté completamente listo antes del primer ciclo."""
         await self.bot.wait_until_ready()
         self._logger.info("youtube_checker_started")
 

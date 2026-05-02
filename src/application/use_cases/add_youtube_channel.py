@@ -37,6 +37,14 @@ class AddYouTubeChannelUseCase:
         self._logger = logger
 
     async def execute(self, command: AddYouTubeCommand) -> YouTubeChannel:
+        """
+        Valida y persiste un nuevo canal de YouTube. Orden de validaciones:
+        1. El channel_id existe en YouTube y se obtiene su nombre (2 llamadas API)
+        2. El servidor tiene canal de anuncios configurado
+        3. El límite de canales no está superado
+        El channel_name se resuelve aquí para no repetir la llamada a la API
+        en el Cog. Si details falla, usa channel_id como fallback.
+        """
         # 1) Validar que el canal existe en YouTube y obtener su nombre
         if not await self._youtube_service.channel_exists(command.channel_id):
             raise ChannelNotFoundError(

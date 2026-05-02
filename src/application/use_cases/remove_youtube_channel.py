@@ -11,6 +11,7 @@ class RemoveYouTubeCommand:
 
 
 class RemoveYouTubeChannelUseCase:
+    """Caso de uso: elimina un canal de YouTube del monitoreo."""
     def __init__(
         self,
         youtube_repo: IYouTubeRepository,
@@ -20,6 +21,10 @@ class RemoveYouTubeChannelUseCase:
         self._logger = logger
 
     async def execute(self, command: RemoveYouTubeCommand) -> None:
+        """
+        Elimina el canal por guild_id + channel_id. Lanza
+        YouTubeChannelNotFoundError si no estaba monitoreado.
+        """
         removed = await self._youtube_repo.remove(
             command.guild_id,
             command.channel_id,
