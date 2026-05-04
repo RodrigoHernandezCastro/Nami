@@ -1,0 +1,129 @@
+{
+  "common.warning": "⚠️ {message}",
+  "common.no_perms": "You don't have permission to use this command.",
+
+  "language.changed": "✅ Language changed to **{lang_name}**.",
+  "language.invalid": "⚠️ Unsupported language. Valid: {supported}",
+  "language.choice_es": "Spanish",
+  "language.choice_en": "English",
+  "language.choice_pl": "Polish",
+  "language.choice_ja": "Japanese",
+
+  "help.title": "📚 Help — Categories",
+  "help.description": "Use `/help <category>` to see available commands. You can also use `/help all` to see them all.",
+  "help.category_twitch": "🟣 **Twitch** — `/help twitch`\nManage Twitch streamers.",
+  "help.category_youtube": "🔴 **YouTube** — `/help youtube`\nManage YouTube channels.",
+  "help.category_admin": "⚙️ **Admin** — `/help admin`\nBot configuration.",
+  "help.footer": "Most commands require administrator permissions.",
+
+  "help.twitch.title": "🟣 Twitch Commands",
+  "help.twitch.configure": "**`/configure <channel>`**\nSets the channel where live streams are announced.",
+  "help.twitch.add": "**`/add <username> [message] [mention] [roles]`**\nAdds a Twitch streamer to monitor.",
+  "help.twitch.remove": "**`/remove <username>`**\nStops monitoring a streamer.",
+  "help.twitch.list": "**`/list`**\nShows monitored streamers and their status.",
+
+  "help.youtube.title": "🔴 YouTube Commands",
+  "help.youtube.configure": "**`/configure-youtube <channel>`**\nChannel where YouTube videos are posted.",
+  "help.youtube.add": "**`/add-youtube <username> [message] [mention] [roles]`**\nAdds a YouTube channel to monitor.",
+  "help.youtube.remove": "**`/remove-youtube <username>`**\nStops monitoring a YouTube channel.",
+  "help.youtube.list": "**`/list-youtube`**\nShows monitored YouTube channels.",
+
+  "help.admin.title": "⚙️ Admin Commands",
+  "help.admin.language": "**`/language <es|en|pl|ja>`**\nChanges the bot's language for this server.",
+  "help.admin.help": "**`/help [category]`**\nShows this help.",
+
+  "configure.twitch.success": "✅ **Live streams** channel configured: {channel_mention}\n💡 To configure where YouTube videos are posted, use `/configure-youtube`.",
+  "configure.youtube.success": "✅ **YouTube videos** channel configured: {channel_mention}",
+
+  "streamer.added.title": "Streamer added successfully",
+  "streamer.added.field_user": "👤 User",
+  "streamer.added.field_mention": "Mention",
+  "streamer.added.field_message": "Message",
+  "streamer.removed": "**{username}** removed from monitoring.",
+  "streamer.role_required": "You must provide at least one role when selecting `mention: Specific role`.",
+
+  "streamer.list.empty": "No streamers being monitored. Use `/add` to start.",
+  "streamer.list.title": "📡 Monitored Streamers",
+  "streamer.list.status_online": "LIVE",
+  "streamer.list.status_offline": "Offline",
+  "streamer.list.mention_label": "Mention",
+  "streamer.list.footer": "Total: {count} streamers",
+
+  "youtube.added.title": "✅ YouTube channel added",
+  "youtube.added.field_channel": "📺 Channel",
+  "youtube.added.field_id": "🔗 ID",
+  "youtube.added.field_mention": "Mention",
+  "youtube.added.field_message": "Message",
+  "youtube.removed": "Channel `{usuario}` removed from monitoring.",
+  "youtube.role_required": "You must provide at least one role when selecting `role`.",
+
+  "youtube.list.empty": "No YouTube channels being monitored.",
+  "youtube.list.title": "📺 YouTube Channels",
+  "youtube.list.footer": "Total: {count}",
+
+  "mention.none": "None",
+  "mention.everyone": "@everyone",
+  "mention.here": "@here",
+  "mention.role_not_found": "Role not found",
+  "mention.unknown": "Unknown",
+
+  "cmd.configure.name": "configure",
+  "cmd.configure.desc": "Set the channel where live streams (Twitch & YouTube Live) are announced",
+  "cmd.configure.param_channel": "Channel where live stream announcements will be posted",
+
+  "cmd.configure_youtube.name": "configure-youtube",
+  "cmd.configure_youtube.desc": "Set the channel where YouTube videos and shorts are posted",
+  "cmd.configure_youtube.param_channel": "Channel where YouTube videos will be posted",
+
+  "cmd.add.name": "add",
+  "cmd.add.desc": "Add a Twitch streamer to monitor",
+  "cmd.add.param_user": "Twitch username",
+  "cmd.add.param_message": "Custom message when announcing the stream",
+  "cmd.add.param_mention": "Mention type when announcing",
+  "cmd.add.param_role1": "First role to mention (only if mention='role')",
+  "cmd.add.param_role2": "Second role to mention (optional)",
+  "cmd.add.param_role3": "Third role to mention (optional)",
+
+  "cmd.remove.name": "remove",
+  "cmd.remove.desc": "Stop monitoring a streamer",
+  "cmd.remove.param_user": "Twitch username to remove",
+
+  "cmd.list.name": "list",
+  "cmd.list.desc": "Show the streamers you are monitoring",
+
+  "cmd.add_youtube.name": "add-youtube",
+  "cmd.add_youtube.desc": "Add a YouTube channel (@username)",
+  "cmd.add_youtube.param_user": "Channel name (@IlloJuan_, @HakosBaelz)",
+  "cmd.add_youtube.param_message": "Custom message when announcing a new video",
+  "cmd.add_youtube.param_mention": "Mention type when announcing",
+  "cmd.add_youtube.param_role1": "First role to mention (only if mention='role')",
+  "cmd.add_youtube.param_role2": "Second role (optional)",
+  "cmd.add_youtube.param_role3": "Third role (optional)",
+
+  "cmd.remove_youtube.name": "remove-youtube",
+  "cmd.remove_youtube.desc": "Stop monitoring a YouTube channel (@username or ID)",
+  "cmd.remove_youtube.param_user": "Channel name (@IlloJuan_) or direct ID (UCxxxx)",
+
+  "cmd.list_youtube.name": "list-youtube",
+  "cmd.list_youtube.desc": "List monitored YouTube channels",
+
+  "cmd.language.name": "language",
+  "cmd.language.desc": "Change the bot's language",
+  "cmd.language.param_lang": "Language to use",
+
+  "cmd.help.desc": "Show available commands",
+  "cmd.help_all.desc": "Show all bot commands",
+  "cmd.help_twitch.desc": "Twitch commands",
+  "cmd.help_youtube.desc": "YouTube commands",
+  "cmd.help_admin.desc": "Admin commands",
+
+  "choice.mention.none": "None",
+  "choice.mention.everyone": "@everyone",
+  "choice.mention.here": "@here",
+  "choice.mention.role": "Specific role",
+
+  "choice.lang.es": "Spanish",
+  "choice.lang.en": "English",
+  "choice.lang.pl": "Polish",
+  "choice.lang.ja": "Japanese"
+}

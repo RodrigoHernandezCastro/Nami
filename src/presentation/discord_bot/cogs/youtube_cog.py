@@ -13,11 +13,15 @@ from src.application.use_cases.remove_youtube_channel import (
 from src.application.use_cases.list_youtube_channels import (
     ListYouTubeChannelsUseCase, ListYouTubeQuery,
 )
+from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError, ChannelNotFoundError
+from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
+from src.presentation.discord_bot.command_localizer import CommandLocalizer
+from src.presentation.discord_bot.discord_locale_map import expand_localizations
 
 
 class YouTubeCog(commands.Cog):
-    """Comandos para monitorear canales de YouTube."""
+    """Comandos slash para gestionar canales de YouTube."""
 
     def __init__(
         self,
@@ -25,97 +29,100 @@ class YouTubeCog(commands.Cog):
         add_youtube_uc: AddYouTubeChannelUseCase,
         remove_youtube_uc: RemoveYouTubeChannelUseCase,
         list_youtube_uc: ListYouTubeChannelsUseCase,
+        lang_resolver: GuildLanguageResolver,
+        translator: ITranslator,
     ) -> None:
+        super().__init__()
         self.bot = bot
         self._add_uc = add_youtube_uc
         self._remove_uc = remove_youtube_uc
         self._list_uc = list_youtube_uc
+        self._i18n = lang_resolver
+        self._translator = translator
+        self._loc = CommandLocalizer(translator)
 
-    @app_commands.command(
-        name="añadir-youtube",
-        description="Añade un canal de YouTube (@username)",
-    )
+    # ----------- /add-youtube -----------
+    @app_commands.command(name="add-youtube", description="Add a YouTube channel (@username)")
     @app_commands.describe(
-        usuario="Nombre del canal (@IlloJuan_, @HakosBaelz)",
-        mensaje="Mensaje personalizado al anunciar nuevo video",
-        mencion="Tipo de mención al anunciar",
-        rol1="Primer rol a mencionar (solo si mencion='rol')",
-        rol2="Segundo rol (opcional)",
-        rol3="Tercer rol (opcional)",
-    )
-    @app_commands.choices(
-        mencion=[
-            app_commands.Choice(name="Ninguno", value="ninguno"),
-            app_commands.Choice(name="@everyone", value="everyone"),
-            app_commands.Choice(name="@here", value="here"),
-            app_commands.Choice(name="Rol específico", value="rol"),
-        ]
+        user="Channel name (@username)",
+        message="Custom announcement message",
+        mention="Mention type",
+        role1="First role",
+        role2="Second role",
+        role3="Third role",
     )
     async def add_youtube(
         self,
         interaction: discord.Interaction,
-        usuario: str,
-        mensaje: str = "¡Nuevo video en YouTube!",
-        mencion: Optional[app_commands.Choice[str]] = None,
-        rol1: Optional[discord.Role] = None,
-        rol2: Optional[discord.Role] = None,
-        rol3: Optional[discord.Role] = None,
+        user: str,
+        message: str = "New YouTube video!",
+        mention: Optional[app_commands.Choice[str]] = None,
+        role1: Optional[discord.Role] = None,
+        role2: Optional[discord.Role] = None,
+        role3: Optional[discord.Role] = None,
     ) -> None:
-        """
-        Slash /añadir-youtube.
-        Resuelve @username → channel_id antes de ejecutar el use case.
-        Si mencion='rol' y no se proporciona ningún rol, aborta antes de llamar a la API.
-        """
         await interaction.response.defer(ephemeral=True)
 
-        mention_type = mencion.value if mencion else "ninguno"
+        mention_type = mention.value if mention else "ninguno"
         mention_role_ids = None
         if mention_type == "rol":
-            provided_roles = [r for r in (rol1, rol2, rol3) if r is not None]
+            provided_roles = [r for r in (role1, role2, role3) if r is not None]
             if not provided_roles:
-                await interaction.followup.send(
-                    "Debes proporcionar al menos un rol si eliges `rol`.",
-                    ephemeral=True,
-                )
+                msg = await self._i18n.t("youtube.role_required", interaction.guild_id)
+                await interaction.followup.send(msg, ephemeral=True)
                 return
             mention_role_ids = [r.id for r in provided_roles]
 
         try:
-            channel_id = await self._add_uc.resolve_username(usuario)
+            channel_id = await self._add_uc.resolve_username(user)
 
             cmd = AddYouTubeCommand(
                 guild_id=interaction.guild_id,
                 channel_id=channel_id,
-                custom_message=mensaje,
+                custom_message=message,
                 mention_type=mention_type,
                 mention_role_ids=mention_role_ids,
             )
             channel = await self._add_uc.execute(cmd)
 
-            result_embed = discord.Embed(
-                title="✅ Canal YouTube añadido",
+            lang = await self._i18n.get_lang(interaction.guild_id)
+            t = self._translator.t
+
+            embed = discord.Embed(
+                title=t("youtube.added.title", lang),
                 color=discord.Color.red(),
             )
-            result_embed.add_field(name="📺 Canal", value=channel.display_name, inline=True)
-            result_embed.add_field(name="🔗 ID", value=f"`{channel.channel_name}`", inline=True)
-            result_embed.add_field(
-                name="Mención",
-                value=self._format_mention(mention_type, mention_role_ids, interaction.guild),
+            embed.add_field(
+                name=t("youtube.added.field_channel", lang),
+                value=channel.display_name,
                 inline=True,
             )
-            result_embed.add_field(name="Mensaje", value=channel.custom_message, inline=False)
+            embed.add_field(
+                name=t("youtube.added.field_id", lang),
+                value=f"`{channel.channel_name}`",
+                inline=True,
+            )
+            embed.add_field(
+                name=t("youtube.added.field_mention", lang),
+                value=await self._format_mention(
+                    mention_type, mention_role_ids, interaction.guild, interaction.guild_id
+                ),
+                inline=True,
+            )
+            embed.add_field(
+                name=t("youtube.added.field_message", lang),
+                value=channel.custom_message,
+                inline=False,
+            )
 
-            await interaction.followup.send(embed=result_embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
         except DomainError as e:
-            await interaction.followup.send(f"⚠️ {e}", ephemeral=True)
+            await self._send_warning(interaction, str(e))
 
-    @app_commands.command(
-        name="listar-youtube",
-        description="Lista los canales de YouTube monitoreados",
-    )
+    # ----------- /list-youtube -----------
+    @app_commands.command(name="list-youtube", description="List monitored YouTube channels")
     async def list_youtube(self, interaction: discord.Interaction) -> None:
-        """Slash /listar-youtube. Muestra nombre y mensaje de cada canal monitorizado."""
         await interaction.response.defer(ephemeral=True)
 
         channels = await self._list_uc.execute(
@@ -123,50 +130,44 @@ class YouTubeCog(commands.Cog):
         )
 
         if not channels:
-            await interaction.followup.send(
-                "No hay canales de YouTube monitoreados.",
-                ephemeral=True,
-            )
+            msg = await self._i18n.t("youtube.list.empty", interaction.guild_id)
+            await interaction.followup.send(msg, ephemeral=True)
             return
 
-        list_embed = discord.Embed(title="📺 Canales YouTube", color=discord.Color.red())
+        lang = await self._i18n.get_lang(interaction.guild_id)
+        t = self._translator.t
+
+        embed = discord.Embed(
+            title=t("youtube.list.title", lang),
+            color=discord.Color.red(),
+        )
         for c in channels:
-            list_embed.add_field(
+            embed.add_field(
                 name=c.display_name,
                 value=c.custom_message[:80],
                 inline=False,
             )
-        list_embed.set_footer(text=f"Total: {len(channels)}")
-        await interaction.followup.send(embed=list_embed, ephemeral=True)
+        embed.set_footer(text=t("youtube.list.footer", lang, count=len(channels)))
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
-    @app_commands.command(
-        name="eliminar-youtube",
-        description="Deja de monitorear un canal de YouTube (@username o ID)",
-    )
-    @app_commands.describe(usuario="Nombre del canal (@IlloJuan_) o ID directo (UCxxxx)")
+    # ----------- /remove-youtube -----------
+    @app_commands.command(name="remove-youtube", description="Stop monitoring a YouTube channel")
+    @app_commands.describe(user="Channel @username or direct ID (UCxxxx)")
     async def remove_youtube(
         self,
         interaction: discord.Interaction,
-        usuario: str,
+        user: str,
     ) -> None:
-        """
-        Slash /eliminar-youtube.
-        Acepta tanto @username como channel_id directo (UCxxxx).
-        Si la resolución de @username falla, intenta usar el valor tal cual como fallback.
-        """
         await interaction.response.defer(ephemeral=True)
 
         try:
-            # Si empieza por UC y no tiene @, asumimos que ya es un channel_id directo.
-            # Si no, intentamos resolver el @username → channel_id.
-            if usuario.startswith("UC") and not usuario.startswith("@"):
-                channel_id = usuario
+            if user.startswith("UC") and not user.startswith("@"):
+                channel_id = user
             else:
                 try:
-                    channel_id = await self._add_uc.resolve_username(usuario)
+                    channel_id = await self._add_uc.resolve_username(user)
                 except ChannelNotFoundError:
-                    # Último intento: tratar el valor tal cual como channel_id
-                    channel_id = usuario
+                    channel_id = user
 
             await self._remove_uc.execute(
                 RemoveYouTubeCommand(
@@ -174,34 +175,106 @@ class YouTubeCog(commands.Cog):
                     channel_id=channel_id,
                 )
             )
-            await interaction.followup.send(
-                f"Canal `{usuario}` eliminado del monitoreo.",
-                ephemeral=True,
+            msg = await self._i18n.t(
+                "youtube.removed", interaction.guild_id, usuario=user
             )
+            await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await interaction.followup.send(f"⚠️ {e}", ephemeral=True)
+            await self._send_warning(interaction, str(e))
 
-    @staticmethod
-    def _format_mention(
+    # ----------- helpers -----------
+    async def _format_mention(
+        self,
         mention_type: str,
         role_ids: Optional[List[int]],
         guild: discord.Guild,
+        guild_id: Optional[int],
     ) -> str:
-        """
-        Igual que MonitorCog._format_mention_info pero devuelve mention directamente.
-        Candidato a extraerse a un helper compartido en un futuro refactor.
-        """
         if mention_type == "ninguno":
-            return "Ninguna"
+            return await self._i18n.t("mention.none", guild_id)
         if mention_type == "everyone":
-            return "@everyone"
+            return await self._i18n.t("mention.everyone", guild_id)
         if mention_type == "here":
-            return "@here"
+            return await self._i18n.t("mention.here", guild_id)
         if mention_type == "rol" and role_ids:
             mentions = [
                 guild.get_role(rid).mention
                 for rid in role_ids
                 if guild.get_role(rid)
             ]
-            return " ".join(mentions) if mentions else "Rol no encontrado"
-        return "Desconocido"
+            if mentions:
+                return " ".join(mentions)
+            return await self._i18n.t("mention.role_not_found", guild_id)
+        return await self._i18n.t("mention.unknown", guild_id)
+
+    async def _send_warning(self, interaction: discord.Interaction, message: str) -> None:
+        text = await self._i18n.t(
+            "common.warning", interaction.guild_id, message=message
+        )
+        await interaction.followup.send(text, ephemeral=True)
+
+    # ----------- aplicar localizations al cargar -----------
+    async def cog_load(self) -> None:
+        self._localize(
+            self.add_youtube,
+            "cmd.add_youtube",
+            params={
+                "user": "cmd.add_youtube.param_user",
+                "message": "cmd.add_youtube.param_message",
+                "mention": "cmd.add_youtube.param_mention",
+                "role1": "cmd.add_youtube.param_role1",
+                "role2": "cmd.add_youtube.param_role2",
+                "role3": "cmd.add_youtube.param_role3",
+            },
+            choices={
+                "mention": [
+                    ("ninguno", "choice.mention.none"),
+                    ("everyone", "choice.mention.everyone"),
+                    ("here", "choice.mention.here"),
+                    ("rol", "choice.mention.role"),
+                ],
+            },
+        )
+        self._localize(
+            self.remove_youtube,
+            "cmd.remove_youtube",
+            params={"user": "cmd.remove_youtube.param_user"},
+        )
+        self._localize(self.list_youtube, "cmd.list_youtube")
+
+    def _localize(
+        self,
+        cmd: app_commands.Command,
+        base_key: str,
+        params: Optional[dict] = None,
+        choices: Optional[dict] = None,
+    ) -> None:
+        """Idéntico al de MonitorCog (candidato a extraer a un mixin compartido)."""
+        kw = self._loc.command(base_key)
+        cmd.name = kw["name"]
+        cmd.description = kw["description"]
+        if "name_localizations" in kw:
+            for locale, val in kw["name_localizations"].items():
+                cmd.name_localizations[locale] = val
+        if "description_localizations" in kw:
+            for locale, val in kw["description_localizations"].items():
+                cmd.description_localizations[locale] = val
+
+        if params:
+            for param in cmd.parameters:
+                key = params.get(param.name)
+                if not key:
+                    continue
+                default = self._translator.DEFAULT_LANG  # type: ignore[attr-defined]
+                param.description = self._translator.t(key, default)
+                desc_loc = expand_localizations(self._translator.localizations(key))
+                for locale, val in desc_loc.items():
+                    param.description_localizations[locale] = val
+
+        if choices:
+            for param in cmd.parameters:
+                if param.name in choices:
+                    param.choices = [
+                        self._loc.choice(value, name_key)
+                        for (value, name_key) in choices[param.name]
+                    ]

@@ -1,0 +1,129 @@
+{
+  "common.warning": "⚠️ {message}",
+  "common.no_perms": "No tienes permisos para usar este comando.",
+
+  "language.changed": "✅ Idioma cambiado a **{lang_name}**.",
+  "language.invalid": "⚠️ Idioma no soportado. Válidos: {supported}",
+  "language.choice_es": "Español",
+  "language.choice_en": "Inglés",
+  "language.choice_pl": "Polaco",
+  "language.choice_ja": "Japonés",
+
+  "help.title": "📚 Ayuda — Categorías",
+  "help.description": "Usa `/help <categoría>` para ver los comandos disponibles. También puedes usar `/help all` para verlos todos.",
+  "help.category_twitch": "🟣 **Twitch** — `/help twitch`\nGestión de streamers de Twitch.",
+  "help.category_youtube": "🔴 **YouTube** — `/help youtube`\nGestión de canales de YouTube.",
+  "help.category_admin": "⚙️ **Admin** — `/help admin`\nConfiguración del bot.",
+  "help.footer": "La mayoría de comandos requieren permisos de administrador.",
+
+  "help.twitch.title": "🟣 Comandos de Twitch",
+  "help.twitch.configure": "**`/configure <canal>`**\nConfigura el canal donde se anuncian los streams en vivo.",
+  "help.twitch.add": "**`/add <usuario> [mensaje] [mención] [roles]`**\nAñade un streamer de Twitch al monitoreo.",
+  "help.twitch.remove": "**`/remove <usuario>`**\nDeja de monitorear a un streamer.",
+  "help.twitch.list": "**`/list`**\nMuestra los streamers monitoreados y su estado.",
+
+  "help.youtube.title": "🔴 Comandos de YouTube",
+  "help.youtube.configure": "**`/configure-youtube <canal>`**\nCanal donde se publican los videos de YouTube.",
+  "help.youtube.add": "**`/add-youtube <usuario> [mensaje] [mención] [roles]`**\nAñade un canal de YouTube al monitoreo.",
+  "help.youtube.remove": "**`/remove-youtube <usuario>`**\nDeja de monitorear un canal de YouTube.",
+  "help.youtube.list": "**`/list-youtube`**\nMuestra los canales de YouTube monitoreados.",
+
+  "help.admin.title": "⚙️ Comandos de administración",
+  "help.admin.language": "**`/language <es|en|pl|ja>`**\nCambia el idioma del bot en este servidor.",
+  "help.admin.help": "**`/help [categoría]`**\nMuestra esta ayuda.",
+
+  "configure.twitch.success": "✅ Canal de **streams en vivo** configurado: {channel_mention}\n💡 Para configurar dónde se publican los videos de YouTube usa `/configure-youtube`.",
+  "configure.youtube.success": "✅ Canal de **videos de YouTube** configurado: {channel_mention}",
+
+  "streamer.added.title": "Streamer añadido correctamente",
+  "streamer.added.field_user": "👤 Usuario",
+  "streamer.added.field_mention": "Mención",
+  "streamer.added.field_message": "Mensaje",
+  "streamer.removed": "**{username}** eliminado del monitoreo.",
+  "streamer.role_required": "Debes proporcionar al menos un rol si eliges `mención: Rol específico`.",
+
+  "streamer.list.empty": "No hay streamers monitoreados. Usa `/add` para empezar.",
+  "streamer.list.title": "📡 Streamers Monitoreados",
+  "streamer.list.status_online": "EN VIVO",
+  "streamer.list.status_offline": "Offline",
+  "streamer.list.mention_label": "Mención",
+  "streamer.list.footer": "Total: {count} streamers",
+
+  "youtube.added.title": "✅ Canal YouTube añadido",
+  "youtube.added.field_channel": "📺 Canal",
+  "youtube.added.field_id": "🔗 ID",
+  "youtube.added.field_mention": "Mención",
+  "youtube.added.field_message": "Mensaje",
+  "youtube.removed": "Canal `{usuario}` eliminado del monitoreo.",
+  "youtube.role_required": "Debes proporcionar al menos un rol si eliges `rol`.",
+
+  "youtube.list.empty": "No hay canales de YouTube monitoreados.",
+  "youtube.list.title": "📺 Canales YouTube",
+  "youtube.list.footer": "Total: {count}",
+
+  "mention.none": "Ninguna",
+  "mention.everyone": "@everyone",
+  "mention.here": "@here",
+  "mention.role_not_found": "Rol no encontrado",
+  "mention.unknown": "Desconocido",
+
+  "cmd.configure.name": "configurar",
+  "cmd.configure.desc": "Configura el canal donde se anunciarán los streams en vivo (Twitch y YouTube Live)",
+  "cmd.configure.param_channel": "Canal donde se publicarán los anuncios de streams en vivo",
+
+  "cmd.configure_youtube.name": "configurar-youtube",
+  "cmd.configure_youtube.desc": "Configura el canal donde se publicarán los videos y shorts de YouTube",
+  "cmd.configure_youtube.param_channel": "Canal donde se publicarán los videos de YouTube",
+
+  "cmd.add.name": "añadir",
+  "cmd.add.desc": "Añade un streamer de Twitch para monitorear",
+  "cmd.add.param_user": "Nombre de usuario de Twitch",
+  "cmd.add.param_message": "Mensaje personalizado al anunciar el stream",
+  "cmd.add.param_mention": "Tipo de mención al anunciar",
+  "cmd.add.param_role1": "Primer rol a mencionar (solo si mención='rol')",
+  "cmd.add.param_role2": "Segundo rol a mencionar (opcional)",
+  "cmd.add.param_role3": "Tercer rol a mencionar (opcional)",
+
+  "cmd.remove.name": "eliminar",
+  "cmd.remove.desc": "Deja de monitorear a un streamer",
+  "cmd.remove.param_user": "Nombre de usuario de Twitch a eliminar",
+
+  "cmd.list.name": "listar",
+  "cmd.list.desc": "Muestra los streamers que estás monitoreando",
+
+  "cmd.add_youtube.name": "añadir-youtube",
+  "cmd.add_youtube.desc": "Añade un canal de YouTube (@usuario)",
+  "cmd.add_youtube.param_user": "Nombre del canal (@IlloJuan_, @HakosBaelz)",
+  "cmd.add_youtube.param_message": "Mensaje personalizado al anunciar nuevo video",
+  "cmd.add_youtube.param_mention": "Tipo de mención al anunciar",
+  "cmd.add_youtube.param_role1": "Primer rol a mencionar (solo si mención='rol')",
+  "cmd.add_youtube.param_role2": "Segundo rol (opcional)",
+  "cmd.add_youtube.param_role3": "Tercer rol (opcional)",
+
+  "cmd.remove_youtube.name": "eliminar-youtube",
+  "cmd.remove_youtube.desc": "Deja de monitorear un canal de YouTube (@usuario o ID)",
+  "cmd.remove_youtube.param_user": "Nombre del canal (@IlloJuan_) o ID directo (UCxxxx)",
+
+  "cmd.list_youtube.name": "listar-youtube",
+  "cmd.list_youtube.desc": "Lista los canales de YouTube monitoreados",
+
+  "cmd.language.name": "idioma",
+  "cmd.language.desc": "Cambia el idioma del bot",
+  "cmd.language.param_lang": "Idioma a usar",
+
+  "cmd.help.desc": "Muestra los comandos disponibles",
+  "cmd.help_all.desc": "Muestra todos los comandos del bot",
+  "cmd.help_twitch.desc": "Comandos de Twitch",
+  "cmd.help_youtube.desc": "Comandos de YouTube",
+  "cmd.help_admin.desc": "Comandos de administración",
+
+  "choice.mention.none": "Ninguno",
+  "choice.mention.everyone": "@everyone",
+  "choice.mention.here": "@here",
+  "choice.mention.role": "Rol específico",
+
+  "choice.lang.es": "Español",
+  "choice.lang.en": "Inglés",
+  "choice.lang.pl": "Polaco",
+  "choice.lang.ja": "Japonés"
+}

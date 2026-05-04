@@ -45,7 +45,7 @@ def safe_json(value, fallback="[]") -> str:
 
 def progress(current: int, total: int, label: str) -> None:
     pct = int(current / total * 100) if total else 100
-    bar = "█" * (pct // 5) + "░" * (20 - pct // 5)
+    bar = "" * (pct // 5) + "" * (20 - pct // 5)
     print(f"\r  [{bar}] {pct:>3}%  {current}/{total} {label}", end="", flush=True)
 
 
@@ -54,10 +54,10 @@ def progress(current: int, total: int, label: str) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 
 async def migrate_guild_configs(pg, my_conn) -> int:
-    print("\n📋 Migrando guild_configs...")
+    print("\nMigrando guild_configs...")
     rows = await pg.fetch("SELECT * FROM guild_configs ORDER BY guild_id;")
     if not rows:
-        print("  ⚠️  Sin registros.")
+        print("    Sin registros.")
         return 0
 
     query = """
@@ -84,7 +84,7 @@ async def migrate_guild_configs(pg, my_conn) -> int:
                 r["updated_at"],
             ))
             progress(i, len(rows), "guilds")
-    print(f"\n  ✅ {len(rows)} guild_configs migradas.")
+    print(f"\n  {len(rows)} guild_configs migradas.")
     return len(rows)
 
 
@@ -92,7 +92,7 @@ async def migrate_streamers(pg, my_conn) -> int:
     print("\n🎮 Migrando streamers...")
     rows = await pg.fetch("SELECT * FROM streamers ORDER BY id;")
     if not rows:
-        print("  ⚠️  Sin registros.")
+        print("    Sin registros.")
         return 0
 
     query = """
@@ -118,7 +118,7 @@ async def migrate_streamers(pg, my_conn) -> int:
                 r["added_at"],
             ))
             progress(i, len(rows), "streamers")
-    print(f"\n  ✅ {len(rows)} streamers migrados.")
+    print(f"\n  {len(rows)} streamers migrados.")
     return len(rows)
 
 
@@ -126,7 +126,7 @@ async def migrate_youtube_channels(pg, my_conn) -> int:
     print("\n📺 Migrando youtube_channels...")
     rows = await pg.fetch("SELECT * FROM youtube_channels ORDER BY id;")
     if not rows:
-        print("  ⚠️  Sin registros.")
+        print("    Sin registros.")
         return 0
 
     query = """
@@ -164,7 +164,7 @@ async def migrate_youtube_channels(pg, my_conn) -> int:
                 r["added_at"],
             ))
             progress(i, len(rows), "canales YT")
-    print(f"\n  ✅ {len(rows)} youtube_channels migrados.")
+    print(f"\n   {len(rows)} youtube_channels migrados.")
     return len(rows)
 
 
@@ -173,7 +173,7 @@ async def migrate_youtube_channels(pg, my_conn) -> int:
 # ──────────────────────────────────────────────────────────────────────────────
 
 async def verify(pg, my_conn) -> None:
-    print("\n🔍 Verificando conteos...")
+    print("\nVerificando conteos...")
 
     tables = ["guild_configs", "streamers", "youtube_channels"]
     all_ok = True
@@ -185,7 +185,7 @@ async def verify(pg, my_conn) -> None:
             row = await cur.fetchone()
             my_count = row[0] if row else 0
 
-        status = "✅" if pg_count == my_count else "❌"
+        status = "ok" if pg_count == my_count else "ERROR"
         if pg_count != my_count:
             all_ok = False
         print(f"  {status} {table}: PG={pg_count}  MariaDB={my_count}")
@@ -193,7 +193,7 @@ async def verify(pg, my_conn) -> None:
     if all_ok:
         print("\n🎉 Migración completada. Todos los conteos coinciden.")
     else:
-        print("\n⚠️  Hay diferencias. Revisa los errores anteriores.")
+        print("\n  Hay diferencias. Revisa los errores anteriores.")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -209,7 +209,7 @@ async def main() -> None:
 
     # ── Conectar a PostgreSQL ──────────────────────────────────────
     if not settings.DATABASE_URL:
-        print("❌ DATABASE_URL no configurada en .env")
+        print(" DATABASE_URL no configurada en .env")
         sys.exit(1)
 
     print(f"\n🔌 Conectando a PostgreSQL: {settings.DATABASE_URL[:40]}...")
@@ -217,7 +217,7 @@ async def main() -> None:
 
     # ── Conectar a MariaDB ────────────────────────────────────────
     if not all([settings.DB_HOST, settings.DB_USER, settings.DB_PASSWORD, settings.DB_NAME]):
-        print("❌ Variables MariaDB incompletas (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)")
+        print(" Variables MariaDB incompletas (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)")
         await pg.close()
         sys.exit(1)
 
@@ -239,7 +239,7 @@ async def main() -> None:
         await verify(pg, my_conn)
 
     except Exception as e:
-        print(f"\n❌ Error durante la migración: {e}")
+        print(f"\n Error durante la migración: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

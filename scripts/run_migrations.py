@@ -32,7 +32,7 @@ async def run_migrations() -> None:
         sql_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
 
         if not sql_files:
-            print("⚠️  No se encontraron archivos SQL.")
+            print("  No se encontraron archivos SQL.")
             return
 
         async with conn.cursor() as cur:
@@ -45,12 +45,12 @@ async def run_migrations() -> None:
                 for stmt in statements:
                     await cur.execute(stmt)
 
-                print(f"✅ {sql_file.name} aplicado correctamente")
+                print(f" {sql_file.name} aplicado correctamente")
 
         print("\n🎉 Todas las migraciones se aplicaron con éxito.")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         sys.exit(1)
     finally:
         conn.close()

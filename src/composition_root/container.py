@@ -1,8 +1,12 @@
 # src/composition_root/container.py
+from pathlib import Path
+
 import aiomysql
 import asyncpg
+
 from src.infrastructure.config.settings import Settings
 from src.infrastructure.logging.structured_logger import StructuredLogger
+from src.infrastructure.i18n.translator import JSONTranslator
 
 
 class Container:
@@ -18,6 +22,7 @@ class Container:
             await self._setup_mariadb()
 
         await self._setup_repositories()
+        self._setup_i18n()
         await self._setup_external_services()
         self._setup_use_cases()
 
@@ -64,6 +69,23 @@ class Container:
     async def _setup_repositories(self) -> None:
         pass
 
+    def _setup_i18n(self) -> None:
+        """Carga el traductor JSON (idioma por defecto: en)."""
+        src_dir = Path(__file__).resolve().parent.parent
+        locales_dir = src_dir / "resources" / "locales"
+
+        self.translator = JSONTranslator(
+            locales_dir=locales_dir,
+            logger=self._logger,
+        )
+
+        from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
+        self.lang_resolver = GuildLanguageResolver(
+            guild_repo=self.guild_repo,
+            translator=self.translator,
+            default_lang="en",
+        )
+
     async def _setup_external_services(self) -> None:
         from src.infrastructure.external_apis.twitch_api_client import TwitchAPIClient
         from src.infrastructure.external_apis.youtube_api_client import YouTubeAPIClient
@@ -92,6 +114,7 @@ class Container:
         from src.application.use_cases.remove_youtube_channel import RemoveYouTubeChannelUseCase
         from src.application.use_cases.list_youtube_channels import ListYouTubeChannelsUseCase
         from src.application.use_cases.check_youtube_videos import CheckYouTubeVideosUseCase
+        from src.application.use_cases.set_guild_language import SetGuildLanguageUseCase
 
         # Twitch
         self.add_streamer_uc = AddStreamerUseCase(
@@ -134,6 +157,13 @@ class Container:
         )
         self.configure_youtube_uc = ConfigureChannelYouTubeUseCase(
             guild_repo=self.guild_repo,
+            logger=self._logger,
+        )
+
+        # Admin / i18n
+        self.set_language_uc = SetGuildLanguageUseCase(
+            guild_repo=self.guild_repo,
+            translator=self.translator,
             logger=self._logger,
         )
 

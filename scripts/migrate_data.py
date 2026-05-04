@@ -32,7 +32,7 @@ async def migrate():
             g['limite_streamers'] # Antes era streamer_limit
             )
         
-        print(f"✅ {len(guilds)} servidores migrados.")
+        print(f"{len(guilds)} servidores migrados.")
 
         # 3. Migrar Streamers
         cursor = sqlite_conn.execute("SELECT * FROM streamers")
@@ -50,10 +50,10 @@ async def migrate():
             s['tipo_mencion']
             )
             
-        print(f"✅ {len(streamers)} streamers migrados.")
+        print(f"{len(streamers)} streamers migrados.")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         await pg_conn.close()
         sqlite_conn.close()

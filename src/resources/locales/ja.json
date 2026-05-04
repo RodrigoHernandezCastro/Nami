@@ -1,0 +1,129 @@
+{
+  "common.warning": "⚠️ {message}",
+  "common.no_perms": "このコマンドを使用する権限がありません。",
+
+  "language.changed": "✅ 言語を **{lang_name}** に変更しました。",
+  "language.invalid": "⚠️ サポートされていない言語です。利用可能: {supported}",
+  "language.choice_es": "スペイン語",
+  "language.choice_en": "英語",
+  "language.choice_pl": "ポーランド語",
+  "language.choice_ja": "日本語",
+
+  "help.title": "📚 ヘルプ — カテゴリ",
+  "help.description": "`/help <カテゴリ>` で利用可能なコマンドを表示します。`/help all` ですべて表示できます。",
+  "help.category_twitch": "🟣 **Twitch** — `/help twitch`\nTwitchストリーマーの管理。",
+  "help.category_youtube": "🔴 **YouTube** — `/help youtube`\nYouTubeチャンネルの管理。",
+  "help.category_admin": "⚙️ **管理** — `/help admin`\nボットの設定。",
+  "help.footer": "ほとんどのコマンドには管理者権限が必要です。",
+
+  "help.twitch.title": "🟣 Twitchコマンド",
+  "help.twitch.configure": "**`/configure <チャンネル>`**\nライブ配信の通知チャンネルを設定します。",
+  "help.twitch.add": "**`/add <ユーザー名> [メッセージ] [メンション] [ロール]`**\nTwitchストリーマーを監視に追加します。",
+  "help.twitch.remove": "**`/remove <ユーザー名>`**\nストリーマーの監視を停止します。",
+  "help.twitch.list": "**`/list`**\n監視中のストリーマーと状態を表示します。",
+
+  "help.youtube.title": "🔴 YouTubeコマンド",
+  "help.youtube.configure": "**`/configure-youtube <チャンネル>`**\nYouTube動画を投稿するチャンネルを設定します。",
+  "help.youtube.add": "**`/add-youtube <ユーザー名> [メッセージ] [メンション] [ロール]`**\nYouTubeチャンネルを監視に追加します。",
+  "help.youtube.remove": "**`/remove-youtube <ユーザー名>`**\nYouTubeチャンネルの監視を停止します。",
+  "help.youtube.list": "**`/list-youtube`**\n監視中のYouTubeチャンネルを表示します。",
+
+  "help.admin.title": "⚙️ 管理コマンド",
+  "help.admin.language": "**`/language <es|en|pl|ja>`**\nこのサーバーのボットの言語を変更します。",
+  "help.admin.help": "**`/help [カテゴリ]`**\nこのヘルプを表示します。",
+
+  "configure.twitch.success": "✅ **ライブ配信** チャンネルを設定しました: {channel_mention}\n💡 YouTube動画用のチャンネルを設定するには `/configure-youtube` を使用してください。",
+  "configure.youtube.success": "✅ **YouTube動画** チャンネルを設定しました: {channel_mention}",
+
+  "streamer.added.title": "ストリーマーを追加しました",
+  "streamer.added.field_user": "👤 ユーザー",
+  "streamer.added.field_mention": "メンション",
+  "streamer.added.field_message": "メッセージ",
+  "streamer.removed": "**{username}** を監視から削除しました。",
+  "streamer.role_required": "`メンション: 特定のロール` を選択した場合、少なくとも1つのロールを指定してください。",
+
+  "streamer.list.empty": "監視中のストリーマーはいません。`/add` で追加できます。",
+  "streamer.list.title": "📡 監視中のストリーマー",
+  "streamer.list.status_online": "ライブ中",
+  "streamer.list.status_offline": "オフライン",
+  "streamer.list.mention_label": "メンション",
+  "streamer.list.footer": "合計: {count} 名",
+
+  "youtube.added.title": "✅ YouTubeチャンネルを追加しました",
+  "youtube.added.field_channel": "📺 チャンネル",
+  "youtube.added.field_id": "🔗 ID",
+  "youtube.added.field_mention": "メンション",
+  "youtube.added.field_message": "メッセージ",
+  "youtube.removed": "チャンネル `{usuario}` を監視から削除しました。",
+  "youtube.role_required": "`ロール` を選択した場合、少なくとも1つのロールを指定してください。",
+
+  "youtube.list.empty": "監視中のYouTubeチャンネルはありません。",
+  "youtube.list.title": "📺 YouTubeチャンネル",
+  "youtube.list.footer": "合計: {count}",
+
+  "mention.none": "なし",
+  "mention.everyone": "@everyone",
+  "mention.here": "@here",
+  "mention.role_not_found": "ロールが見つかりません",
+  "mention.unknown": "不明",
+
+  "cmd.configure.name": "configure",
+  "cmd.configure.desc": "ライブ配信（TwitchとYouTube Live）を通知するチャンネルを設定します",
+  "cmd.configure.param_channel": "ライブ配信の通知が投稿されるチャンネル",
+
+  "cmd.configure_youtube.name": "configure-youtube",
+  "cmd.configure_youtube.desc": "YouTube動画とショートが投稿されるチャンネルを設定します",
+  "cmd.configure_youtube.param_channel": "YouTube動画が投稿されるチャンネル",
+
+  "cmd.add.name": "add",
+  "cmd.add.desc": "Twitchストリーマーを監視に追加します",
+  "cmd.add.param_user": "Twitchのユーザー名",
+  "cmd.add.param_message": "配信通知のカスタムメッセージ",
+  "cmd.add.param_mention": "通知時のメンションタイプ",
+  "cmd.add.param_role1": "メンションする最初のロール（mention='role' の場合のみ）",
+  "cmd.add.param_role2": "メンションする2番目のロール（任意）",
+  "cmd.add.param_role3": "メンションする3番目のロール（任意）",
+
+  "cmd.remove.name": "remove",
+  "cmd.remove.desc": "ストリーマーの監視を停止します",
+  "cmd.remove.param_user": "削除するTwitchのユーザー名",
+
+  "cmd.list.name": "list",
+  "cmd.list.desc": "監視中のストリーマーを表示します",
+
+  "cmd.add_youtube.name": "add-youtube",
+  "cmd.add_youtube.desc": "YouTubeチャンネル（@username）を追加します",
+  "cmd.add_youtube.param_user": "チャンネル名（@IlloJuan_, @HakosBaelz）",
+  "cmd.add_youtube.param_message": "新しい動画通知のカスタムメッセージ",
+  "cmd.add_youtube.param_mention": "通知時のメンションタイプ",
+  "cmd.add_youtube.param_role1": "メンションする最初のロール（mention='role' の場合のみ）",
+  "cmd.add_youtube.param_role2": "2番目のロール（任意）",
+  "cmd.add_youtube.param_role3": "3番目のロール（任意）",
+
+  "cmd.remove_youtube.name": "remove-youtube",
+  "cmd.remove_youtube.desc": "YouTubeチャンネルの監視を停止します（@usernameまたはID）",
+  "cmd.remove_youtube.param_user": "チャンネル名（@IlloJuan_）または直接ID（UCxxxx）",
+
+  "cmd.list_youtube.name": "list-youtube",
+  "cmd.list_youtube.desc": "監視中のYouTubeチャンネル一覧",
+
+  "cmd.language.name": "language",
+  "cmd.language.desc": "ボットの言語を変更します",
+  "cmd.language.param_lang": "使用する言語",
+
+  "cmd.help.desc": "利用可能なコマンドを表示します",
+  "cmd.help_all.desc": "すべてのボットコマンドを表示します",
+  "cmd.help_twitch.desc": "Twitchコマンド",
+  "cmd.help_youtube.desc": "YouTubeコマンド",
+  "cmd.help_admin.desc": "管理コマンド",
+
+  "choice.mention.none": "なし",
+  "choice.mention.everyone": "@everyone",
+  "choice.mention.here": "@here",
+  "choice.mention.role": "特定のロール",
+
+  "choice.lang.es": "スペイン語",
+  "choice.lang.en": "英語",
+  "choice.lang.pl": "ポーランド語",
+  "choice.lang.ja": "日本語"
+}
