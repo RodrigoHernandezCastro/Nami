@@ -1,6 +1,17 @@
 # src/presentation/discord_bot/cogs/youtube_cog.py
+"""
+Cog de monitoreo de YouTube.
+
+La localización de comandos slash se delega al `app_commands.Translator`
+registrado en `bot.py`. Cada `locale_str(...)` recibe:
+  - el texto por defecto (en inglés) como primer argumento. Para los
+    `name=` debe ser un nombre slash válido.
+  - `key=` con la clave del JSON, que `NamiAppTranslator` usará para
+    resolver las traducciones a otros idiomas.
+"""
 import discord
 from discord import app_commands
+from discord.app_commands import locale_str as _T
 from discord.ext import commands
 from typing import Optional, List
 
@@ -16,8 +27,6 @@ from src.application.use_cases.list_youtube_channels import (
 from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError, ChannelNotFoundError
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
-from src.presentation.discord_bot.command_localizer import CommandLocalizer
-from src.presentation.discord_bot.discord_locale_map import expand_localizations
 
 
 class YouTubeCog(commands.Cog):
@@ -39,17 +48,52 @@ class YouTubeCog(commands.Cog):
         self._list_uc = list_youtube_uc
         self._i18n = lang_resolver
         self._translator = translator
-        self._loc = CommandLocalizer(translator)
 
     # ----------- /add-youtube -----------
-    @app_commands.command(name="add-youtube", description="Add a YouTube channel (@username)")
+    @app_commands.command(
+        name=_T("add-youtube", key="cmd.add_youtube.name"),
+        description=_T(
+            "Add a YouTube channel (@username)", key="cmd.add_youtube.desc"
+        ),
+    )
     @app_commands.describe(
-        user="Channel name (@username)",
-        message="Custom announcement message",
-        mention="Mention type",
-        role1="First role",
-        role2="Second role",
-        role3="Third role",
+        user=_T(
+            "Channel name (@IlloJuan_, @HakosBaelz)",
+            key="cmd.add_youtube.param_user",
+        ),
+        message=_T(
+            "Custom message when announcing a new video",
+            key="cmd.add_youtube.param_message",
+        ),
+        mention=_T(
+            "Mention type when announcing", key="cmd.add_youtube.param_mention"
+        ),
+        role1=_T(
+            "First role to mention (only if mention='role')",
+            key="cmd.add_youtube.param_role1",
+        ),
+        role2=_T("Second role (optional)", key="cmd.add_youtube.param_role2"),
+        role3=_T("Third role (optional)", key="cmd.add_youtube.param_role3"),
+    )
+    @app_commands.choices(
+        mention=[
+            app_commands.Choice(
+                name=_T("None", key="choice.mention.none"),
+                value="ninguno",
+            ),
+            app_commands.Choice(
+                name=_T("@everyone", key="choice.mention.everyone"),
+                value="everyone",
+            ),
+            app_commands.Choice(
+                name=_T("@here", key="choice.mention.here"),
+                value="here",
+            ),
+            app_commands.Choice(
+                name=_T("Specific role", key="choice.mention.role"),
+                value="rol",
+            ),
+        ]
     )
     async def add_youtube(
         self,
@@ -121,7 +165,12 @@ class YouTubeCog(commands.Cog):
             await self._send_warning(interaction, str(e))
 
     # ----------- /list-youtube -----------
-    @app_commands.command(name="list-youtube", description="List monitored YouTube channels")
+    @app_commands.command(
+        name=_T("list-youtube", key="cmd.list_youtube.name"),
+        description=_T(
+            "List monitored YouTube channels", key="cmd.list_youtube.desc"
+        ),
+    )
     async def list_youtube(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
@@ -151,8 +200,19 @@ class YouTubeCog(commands.Cog):
         await interaction.followup.send(embed=embed, ephemeral=True)
 
     # ----------- /remove-youtube -----------
-    @app_commands.command(name="remove-youtube", description="Stop monitoring a YouTube channel")
-    @app_commands.describe(user="Channel @username or direct ID (UCxxxx)")
+    @app_commands.command(
+        name=_T("remove-youtube", key="cmd.remove_youtube.name"),
+        description=_T(
+            "Stop monitoring a YouTube channel (@username or ID)",
+            key="cmd.remove_youtube.desc",
+        ),
+    )
+    @app_commands.describe(
+        user=_T(
+            "Channel name (@IlloJuan_) or direct ID (UCxxxx)",
+            key="cmd.remove_youtube.param_user",
+        )
+    )
     async def remove_youtube(
         self,
         interaction: discord.Interaction,
@@ -212,69 +272,3 @@ class YouTubeCog(commands.Cog):
             "common.warning", interaction.guild_id, message=message
         )
         await interaction.followup.send(text, ephemeral=True)
-
-    # ----------- aplicar localizations al cargar -----------
-    async def cog_load(self) -> None:
-        self._localize(
-            self.add_youtube,
-            "cmd.add_youtube",
-            params={
-                "user": "cmd.add_youtube.param_user",
-                "message": "cmd.add_youtube.param_message",
-                "mention": "cmd.add_youtube.param_mention",
-                "role1": "cmd.add_youtube.param_role1",
-                "role2": "cmd.add_youtube.param_role2",
-                "role3": "cmd.add_youtube.param_role3",
-            },
-            choices={
-                "mention": [
-                    ("ninguno", "choice.mention.none"),
-                    ("everyone", "choice.mention.everyone"),
-                    ("here", "choice.mention.here"),
-                    ("rol", "choice.mention.role"),
-                ],
-            },
-        )
-        self._localize(
-            self.remove_youtube,
-            "cmd.remove_youtube",
-            params={"user": "cmd.remove_youtube.param_user"},
-        )
-        self._localize(self.list_youtube, "cmd.list_youtube")
-
-    def _localize(
-        self,
-        cmd: app_commands.Command,
-        base_key: str,
-        params: Optional[dict] = None,
-        choices: Optional[dict] = None,
-    ) -> None:
-        """Idéntico al de MonitorCog (candidato a extraer a un mixin compartido)."""
-        kw = self._loc.command(base_key)
-        cmd.name = kw["name"]
-        cmd.description = kw["description"]
-        if "name_localizations" in kw:
-            for locale, val in kw["name_localizations"].items():
-                cmd.name_localizations[locale] = val
-        if "description_localizations" in kw:
-            for locale, val in kw["description_localizations"].items():
-                cmd.description_localizations[locale] = val
-
-        if params:
-            for param in cmd.parameters:
-                key = params.get(param.name)
-                if not key:
-                    continue
-                default = self._translator.DEFAULT_LANG  # type: ignore[attr-defined]
-                param.description = self._translator.t(key, default)
-                desc_loc = expand_localizations(self._translator.localizations(key))
-                for locale, val in desc_loc.items():
-                    param.description_localizations[locale] = val
-
-        if choices:
-            for param in cmd.parameters:
-                if param.name in choices:
-                    param.choices = [
-                        self._loc.choice(value, name_key)
-                        for (value, name_key) in choices[param.name]
-                    ]

@@ -1,7 +1,34 @@
 # src/presentation/discord_bot/cogs/admin_cog.py
+"""
+Cog de administración: `/language` y el grupo `/help`.
+
+Igual que `monitor_cog.py` y `youtube_cog.py`, la localización de los
+slash commands se delega 100% al `app_commands.Translator` registrado
+en `bot.py` (`NamiAppTranslator`). Aquí solo declaramos las claves en
+los decoradores con `locale_str(default_text, key="...")`.
+
+Decisión: los nombres del grupo `help` y sus subcomandos (`all`,
+`twitch`, `youtube`, `admin`) se mantienen en inglés en todos los
+idiomas (las descripciones SÍ se localizan). Si en el futuro quieres
+localizar también los nombres, basta con cambiar los strings por
+`locale_str(...)` y añadir las claves correspondientes a los JSON.
+
+Sobre el grupo `/help`:
+- Lo declaramos como SUBCLASE de `app_commands.Group` con sus
+  subcomandos como métodos decorados. Esta es la forma idiomática en
+  discord.py 2.x. Los subcomandos comparten el `__init__` del grupo,
+  donde guardamos las dependencias (translator, lang_resolver).
+- Para que el grupo se registre en el árbol del bot al cargar el cog,
+  lo declaramos como atributo de clase del cog (discord.py descubre
+  los grupos por inspección al hacer `add_cog`). Pero como necesita
+  dependencias, lo creamos en `__init__` y lo añadimos al árbol
+  manualmente, removiéndolo en `cog_unload`.
+"""
 import discord
 from discord import app_commands
+from discord.app_commands import locale_str as _T
 from discord.ext import commands
+from typing import Optional
 
 from src.application.use_cases.set_guild_language import (
     SetGuildLanguageUseCase,
@@ -10,21 +37,151 @@ from src.application.use_cases.set_guild_language import (
 from src.domain.exceptions.domain_exceptions import DomainError
 from src.application.interfaces.translator import ITranslator
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
-from src.presentation.discord_bot.command_localizer import CommandLocalizer
-from src.presentation.discord_bot.discord_locale_map import expand_localizations
 
 
+# ---------------------------------------------------------------------------
+# Grupo /help como subclase de app_commands.Group
+# ---------------------------------------------------------------------------
+class HelpGroup(app_commands.Group):
+    """
+    Grupo `/help` con subcomandos `all`, `twitch`, `youtube`, `admin`.
+
+    Recibe `translator` y `lang_resolver` por constructor para poder
+    construir embeds traducidos en cada subcomando.
+    """
+
+    def __init__(
+        self,
+        translator: ITranslator,
+        lang_resolver: GuildLanguageResolver,
+    ) -> None:
+        # `name` queda como string literal (sin localizar). `description`
+        # va con locale_str para que el translator lo resuelva por idioma.
+        super().__init__(
+            name="help",
+            description=_T("Show available commands", key="cmd.help.desc"),
+        )
+        self._t = translator
+        self._i18n = lang_resolver
+
+    @app_commands.command(
+        name="all",
+        description=_T("Show all bot commands", key="cmd.help_all.desc"),
+    )
+    async def help_all(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
+        lang = await self._i18n.get_lang(interaction.guild_id)
+        t = self._t.t
+
+        embed = discord.Embed(
+            title=t("help.title", lang),
+            description=t("help.description", lang),
+            color=discord.Color.blurple(),
+        )
+        embed.add_field(
+            name=t("help.twitch.title", lang),
+            value=(
+                f"{t('help.twitch.configure', lang)}\n\n"
+                f"{t('help.twitch.add', lang)}\n\n"
+                f"{t('help.twitch.remove', lang)}\n\n"
+                f"{t('help.twitch.list', lang)}"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name=t("help.youtube.title", lang),
+            value=(
+                f"{t('help.youtube.configure', lang)}\n\n"
+                f"{t('help.youtube.add', lang)}\n\n"
+                f"{t('help.youtube.remove', lang)}\n\n"
+                f"{t('help.youtube.list', lang)}"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name=t("help.admin.title", lang),
+            value=(
+                f"{t('help.admin.language', lang)}\n\n"
+                f"{t('help.admin.help', lang)}"
+            ),
+            inline=False,
+        )
+        embed.set_footer(text=t("help.footer", lang))
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @app_commands.command(
+        name="twitch",
+        description=_T("Twitch commands", key="cmd.help_twitch.desc"),
+    )
+    async def help_twitch(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
+        lang = await self._i18n.get_lang(interaction.guild_id)
+        t = self._t.t
+
+        embed = discord.Embed(
+            title=t("help.twitch.title", lang),
+            color=discord.Color.purple(),
+            description=(
+                f"{t('help.twitch.configure', lang)}\n\n"
+                f"{t('help.twitch.add', lang)}\n\n"
+                f"{t('help.twitch.remove', lang)}\n\n"
+                f"{t('help.twitch.list', lang)}"
+            ),
+        )
+        embed.set_footer(text=t("help.footer", lang))
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @app_commands.command(
+        name="youtube",
+        description=_T("YouTube commands", key="cmd.help_youtube.desc"),
+    )
+    async def help_youtube(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
+        lang = await self._i18n.get_lang(interaction.guild_id)
+        t = self._t.t
+
+        embed = discord.Embed(
+            title=t("help.youtube.title", lang),
+            color=discord.Color.red(),
+            description=(
+                f"{t('help.youtube.configure', lang)}\n\n"
+                f"{t('help.youtube.add', lang)}\n\n"
+                f"{t('help.youtube.remove', lang)}\n\n"
+                f"{t('help.youtube.list', lang)}"
+            ),
+        )
+        embed.set_footer(text=t("help.footer", lang))
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @app_commands.command(
+        name="admin",
+        description=_T("Admin commands", key="cmd.help_admin.desc"),
+    )
+    async def help_admin(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
+        lang = await self._i18n.get_lang(interaction.guild_id)
+        t = self._t.t
+
+        embed = discord.Embed(
+            title=t("help.admin.title", lang),
+            color=discord.Color.blurple(),
+            description=(
+                f"{t('help.admin.language', lang)}\n\n"
+                f"{t('help.admin.help', lang)}"
+            ),
+        )
+        embed.set_footer(text=t("help.footer", lang))
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+# ---------------------------------------------------------------------------
+# AdminCog
+# ---------------------------------------------------------------------------
 class AdminCog(commands.Cog):
     """
-    Comandos administrativos del bot:
+    Comandos administrativos:
       • /language — cambia el idioma del bot en el servidor
-      • /help     — sistema de ayuda con subcomandos por categoría
-
-    NOTA importante: como `/help` es un Group declarado a nivel de clase
-    (no instancia), no puede recibir el translator vía __init__. Por eso
-    creamos el grupo en __init_subclass__-style: lo construimos en el
-    constructor y lo asignamos al árbol del bot. Para eso usamos un
-    Group con localizations construido programáticamente.
+      • /help (grupo con subcomandos) — sistema de ayuda
     """
 
     def __init__(
@@ -39,45 +196,44 @@ class AdminCog(commands.Cog):
         self._set_language_uc = set_language_uc
         self._i18n = lang_resolver
         self._translator = translator
-        self._loc = CommandLocalizer(translator)
 
-        # ----- Grupo /help con localizations -----
-        # Lo construimos aquí (no como atributo de clase) para tener
-        # acceso al translator. Luego le añadimos los subcomandos.
-        help_desc_loc = expand_localizations(
-            translator.localizations("cmd.help.desc")
+        # Construimos el grupo con sus dependencias y lo añadimos al
+        # árbol del bot. Lo guardamos como atributo para poder removerlo
+        # en cog_unload.
+        self.help_group = HelpGroup(
+            translator=translator,
+            lang_resolver=lang_resolver,
         )
-        self.help_group = app_commands.Group(
-            name="help",
-            description=translator.t("cmd.help.desc", translator.DEFAULT_LANG),  # type: ignore[attr-defined]
-            description_localizations=help_desc_loc or None,
-        )
-        self._register_help_subcommands()
-
-        # Registramos el grupo en el árbol del bot.
-        # (Los subcomandos ya están enganchados al grupo al definirlos.)
         bot.tree.add_command(self.help_group)
 
-    # ------------------------------------------------------------------
-    # /language
-    # ------------------------------------------------------------------
-    @commands.Cog.listener()
-    async def on_ready(self):
-        # Listener vacío para mantener el patrón. La carga real va por setup_hook.
-        pass
+    async def cog_unload(self) -> None:
+        """Limpia el grupo /help del árbol al descargar el cog."""
+        self.bot.tree.remove_command(self.help_group.name)
 
-    # discord.py exige que los slash commands sean métodos decorados.
-    # Como el decorador necesita kwargs computados, los aplicamos al
-    # importarse el cog generando un closure. El truco: definimos el
-    # método con un decorador interno que aplique kwargs dinámicos
-    # vía el descriptor app_commands.Command. Dado que esto añade
-    # complejidad, optamos por una solución más simple: declarar el
-    # método con kwargs estáticos en idioma por defecto y luego, tras
-    # registrarse en el cog, sobrescribir name_localizations /
-    # description_localizations vía atributos.
-
-    @app_commands.command(name="language", description="Change the bot's language")
-    @app_commands.describe(language="Language to use")
+    # ----------- /language -----------
+    @app_commands.command(
+        name=_T("language", key="cmd.language.name"),
+        description=_T("Change the bot's language", key="cmd.language.desc"),
+    )
+    @app_commands.describe(
+        language=_T("Language to use", key="cmd.language.param_lang")
+    )
+    @app_commands.choices(
+        language=[
+            app_commands.Choice(
+                name=_T("Spanish", key="choice.lang.es"), value="es"
+            ),
+            app_commands.Choice(
+                name=_T("English", key="choice.lang.en"), value="en"
+            ),
+            app_commands.Choice(
+                name=_T("Polish", key="choice.lang.pl"), value="pl"
+            ),
+            app_commands.Choice(
+                name=_T("Japanese", key="choice.lang.ja"), value="ja"
+            ),
+        ]
+    )
     @app_commands.default_permissions(administrator=True)
     async def language_cmd(
         self,
@@ -111,179 +267,3 @@ class AdminCog(commands.Cog):
                 "common.warning", interaction.guild_id, message=str(e)
             )
             await interaction.followup.send(warning, ephemeral=True)
-
-    async def cog_load(self) -> None:
-        """
-        Hook que llama discord.py al añadir el cog. Usamos esto para
-        aplicar localizations dinámicas a los comandos del cog (no del
-        Group, que ya las tiene desde __init__).
-        """
-        self._apply_localizations_to_language_cmd()
-
-    def _apply_localizations_to_language_cmd(self) -> None:
-        """Aplica name/desc/localizations al comando /language y a sus choices."""
-        cmd = self.language_cmd  # type: ignore[assignment]
-        # cmd es un app_commands.Command (descriptor). Sobrescribimos sus campos.
-        kw = self._loc.command("cmd.language")
-        cmd.name = kw["name"]
-        cmd.description = kw["description"]
-        if "name_localizations" in kw:
-            cmd._locale_name = None  # reset por si discord.py lo cachea
-            cmd.extras["name_localizations"] = kw["name_localizations"]
-            # Asignación directa del dict para que la API de Discord lo reciba
-            for locale, val in kw["name_localizations"].items():
-                cmd.name_localizations[locale] = val
-        if "description_localizations" in kw:
-            for locale, val in kw["description_localizations"].items():
-                cmd.description_localizations[locale] = val
-
-        # Localizar el parámetro `language`
-        for param in cmd.parameters:
-            if param.name == "language":
-                # Descripción del parámetro
-                default_lang = self._translator.DEFAULT_LANG  # type: ignore[attr-defined]
-                param.description = self._translator.t(
-                    "cmd.language.param_lang", default_lang
-                )
-                desc_loc = expand_localizations(
-                    self._translator.localizations("cmd.language.param_lang")
-                )
-                for locale, val in desc_loc.items():
-                    param.description_localizations[locale] = val
-
-                # Choices localizados (es/en/pl/ja)
-                param.choices = [
-                    self._loc.choice("es", "choice.lang.es"),
-                    self._loc.choice("en", "choice.lang.en"),
-                    self._loc.choice("pl", "choice.lang.pl"),
-                    self._loc.choice("ja", "choice.lang.ja"),
-                ]
-
-    # ------------------------------------------------------------------
-    # /help all, /help twitch, /help youtube, /help admin
-    # ------------------------------------------------------------------
-    def _register_help_subcommands(self) -> None:
-        """Registra los subcomandos del grupo /help con sus localizations."""
-        translator = self._translator
-        default_lang = translator.DEFAULT_LANG  # type: ignore[attr-defined]
-        i18n = self._i18n
-        bot = self.bot
-
-        def make_subcommand(name: str, desc_key: str, build_embed_fn):
-            desc_loc = expand_localizations(translator.localizations(desc_key))
-            command = app_commands.Command(
-                name=name,
-                description=translator.t(desc_key, default_lang),
-                callback=build_embed_fn,
-            )
-            if desc_loc:
-                for locale, val in desc_loc.items():
-                    command.description_localizations[locale] = val
-            return command
-
-        async def help_all(interaction: discord.Interaction):
-            await interaction.response.defer(ephemeral=True)
-            lang = await i18n.get_lang(interaction.guild_id)
-            t = translator.t
-            embed = discord.Embed(
-                title=t("help.title", lang),
-                description=t("help.description", lang),
-                color=discord.Color.blurple(),
-            )
-            embed.add_field(
-                name=t("help.twitch.title", lang),
-                value=(
-                    f"{t('help.twitch.configure', lang)}\n\n"
-                    f"{t('help.twitch.add', lang)}\n\n"
-                    f"{t('help.twitch.remove', lang)}\n\n"
-                    f"{t('help.twitch.list', lang)}"
-                ),
-                inline=False,
-            )
-            embed.add_field(
-                name=t("help.youtube.title", lang),
-                value=(
-                    f"{t('help.youtube.configure', lang)}\n\n"
-                    f"{t('help.youtube.add', lang)}\n\n"
-                    f"{t('help.youtube.remove', lang)}\n\n"
-                    f"{t('help.youtube.list', lang)}"
-                ),
-                inline=False,
-            )
-            embed.add_field(
-                name=t("help.admin.title", lang),
-                value=(
-                    f"{t('help.admin.language', lang)}\n\n"
-                    f"{t('help.admin.help', lang)}"
-                ),
-                inline=False,
-            )
-            embed.set_footer(text=t("help.footer", lang))
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        async def help_twitch(interaction: discord.Interaction):
-            await interaction.response.defer(ephemeral=True)
-            lang = await i18n.get_lang(interaction.guild_id)
-            t = translator.t
-            embed = discord.Embed(
-                title=t("help.twitch.title", lang),
-                color=discord.Color.purple(),
-                description=(
-                    f"{t('help.twitch.configure', lang)}\n\n"
-                    f"{t('help.twitch.add', lang)}\n\n"
-                    f"{t('help.twitch.remove', lang)}\n\n"
-                    f"{t('help.twitch.list', lang)}"
-                ),
-            )
-            embed.set_footer(text=t("help.footer", lang))
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        async def help_youtube(interaction: discord.Interaction):
-            await interaction.response.defer(ephemeral=True)
-            lang = await i18n.get_lang(interaction.guild_id)
-            t = translator.t
-            embed = discord.Embed(
-                title=t("help.youtube.title", lang),
-                color=discord.Color.red(),
-                description=(
-                    f"{t('help.youtube.configure', lang)}\n\n"
-                    f"{t('help.youtube.add', lang)}\n\n"
-                    f"{t('help.youtube.remove', lang)}\n\n"
-                    f"{t('help.youtube.list', lang)}"
-                ),
-            )
-            embed.set_footer(text=t("help.footer", lang))
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        async def help_admin(interaction: discord.Interaction):
-            await interaction.response.defer(ephemeral=True)
-            lang = await i18n.get_lang(interaction.guild_id)
-            t = translator.t
-            embed = discord.Embed(
-                title=t("help.admin.title", lang),
-                color=discord.Color.blurple(),
-                description=(
-                    f"{t('help.admin.language', lang)}\n\n"
-                    f"{t('help.admin.help', lang)}"
-                ),
-            )
-            embed.set_footer(text=t("help.footer", lang))
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        # Engancha cada subcomando al grupo
-        self.help_group.add_command(
-            make_subcommand("all", "cmd.help_all.desc", help_all)
-        )
-        self.help_group.add_command(
-            make_subcommand("twitch", "cmd.help_twitch.desc", help_twitch)
-        )
-        self.help_group.add_command(
-            make_subcommand("youtube", "cmd.help_youtube.desc", help_youtube)
-        )
-        self.help_group.add_command(
-            make_subcommand("admin", "cmd.help_admin.desc", help_admin)
-        )
-
-    async def cog_unload(self) -> None:
-        """Limpia el grupo de help del árbol al descargar el cog."""
-        self.bot.tree.remove_command(self.help_group.name)

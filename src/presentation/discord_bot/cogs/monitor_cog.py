@@ -1,6 +1,23 @@
 # src/presentation/discord_bot/cogs/monitor_cog.py
+"""
+Cog de monitoreo de Twitch.
+
+La localización de comandos slash se delega al `app_commands.Translator`
+registrado en `bot.py` (`NamiAppTranslator`). Cada `locale_str(...)`
+recibe:
+  - como primer argumento, el texto por defecto (en inglés). Para los
+    `name=` del decorador este string debe ser ya un nombre slash válido
+    (lowercase, '-', '_', dígitos, 1-32 chars). discord.py valida ESTO
+    en tiempo de import, NO la `key`.
+  - `key=` con la clave del JSON, que usa `NamiAppTranslator` para
+    resolver las traducciones a otros idiomas.
+
+Las respuestas dinámicas (embeds, followups) se traducen como antes
+con `self._i18n.t(...)` y `self._translator.t(...)`.
+"""
 import discord
 from discord import app_commands
+from discord.app_commands import locale_str as _T
 from discord.ext import commands
 from typing import Optional, List
 
@@ -16,8 +33,6 @@ from src.application.use_cases.configure_channel_youtube import (
 from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
-from src.presentation.discord_bot.command_localizer import CommandLocalizer
-from src.presentation.discord_bot.discord_locale_map import expand_localizations
 
 
 class MonitorCog(commands.Cog):
@@ -43,11 +58,21 @@ class MonitorCog(commands.Cog):
         self._configure_youtube_uc = configure_youtube_uc
         self._i18n = lang_resolver
         self._translator = translator
-        self._loc = CommandLocalizer(translator)
 
     # ----------- /configure -----------
-    @app_commands.command(name="configure", description="Set the channel where live streams are announced")
-    @app_commands.describe(channel="Channel where live stream announcements will be posted")
+    @app_commands.command(
+        name=_T("configure", key="cmd.configure.name"),
+        description=_T(
+            "Set the channel where live streams (Twitch & YouTube Live) are announced",
+            key="cmd.configure.desc",
+        ),
+    )
+    @app_commands.describe(
+        channel=_T(
+            "Channel where live stream announcements will be posted",
+            key="cmd.configure.param_channel",
+        )
+    )
     @app_commands.default_permissions(administrator=True)
     async def configure(
         self,
@@ -72,8 +97,19 @@ class MonitorCog(commands.Cog):
             await self._send_warning(interaction, str(e))
 
     # ----------- /configure-youtube -----------
-    @app_commands.command(name="configure-youtube", description="Set the channel where YouTube videos are posted")
-    @app_commands.describe(channel="Channel where YouTube videos will be posted")
+    @app_commands.command(
+        name=_T("configure-youtube", key="cmd.configure_youtube.name"),
+        description=_T(
+            "Set the channel where YouTube videos and shorts are posted",
+            key="cmd.configure_youtube.desc",
+        ),
+    )
+    @app_commands.describe(
+        channel=_T(
+            "Channel where YouTube videos will be posted",
+            key="cmd.configure_youtube.param_channel",
+        )
+    )
     @app_commands.default_permissions(administrator=True)
     async def configure_youtube(
         self,
@@ -98,14 +134,43 @@ class MonitorCog(commands.Cog):
             await self._send_warning(interaction, str(e))
 
     # ----------- /add -----------
-    @app_commands.command(name="add", description="Add a Twitch streamer to monitor")
+    @app_commands.command(
+        name=_T("add", key="cmd.add.name"),
+        description=_T("Add a Twitch streamer to monitor", key="cmd.add.desc"),
+    )
     @app_commands.describe(
-        user="Twitch username",
-        message="Custom announcement message",
-        mention="Mention type",
-        role1="First role",
-        role2="Second role",
-        role3="Third role",
+        user=_T("Twitch username", key="cmd.add.param_user"),
+        message=_T(
+            "Custom message when announcing the stream",
+            key="cmd.add.param_message",
+        ),
+        mention=_T("Mention type when announcing", key="cmd.add.param_mention"),
+        role1=_T(
+            "First role to mention (only if mention='role')",
+            key="cmd.add.param_role1",
+        ),
+        role2=_T("Second role to mention (optional)", key="cmd.add.param_role2"),
+        role3=_T("Third role to mention (optional)", key="cmd.add.param_role3"),
+    )
+    @app_commands.choices(
+        mention=[
+            app_commands.Choice(
+                name=_T("None", key="choice.mention.none"),
+                value="ninguno",
+            ),
+            app_commands.Choice(
+                name=_T("@everyone", key="choice.mention.everyone"),
+                value="everyone",
+            ),
+            app_commands.Choice(
+                name=_T("@here", key="choice.mention.here"),
+                value="here",
+            ),
+            app_commands.Choice(
+                name=_T("Specific role", key="choice.mention.role"),
+                value="rol",
+            ),
+        ]
     )
     @app_commands.default_permissions(administrator=True)
     async def add_streamer(
@@ -183,8 +248,13 @@ class MonitorCog(commands.Cog):
             await self._send_warning(interaction, str(e))
 
     # ----------- /remove -----------
-    @app_commands.command(name="remove", description="Stop monitoring a streamer")
-    @app_commands.describe(user="Twitch username to remove")
+    @app_commands.command(
+        name=_T("remove", key="cmd.remove.name"),
+        description=_T("Stop monitoring a streamer", key="cmd.remove.desc"),
+    )
+    @app_commands.describe(
+        user=_T("Twitch username to remove", key="cmd.remove.param_user")
+    )
     @app_commands.default_permissions(administrator=True)
     async def remove_streamer(
         self,
@@ -207,7 +277,12 @@ class MonitorCog(commands.Cog):
             await self._send_warning(interaction, str(e))
 
     # ----------- /list -----------
-    @app_commands.command(name="list", description="Show monitored streamers")
+    @app_commands.command(
+        name=_T("list", key="cmd.list.name"),
+        description=_T(
+            "Show the streamers you are monitoring", key="cmd.list.desc"
+        ),
+    )
     async def list_streamers(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
@@ -278,72 +353,7 @@ class MonitorCog(commands.Cog):
         )
         await interaction.followup.send(text, ephemeral=True)
 
-    # ----------- aplicar localizations al cargar -----------
-    async def cog_load(self) -> None:
-        """Aplica name/desc/localizations a todos los comandos del cog."""
-        self._localize(self.configure, "cmd.configure", params={"channel": "cmd.configure.param_channel"})
-        self._localize(self.configure_youtube, "cmd.configure_youtube", params={"channel": "cmd.configure_youtube.param_channel"})
-        self._localize(
-            self.add_streamer,
-            "cmd.add",
-            params={
-                "user": "cmd.add.param_user",
-                "message": "cmd.add.param_message",
-                "mention": "cmd.add.param_mention",
-                "role1": "cmd.add.param_role1",
-                "role2": "cmd.add.param_role2",
-                "role3": "cmd.add.param_role3",
-            },
-            choices={
-                "mention": [
-                    ("ninguno", "choice.mention.none"),
-                    ("everyone", "choice.mention.everyone"),
-                    ("here", "choice.mention.here"),
-                    ("rol", "choice.mention.role"),
-                ],
-            },
-        )
-        self._localize(self.remove_streamer, "cmd.remove", params={"user": "cmd.remove.param_user"})
-        self._localize(self.list_streamers, "cmd.list")
-
-    def _localize(
-        self,
-        cmd: app_commands.Command,
-        base_key: str,
-        params: Optional[dict] = None,
-        choices: Optional[dict] = None,
-    ) -> None:
-        """Aplica name, description y todas las localizations a un comando."""
-        kw = self._loc.command(base_key)
-        cmd.name = kw["name"]
-        cmd.description = kw["description"]
-        if "name_localizations" in kw:
-            for locale, val in kw["name_localizations"].items():
-                cmd.name_localizations[locale] = val
-        if "description_localizations" in kw:
-            for locale, val in kw["description_localizations"].items():
-                cmd.description_localizations[locale] = val
-
-        if params:
-            for param in cmd.parameters:
-                key = params.get(param.name)
-                if not key:
-                    continue
-                default = self._translator.DEFAULT_LANG  # type: ignore[attr-defined]
-                param.description = self._translator.t(key, default)
-                desc_loc = expand_localizations(self._translator.localizations(key))
-                for locale, val in desc_loc.items():
-                    param.description_localizations[locale] = val
-
-        if choices:
-            for param in cmd.parameters:
-                if param.name in choices:
-                    param.choices = [
-                        self._loc.choice(value, name_key)
-                        for (value, name_key) in choices[param.name]
-                    ]
-
-    # ----------- !jankenpon (sin traducir) -----------
+    # ----------- !jankenpon (sin traducir, prefix command de juego) -----------
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"Bot conectado como {self.bot.user} (ID: {self.bot.user.id})")

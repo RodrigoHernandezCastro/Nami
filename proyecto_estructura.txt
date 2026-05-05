@@ -29,6 +29,7 @@
 │   │   │   ├── logger.py
 │   │   │   ├── notification_service.py
 │   │   │   ├── streamer_repository.py
+│   │   │   ├── translator.py
 │   │   │   ├── twitch_service.py
 │   │   │   ├── youtube_repository.py
 │   │   │   └── youtube_service.py
@@ -43,7 +44,8 @@
 │   │       ├── list_streamers.py
 │   │       ├── list_youtube_channels.py
 │   │       ├── remove_streamer.py
-│   │       └── remove_youtube_channel.py
+│   │       ├── remove_youtube_channel.py
+│   │       └── set_guild_language.py
 │   ├── composition_root
 │   │   ├── __init__.py
 │   │   └── container.py
@@ -69,6 +71,9 @@
 │   │   │   ├── __init__.py
 │   │   │   ├── twitch_api_client.py
 │   │   │   └── youtube_api_client.py
+│   │   ├── i18n
+│   │   │   ├── __init__.py
+│   │   │   └── translator.py
 │   │   ├── logging
 │   │   │   ├── __init__.py
 │   │   │   └── structured_logger.py
@@ -84,7 +89,8 @@
 │   │       │   ├── 003_youtube_channels.sql
 │   │       │   ├── 004_last_video_id.sql
 │   │       │   ├── 006_channel_name.sql
-│   │       │   └── 007_video_history.sql
+│   │       │   ├── 007_video_history.sql
+│   │       │   └── 008_default_language.sql
 │   │       ├── postgres
 │   │       │   ├── __init__.py
 │   │       │   ├── connection.py
@@ -107,12 +113,22 @@
 │   │   │   │   ├── stream_embed.py
 │   │   │   │   └── youtube_embed.py
 │   │   │   ├── __init__.py
+│   │   │   ├── app_translator.py
 │   │   │   ├── bot.py
 │   │   │   ├── cog_registry.py
-│   │   │   └── error_handler.py
+│   │   │   ├── command_localizer.py
+│   │   │   ├── discord_locale_map.py
+│   │   │   ├── error_handler.py
+│   │   │   └── i18n_helper.py
 │   │   └── event_bus
 │   │       ├── __init__.py
 │   │       └── events.py
+│   ├── resources
+│   │   └── locales
+│   │       ├── en.json
+│   │       ├── es.json
+│   │       ├── ja.json
+│   │       └── pl.json
 │   ├── __init__.py
 │   ├── debug_youtube.py
 │   └── test_api.py

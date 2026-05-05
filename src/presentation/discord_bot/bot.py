@@ -1,3 +1,4 @@
+# src/presentation/discord_bot/bot.py
 import discord
 from discord.ext import commands
 
@@ -5,8 +6,9 @@ from src.presentation.discord_bot.cogs.monitor_cog import MonitorCog
 from src.presentation.discord_bot.cogs.youtube_cog import YouTubeCog
 from src.presentation.discord_bot.cogs.admin_cog import AdminCog
 from src.presentation.discord_bot.tasks.stream_checker import StreamCheckerTask
-from src.presentation.discord_bot.error_handler import GlobalErrorHandler
 from src.presentation.discord_bot.tasks.youtube_checker import YouTubeCheckerTask
+from src.presentation.discord_bot.error_handler import GlobalErrorHandler
+from src.presentation.discord_bot.app_translator import NamiAppTranslator
 
 
 class NamiBot(commands.Bot):
@@ -25,7 +27,18 @@ class NamiBot(commands.Bot):
         self.translator = container.translator
 
     async def setup_hook(self) -> None:
-        # 1) Cogs
+        # 1) Registrar el app_commands.Translator ANTES de añadir cogs.
+        # discord.py llama a translate() durante tree.sync(), así que
+        # debe estar registrado antes del sync; registrarlo antes de
+        # los cogs es lo más seguro.
+        await self.tree.set_translator(
+            NamiAppTranslator(
+                translator=self.container.translator,
+                logger=self.container.logger,
+            )
+        )
+
+        # 2) Cogs
         await self.add_cog(
             MonitorCog(
                 bot=self,
@@ -76,7 +89,7 @@ class NamiBot(commands.Bot):
 
         GlobalErrorHandler(self, self.container.logger).register()
 
-        # 2) Sync
+        # 3) Sync
         DEV_GUILD_ID = self.settings.DEV_GUILD_ID
         if DEV_GUILD_ID:
             guild = discord.Object(id=int(DEV_GUILD_ID))

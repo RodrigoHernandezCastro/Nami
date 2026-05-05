@@ -1,7 +1,9 @@
+# src/infrastructure/external_apis/twitch_api_client.py
 import aiohttp
 from typing import Dict, List, Optional
 
-from aiohttp_retry import ExponentialRetry, RetryClient, retry_options
+from aiohttp_retry import ExponentialRetry, RetryClient
+
 from src.application.interfaces.twitch_service import ITwitchService
 from src.application.interfaces.logger import ILogger
 
@@ -9,6 +11,12 @@ from src.application.interfaces.logger import ILogger
 class TwitchAPIClient(ITwitchService):
     """
     Cliente Twitch con gestión de token OAuth y sesión reutilizable.
+
+    Internamente usamos `aiohttp_retry.RetryClient`, que envuelve un
+    `aiohttp.ClientSession` y añade retries con backoff exponencial.
+    Guardamos referencia explícita al `ClientSession` subyacente porque
+    `RetryClient` no expone `.closed` directamente — el atributo vive
+    en el `ClientSession` que envuelve.
     """
 
     BASE_URL = "https://api.twitch.tv/helix"
@@ -24,22 +32,49 @@ class TwitchAPIClient(ITwitchService):
         self.client_secret = client_secret
         self._logger = logger
         self._access_token: Optional[str] = None
-        self._session: Optional[aiohttp.ClientSession] = None
+        # `_client_session` es el aiohttp.ClientSession real (tiene .closed).
+        # `_session` es el RetryClient que usamos para hacer peticiones.
+        self._client_session: Optional[aiohttp.ClientSession] = None
         self._session: Optional[RetryClient] = None
 
     async def initialize(self) -> None:
         """Crea la sesión HTTP y obtiene el primer token."""
-        retry_options = ExponentialRetry(attempts=3, start_timeout=1.0, max_timeout=5.0)
-        client_session = aiohttp.ClientSession()
-        self._session = RetryClient(client_session=client_session, retry_options=retry_options)
+        retry_options = ExponentialRetry(
+            attempts=3,
+            start_timeout=1.0,
+            max_timeout=5.0,
+        )
+        self._client_session = aiohttp.ClientSession()
+        self._session = RetryClient(
+            client_session=self._client_session,
+            retry_options=retry_options,
+        )
         await self._refresh_token()
         self._logger.info("twitch_client_initialized")
 
     async def close(self) -> None:
-        """Cierra la sesión HTTP al apagar el bot."""
-        if self._session and not self._session.closed:
-            await self._session.close()
+        """
+        Cierra la sesión HTTP al apagar el bot.
+
+        Comprobamos `closed` sobre el `ClientSession` real, no sobre el
+        `RetryClient` (que no tiene ese atributo). Cerrar el RetryClient
+        también cierra el ClientSession subyacente.
+        """
+        if self._client_session is None:
+            return
+        if self._client_session.closed:
+            return
+
+        try:
+            if self._session is not None:
+                await self._session.close()
+        finally:
+            # Si `_session.close()` por alguna razón no cerró el
+            # ClientSession (defensivo), lo cerramos nosotros.
+            if not self._client_session.closed:
+                await self._client_session.close()
             self._session = None
+            self._client_session = None
             self._logger.info("twitch_client_closed")
 
     async def _refresh_token(self) -> None:
