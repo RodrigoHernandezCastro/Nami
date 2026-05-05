@@ -68,6 +68,7 @@ class HelpGroup(app_commands.Group):
         name="all",
         description=_T("Show all bot commands", key="cmd.help_all.desc"),
     )
+    @app_commands.default_permissions(administrator=True)
     async def help_all(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         lang = await self._i18n.get_lang(interaction.guild_id)
@@ -113,6 +114,7 @@ class HelpGroup(app_commands.Group):
         name="twitch",
         description=_T("Twitch commands", key="cmd.help_twitch.desc"),
     )
+    @app_commands.default_permissions(administrator=True)
     async def help_twitch(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         lang = await self._i18n.get_lang(interaction.guild_id)
@@ -135,6 +137,7 @@ class HelpGroup(app_commands.Group):
         name="youtube",
         description=_T("YouTube commands", key="cmd.help_youtube.desc"),
     )
+    @app_commands.default_permissions(administrator=True)
     async def help_youtube(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         lang = await self._i18n.get_lang(interaction.guild_id)
@@ -157,6 +160,7 @@ class HelpGroup(app_commands.Group):
         name="admin",
         description=_T("Admin commands", key="cmd.help_admin.desc"),
     )
+    @app_commands.default_permissions(administrator=True)
     async def help_admin(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
         lang = await self._i18n.get_lang(interaction.guild_id)

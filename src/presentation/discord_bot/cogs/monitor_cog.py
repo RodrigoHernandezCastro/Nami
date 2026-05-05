@@ -283,6 +283,7 @@ class MonitorCog(commands.Cog):
             "Show the streamers you are monitoring", key="cmd.list.desc"
         ),
     )
+    @app_commands.default_permissions(administrator=True)
     async def list_streamers(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 

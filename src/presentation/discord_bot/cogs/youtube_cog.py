@@ -95,6 +95,7 @@ class YouTubeCog(commands.Cog):
             ),
         ]
     )
+    @app_commands.default_permissions(administrator=True)
     async def add_youtube(
         self,
         interaction: discord.Interaction,
@@ -171,6 +172,7 @@ class YouTubeCog(commands.Cog):
             "List monitored YouTube channels", key="cmd.list_youtube.desc"
         ),
     )
+    @app_commands.default_permissions(administrator=True)
     async def list_youtube(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
@@ -213,6 +215,7 @@ class YouTubeCog(commands.Cog):
             key="cmd.remove_youtube.param_user",
         )
     )
+    @app_commands.default_permissions(administrator=True)
     async def remove_youtube(
         self,
         interaction: discord.Interaction,
