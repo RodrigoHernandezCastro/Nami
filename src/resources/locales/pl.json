@@ -125,5 +125,31 @@
   "choice.lang.es": "Hiszpański",
   "choice.lang.en": "Angielski",
   "choice.lang.pl": "Polski",
-  "choice.lang.ja": "Japoński"
+  "choice.lang.ja": "Japoński",
+
+  "jankenpon.usage": "🎮 **Zagrajmy!**\nUżycie: `!jankenpon <ruch>`\nDopuszczalne ruchy: `{examples}`\n_Ta wiadomość zostanie automatycznie usunięta._",
+  "jankenpon.invalid_move": "❓ Nie rozpoznaję ruchu `{input}`.\nDopuszczalne ruchy: `{examples}`",
+  "jankenpon.cooldown": "⏳ Poczekaj **{seconds}s** przed kolejną grą.",
+  "jankenpon.guild_only": "Ta komenda działa tylko na serwerach.",
+
+  "jankenpon.result.win": "🎉 Wygrałeś! ({xp_delta} XP)",
+  "jankenpon.result.loss": "💀 Przegrałeś… ({xp_delta} XP)",
+  "jankenpon.result.draw": "🤝 Remis! ({xp_delta} XP)",
+
+  "jankenpon.field.level": "🎖️ Poziom",
+  "jankenpon.field.xp": "✨ XP",
+  "jankenpon.field.xp_to_next": "🎯 Do następnego",
+  "jankenpon.field.stats": "📊 Statystyki",
+  "jankenpon.field.stats_value": "Wygrane: **{wins}** · Przegrane: **{losses}** · Remisy: **{draws}**\nRozegrane gry: **{total}**",
+
+  "jankenpon.level_up": "🎊 **Awansowałeś na poziom {level}!** 🎊",
+  "jankenpon.footer.autodelete": "Ta wiadomość zniknie za kilka sekund.",
+
+  "jankenpon.lb.title.server": "🏆 Ranking serwera {guild}",
+  "jankenpon.lb.title.global": "🌍 Globalny Ranking Jankenpon",
+  "jankenpon.lb.empty": "Nikt jeszcze nie grał. Bądź pierwszy z `!jankenpon kamien`!",
+  "jankenpon.lb.entry": "{medal} <@{user_id}> — Pz **{level}** · **{xp}** XP · _{games} gier_",
+  "jankenpon.lb.entry_global": "{medal} <@{user_id}> — Pz **{level}** · **{xp}** XP łącznie · _{games} gier_",
+  "jankenpon.lb.footer.server": "Top 5 serwera — użyj `!jankenpon-lb global` dla rankingu globalnego.",
+  "jankenpon.lb.footer.global": "Globalny top 5 — XP zsumowane ze wszystkich serwerów."
 }

@@ -353,30 +353,3 @@ class MonitorCog(commands.Cog):
             "common.warning", interaction.guild_id, message=message
         )
         await interaction.followup.send(text, ephemeral=True)
-
-    # ----------- !jankenpon (sin traducir, prefix command de juego) -----------
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print(f"Bot conectado como {self.bot.user} (ID: {self.bot.user.id})")
-        print("MonitorCog listo.")
-
-    @commands.command(name="jankenpon")
-    async def jankenpon(self, ctx, eleccion: str):
-        eleccion = eleccion.lower()
-        choices = ["piedra", "papel", "tijera"]
-        bot_choice = random.choice(choices)
-
-        if eleccion not in choices:
-            await ctx.reply("¡Debes elegir piedra, papel o tijera!")
-            return
-
-        wins_against = {"piedra": "tijera", "papel": "piedra", "tijera": "papel"}
-
-        if eleccion == bot_choice:
-            resultado = "¡Empate!"
-        elif wins_against[eleccion] == bot_choice:
-            resultado = "¡Ganaste!"
-        else:
-            resultado = "¡Perdiste!"
-
-        await ctx.reply(f"Yo elegí **{bot_choice}**. {resultado}")

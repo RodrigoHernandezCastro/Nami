@@ -44,6 +44,12 @@ class Container:
         self.guild_repo = PostgresGuildRepository(self._pool)
         self.youtube_repo = PostgresYouTubeRepository(self._pool, logger=self._logger)
 
+        # NOTA: el repo de user_xp solo está implementado para MariaDB
+        # (decisión del usuario). Si arrancas con Postgres, el cog
+        # JankenponCog no podrá registrarse — bot.py debe hacer la
+        # comprobación o crear el repo Postgres en el futuro.
+        self.user_xp_repo = None
+
     async def _setup_mariadb(self) -> None:
         self._pool = await aiomysql.create_pool(
             host=self.settings.DB_HOST,
@@ -61,10 +67,12 @@ class Container:
         from src.infrastructure.persistence.mariadb.streamer_repository_mysql import MariaDBStreamerRepository
         from src.infrastructure.persistence.mariadb.guild_repository_mysql import MariaDBGuildRepository
         from src.infrastructure.persistence.mariadb.youtube_repository_mysql import MariaDBYouTubeRepository
+        from src.infrastructure.persistence.mariadb.user_xp_repository_mysql import MariaDBUserXPRepository
 
         self.streamer_repo = MariaDBStreamerRepository(self._pool)
         self.guild_repo = MariaDBGuildRepository(self._pool)
         self.youtube_repo = MariaDBYouTubeRepository(self._pool)
+        self.user_xp_repo = MariaDBUserXPRepository(self._pool)
 
     async def _setup_repositories(self) -> None:
         pass
@@ -115,6 +123,10 @@ class Container:
         from src.application.use_cases.list_youtube_channels import ListYouTubeChannelsUseCase
         from src.application.use_cases.check_youtube_videos import CheckYouTubeVideosUseCase
         from src.application.use_cases.set_guild_language import SetGuildLanguageUseCase
+        # NUEVO: jankenpon
+        from src.application.use_cases.play_jankenpon import PlayJankenponUseCase
+        from src.application.use_cases.get_guild_leaderboard import GetGuildLeaderboardUseCase
+        from src.application.use_cases.get_global_leaderboard import GetGlobalLeaderboardUseCase
 
         # Twitch
         self.add_streamer_uc = AddStreamerUseCase(
@@ -166,6 +178,27 @@ class Container:
             translator=self.translator,
             logger=self._logger,
         )
+
+        # ─────────────────────────────────────────────────────────────
+        # Jankenpon (XP y leaderboards)
+        # Solo se cablean si tenemos repo (MariaDB). Con Postgres se
+        # quedan en None y bot.py debe omitir el cog.
+        # ─────────────────────────────────────────────────────────────
+        if self.user_xp_repo is not None:
+            self.play_jankenpon_uc = PlayJankenponUseCase(
+                user_xp_repo=self.user_xp_repo,
+                logger=self._logger,
+            )
+            self.guild_leaderboard_uc = GetGuildLeaderboardUseCase(
+                user_xp_repo=self.user_xp_repo,
+            )
+            self.global_leaderboard_uc = GetGlobalLeaderboardUseCase(
+                user_xp_repo=self.user_xp_repo,
+            )
+        else:
+            self.play_jankenpon_uc = None
+            self.guild_leaderboard_uc = None
+            self.global_leaderboard_uc = None
 
     async def shutdown(self) -> None:
         if hasattr(self, '_pool') and self._pool:

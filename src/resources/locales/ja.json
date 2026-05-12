@@ -68,7 +68,7 @@
   "mention.unknown": "不明",
 
   "cmd.configure.name": "configure",
-  "cmd.configure.desc": "ライブ配信（TwitchとYouTube Live）を通知するチャンネルを設定します",
+  "cmd.configure.desc": "ライブ配信(TwitchとYouTube Live)を通知するチャンネルを設定します",
   "cmd.configure.param_channel": "ライブ配信の通知が投稿されるチャンネル",
 
   "cmd.configure_youtube.name": "configure-youtube",
@@ -80,9 +80,9 @@
   "cmd.add.param_user": "Twitchのユーザー名",
   "cmd.add.param_message": "配信通知のカスタムメッセージ",
   "cmd.add.param_mention": "通知時のメンションタイプ",
-  "cmd.add.param_role1": "メンションする最初のロール（mention='role' の場合のみ）",
-  "cmd.add.param_role2": "メンションする2番目のロール（任意）",
-  "cmd.add.param_role3": "メンションする3番目のロール（任意）",
+  "cmd.add.param_role1": "メンションする最初のロール(mention='role' の場合のみ)",
+  "cmd.add.param_role2": "メンションする2番目のロール(任意)",
+  "cmd.add.param_role3": "メンションする3番目のロール(任意)",
 
   "cmd.remove.name": "remove",
   "cmd.remove.desc": "ストリーマーの監視を停止します",
@@ -92,17 +92,17 @@
   "cmd.list.desc": "監視中のストリーマーを表示します",
 
   "cmd.add_youtube.name": "add-youtube",
-  "cmd.add_youtube.desc": "YouTubeチャンネル（@username）を追加します",
-  "cmd.add_youtube.param_user": "チャンネル名（@IlloJuan_, @HakosBaelz）",
+  "cmd.add_youtube.desc": "YouTubeチャンネル(@username)を追加します",
+  "cmd.add_youtube.param_user": "チャンネル名(@IlloJuan_, @HakosBaelz)",
   "cmd.add_youtube.param_message": "新しい動画通知のカスタムメッセージ",
   "cmd.add_youtube.param_mention": "通知時のメンションタイプ",
-  "cmd.add_youtube.param_role1": "メンションする最初のロール（mention='role' の場合のみ）",
-  "cmd.add_youtube.param_role2": "2番目のロール（任意）",
-  "cmd.add_youtube.param_role3": "3番目のロール（任意）",
+  "cmd.add_youtube.param_role1": "メンションする最初のロール(mention='role' の場合のみ)",
+  "cmd.add_youtube.param_role2": "2番目のロール(任意)",
+  "cmd.add_youtube.param_role3": "3番目のロール(任意)",
 
   "cmd.remove_youtube.name": "remove-youtube",
-  "cmd.remove_youtube.desc": "YouTubeチャンネルの監視を停止します（@usernameまたはID）",
-  "cmd.remove_youtube.param_user": "チャンネル名（@IlloJuan_）または直接ID（UCxxxx）",
+  "cmd.remove_youtube.desc": "YouTubeチャンネルの監視を停止します(@usernameまたはID)",
+  "cmd.remove_youtube.param_user": "チャンネル名(@IlloJuan_)または直接ID(UCxxxx)",
 
   "cmd.list_youtube.name": "list-youtube",
   "cmd.list_youtube.desc": "監視中のYouTubeチャンネル一覧",
@@ -125,5 +125,31 @@
   "choice.lang.es": "スペイン語",
   "choice.lang.en": "英語",
   "choice.lang.pl": "ポーランド語",
-  "choice.lang.ja": "日本語"
+  "choice.lang.ja": "日本語",
+
+  "jankenpon.usage": "🎮 **じゃんけんしよう!**\n使い方: `!jankenpon <手>`\n有効な手: `{examples}`\n_このメッセージは自動的に削除されます。_",
+  "jankenpon.invalid_move": "❓ `{input}` という手が分かりません。\n有効な手: `{examples}`",
+  "jankenpon.cooldown": "⏳ あと **{seconds}秒** お待ちください。",
+  "jankenpon.guild_only": "このコマンドはサーバー内でのみ動作します。",
+
+  "jankenpon.result.win": "🎉 勝ちました!({xp_delta} XP)",
+  "jankenpon.result.loss": "💀 負けました…({xp_delta} XP)",
+  "jankenpon.result.draw": "🤝 あいこ!({xp_delta} XP)",
+
+  "jankenpon.field.level": "🎖️ レベル",
+  "jankenpon.field.xp": "✨ XP",
+  "jankenpon.field.xp_to_next": "🎯 次のレベルまで",
+  "jankenpon.field.stats": "📊 戦績",
+  "jankenpon.field.stats_value": "勝ち: **{wins}** · 負け: **{losses}** · 引き分け: **{draws}**\n総対戦数: **{total}**",
+
+  "jankenpon.level_up": "🎊 **レベル {level} に上がりました!** 🎊",
+  "jankenpon.footer.autodelete": "このメッセージは数秒後に自動的に削除されます。",
+
+  "jankenpon.lb.title.server": "🏆 {guild} ランキング",
+  "jankenpon.lb.title.global": "🌍 グローバル じゃんけんランキング",
+  "jankenpon.lb.empty": "まだ誰もプレイしていません。`!jankenpon グー` で最初のプレイヤーになろう!",
+  "jankenpon.lb.entry": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** XP · _{games} 戦_",
+  "jankenpon.lb.entry_global": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** XP合計 · _{games} 戦_",
+  "jankenpon.lb.footer.server": "サーバートップ5 — `!jankenpon-lb global` でグローバルランキングを表示。",
+  "jankenpon.lb.footer.global": "グローバルトップ5 — 全サーバーのXP合計。"
 }

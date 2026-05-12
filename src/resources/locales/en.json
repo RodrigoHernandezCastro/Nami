@@ -125,5 +125,31 @@
   "choice.lang.es": "Spanish",
   "choice.lang.en": "English",
   "choice.lang.pl": "Polish",
-  "choice.lang.ja": "Japanese"
+  "choice.lang.ja": "Japanese",
+
+  "jankenpon.usage": "🎮 **Let's play!**\nUsage: `!jankenpon <move>`\nValid moves: `{examples}`\n_This message will auto-delete._",
+  "jankenpon.invalid_move": "❓ I don't recognize the move `{input}`.\nValid moves: `{examples}`",
+  "jankenpon.cooldown": "⏳ Wait **{seconds}s** before playing again.",
+  "jankenpon.guild_only": "This command only works in servers.",
+
+  "jankenpon.result.win": "🎉 You won! ({xp_delta} XP)",
+  "jankenpon.result.loss": "💀 You lost… ({xp_delta} XP)",
+  "jankenpon.result.draw": "🤝 It's a draw! ({xp_delta} XP)",
+
+  "jankenpon.field.level": "🎖️ Level",
+  "jankenpon.field.xp": "✨ XP",
+  "jankenpon.field.xp_to_next": "🎯 To next level",
+  "jankenpon.field.stats": "📊 Stats",
+  "jankenpon.field.stats_value": "Wins: **{wins}** · Losses: **{losses}** · Draws: **{draws}**\nGames played: **{total}**",
+
+  "jankenpon.level_up": "🎊 **You leveled up to level {level}!** 🎊",
+  "jankenpon.footer.autodelete": "This message will auto-delete in a few seconds.",
+
+  "jankenpon.lb.title.server": "🏆 {guild} Leaderboard",
+  "jankenpon.lb.title.global": "🌍 Global Jankenpon Leaderboard",
+  "jankenpon.lb.empty": "No one has played yet. Be the first with `!jankenpon rock`!",
+  "jankenpon.lb.entry": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** XP · _{games} games_",
+  "jankenpon.lb.entry_global": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** total XP · _{games} games_",
+  "jankenpon.lb.footer.server": "Server top 5 — use `!jankenpon-lb global` for the worldwide ranking.",
+  "jankenpon.lb.footer.global": "Worldwide top 5 — XP summed across all servers."
 }

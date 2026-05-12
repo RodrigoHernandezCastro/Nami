@@ -116,7 +116,6 @@
 │   │   │   ├── app_translator.py
 │   │   │   ├── bot.py
 │   │   │   ├── cog_registry.py
-│   │   │   ├── command_localizer.py
 │   │   │   ├── discord_locale_map.py
 │   │   │   ├── error_handler.py
 │   │   │   └── i18n_helper.py
