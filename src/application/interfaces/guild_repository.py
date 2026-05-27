@@ -17,3 +17,7 @@ class IGuildRepository(ABC):
 
     @abstractmethod
     async def delete(self, guild_id: int) -> bool: ...
+
+    async def set_youtube_live_channel(self, guild_id: int, channel_id: int) -> None:
+        """Configura atómicamente el canal de directos de YouTube."""
+        pass

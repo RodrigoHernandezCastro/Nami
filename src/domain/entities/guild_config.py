@@ -6,13 +6,14 @@ from typing import Optional
 class GuildConfig:
     """
     Configuración por servidor Discord. Un registro por guild_id.
-    announcement_channel_id y youtube_channel_id son None hasta que
-    el administrador los configure con /configurar.
+    announcement_channel_id, youtube_channel_id y youtube_live_channel_id
+    son None hasta que el administrador los configure con los comandos
+    /configurar, /configurar-youtube, y /configurar-youtube-live.
     """
     guild_id: int
     announcement_channel_id: Optional[int] = None
     youtube_channel_id: Optional[int] = None
+    youtube_live_channel_id: Optional[int] = None
     streamer_limit: int = 15
     default_mention_type: str = "ninguno"
     language: str = "es"
- 

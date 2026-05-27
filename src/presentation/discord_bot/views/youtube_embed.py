@@ -2,9 +2,6 @@ import discord
 from datetime import datetime
 import re
 
-from googleapiclient import channel
-from pytest_cov import embed
-
 from src.domain.entities.youtube_channel import YouTubeChannel
 
 class YouTubeEmbedBuilder:
@@ -16,14 +13,31 @@ class YouTubeEmbedBuilder:
         thumbnail = video.get("thumbnail", "")
         video_url = f"https://youtube.com/watch?v={video['video_id']}"
 
-        video_type = "SHORT" if YouTubeEmbedBuilder._is_short(video) else "VIDEO"
-        type_emoji = "📱" if video_type == "SHORT" else "📹"
+        is_live = video.get("liveBroadcastContent") == "live"
+        is_short = YouTubeEmbedBuilder._is_short(video)
 
-        embed = discord.Embed(
-            title=f"{type_emoji} {title}",
-            url=video_url,
-            color=discord.Color.red(),
-        )
+        if is_live:
+            type_emoji = "🔴"
+            embed = discord.Embed(
+                title=f"{type_emoji} LIVE — {title}",
+                url=video_url,
+                color=discord.Color.from_str("#FF0000"),
+            )
+        elif is_short:
+            type_emoji = "📱"
+            embed = discord.Embed(
+                title=f"{type_emoji} {title}",
+                url=video_url,
+                color=discord.Color.red(),
+            )
+        else:
+            type_emoji = "📹"
+            embed = discord.Embed(
+                title=f"{type_emoji} {title}",
+                url=video_url,
+                color=discord.Color.red(),
+            )
+
         embed.set_image(url=thumbnail)
         embed.set_footer(text=f"{channel.channel_name} • YouTube")
         return embed

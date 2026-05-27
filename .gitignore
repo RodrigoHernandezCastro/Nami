@@ -2,8 +2,10 @@ node_modules/
 __pycache__/
 .env
 *.log
-venv/
 .vscode/
+.mariadb/
+.venv/
+env
 <<<<<<< HEAD
 env/
 =======

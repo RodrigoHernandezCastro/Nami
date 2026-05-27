@@ -45,6 +45,7 @@ class NamiBot(commands.Bot):
                 list_streamers_uc=self.container.list_streamers_uc,
                 configure_channel_uc=self.container.configure_channel_uc,
                 configure_youtube_uc=self.container.configure_youtube_uc,
+                configure_youtube_live_uc=self.container.configure_youtube_live_uc,
                 lang_resolver=self.container.lang_resolver,
                 translator=self.container.translator,
             )

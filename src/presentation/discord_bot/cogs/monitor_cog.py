@@ -30,6 +30,9 @@ from src.application.use_cases.configure_channel import ConfigureChannelUseCase,
 from src.application.use_cases.configure_channel_youtube import (
     ConfigureChannelYouTubeUseCase, ConfigureChannelYouTubeCommand,
 )
+from src.application.use_cases.configure_channel_youtube_live import (
+    ConfigureChannelYouTubeLiveUseCase, ConfigureChannelYouTubeLiveCommand,
+)
 from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
@@ -46,6 +49,7 @@ class MonitorCog(commands.Cog):
         list_streamers_uc: ListStreamersUseCase,
         configure_channel_uc: ConfigureChannelUseCase,
         configure_youtube_uc: ConfigureChannelYouTubeUseCase,
+        configure_youtube_live_uc: ConfigureChannelYouTubeLiveUseCase,
         lang_resolver: GuildLanguageResolver,
         translator: ITranslator,
     ) -> None:
@@ -56,6 +60,7 @@ class MonitorCog(commands.Cog):
         self._list_uc = list_streamers_uc
         self._configure_uc = configure_channel_uc
         self._configure_youtube_uc = configure_youtube_uc
+        self._configure_youtube_live_uc = configure_youtube_live_uc
         self._i18n = lang_resolver
         self._translator = translator
 
@@ -63,7 +68,7 @@ class MonitorCog(commands.Cog):
     @app_commands.command(
         name=_T("configure", key="cmd.configure.name"),
         description=_T(
-            "Set the channel where live streams (Twitch & YouTube Live) are announced",
+            "Set the channel where Twitch live streams are announced",
             key="cmd.configure.desc",
         ),
     )
@@ -100,7 +105,7 @@ class MonitorCog(commands.Cog):
     @app_commands.command(
         name=_T("configure-youtube", key="cmd.configure_youtube.name"),
         description=_T(
-            "Set the channel where YouTube videos and shorts are posted",
+            "Set the channel where YouTube videos (not live streams) are posted",
             key="cmd.configure_youtube.desc",
         ),
     )
@@ -126,6 +131,43 @@ class MonitorCog(commands.Cog):
             )
             msg = await self._i18n.t(
                 "configure.youtube.success",
+                interaction.guild_id,
+                channel_mention=channel.mention,
+            )
+            await interaction.followup.send(msg, ephemeral=True)
+        except DomainError as e:
+            await self._send_warning(interaction, str(e))
+
+    # ----------- /configure-youtube-live -----------
+    @app_commands.command(
+        name=_T("configure-youtube-live", key="cmd.configure_youtube_live.name"),
+        description=_T(
+            "Set the channel where YouTube live streams are announced",
+            key="cmd.configure_youtube_live.desc",
+        ),
+    )
+    @app_commands.describe(
+        channel=_T(
+            "Channel where YouTube live streams will be posted",
+            key="cmd.configure_youtube_live.param_channel",
+        )
+    )
+    @app_commands.default_permissions(administrator=True)
+    async def configure_youtube_live(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel,
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await self._configure_youtube_live_uc.execute(
+                ConfigureChannelYouTubeLiveCommand(
+                    guild_id=interaction.guild_id,
+                    channel_id=channel.id,
+                )
+            )
+            msg = await self._i18n.t(
+                "configure.youtubelive.success",
                 interaction.guild_id,
                 channel_mention=channel.mention,
             )

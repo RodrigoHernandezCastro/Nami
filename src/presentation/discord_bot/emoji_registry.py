@@ -56,28 +56,34 @@ class AppEmojiRegistry:
         self._loaded: bool = False
 
     async def load(self, bot: commands.Bot) -> None:
-        """
-        Carga todos los Application Emojis del bot en memoria.
-        Idempotente: si ya se cargó, no hace nada.
-        """
         if self._loaded:
             return
 
         try:
-            emojis = await bot.fetch_application_emojis()
+            # En discord.py 2.4.0, realizamos la petición HTTP manualmente
+            app_id = bot.application_id or (await bot.application_info()).id
+            route = discord.http.Route("GET", f"/applications/{app_id}/emojis")
+            data = await bot.http.request(route)
+
+            # El endpoint devuelve un dict con una lista de emojis en 'items'
+            emojis_data = data.get("items", [])
+
+            for emoji_data in emojis_data:
+                name = emoji_data["name"]
+                emoji_id = emoji_data["id"]
+                animated = emoji_data.get("animated", False)
+                # Formateamos el string nativo de Discord
+                fmt = f"<a:{name}:{emoji_id}>" if animated else f"<:{name}:{emoji_id}>"
+                self._cache[name] = fmt
+
         except discord.HTTPException as exc:
             self._logger.warning(
                 "app_emojis_fetch_failed",
                 error=str(exc),
                 hint="Se usarán fallbacks Unicode.",
             )
-            self._loaded = True   # marcamos como "cargado" para no reintentar
+            self._loaded = True
             return
-
-        # str(emoji) devuelve directamente "<:name:id>" o "<a:name:id>".
-        # Esto está garantizado por discord.py.
-        for emoji in emojis:
-            self._cache[emoji.name] = str(emoji)
 
         self._loaded = True
         self._logger.info(

@@ -117,6 +117,7 @@ class Container:
         from src.application.use_cases.list_streamers import ListStreamersUseCase
         from src.application.use_cases.configure_channel import ConfigureChannelUseCase
         from src.application.use_cases.configure_channel_youtube import ConfigureChannelYouTubeUseCase
+        from src.application.use_cases.configure_channel_youtube_live import ConfigureChannelYouTubeLiveUseCase
         from src.application.use_cases.check_live_streams import CheckLiveStreamsUseCase
         from src.application.use_cases.add_youtube_channel import AddYouTubeChannelUseCase
         from src.application.use_cases.remove_youtube_channel import RemoveYouTubeChannelUseCase
@@ -168,6 +169,10 @@ class Container:
             logger=self._logger,
         )
         self.configure_youtube_uc = ConfigureChannelYouTubeUseCase(
+            guild_repo=self.guild_repo,
+            logger=self._logger,
+        )
+        self.configure_youtube_live_uc = ConfigureChannelYouTubeLiveUseCase(
             guild_repo=self.guild_repo,
             logger=self._logger,
         )

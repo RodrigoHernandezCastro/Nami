@@ -24,6 +24,7 @@
 
   "help.youtube.title": "🔴 Comandos de YouTube",
   "help.youtube.configure": "**`/configure-youtube <canal>`**\nCanal donde se publican los videos de YouTube.",
+"help.youtube.configure_live": "**`/configure-youtube-live <canal>`**\nCanal donde se publican los directos de YouTube.",
   "help.youtube.add": "**`/add-youtube <usuario> [mensaje] [mención] [roles]`**\nAñade un canal de YouTube al monitoreo.",
   "help.youtube.remove": "**`/remove-youtube <usuario>`**\nDeja de monitorear un canal de YouTube.",
   "help.youtube.list": "**`/list-youtube`**\nMuestra los canales de YouTube monitoreados.",
@@ -32,8 +33,9 @@
   "help.admin.language": "**`/language <es|en|pl|ja>`**\nCambia el idioma del bot en este servidor.",
   "help.admin.help": "**`/help [categoría]`**\nMuestra esta ayuda.",
 
-  "configure.twitch.success": "✅ Canal de **streams en vivo** configurado: {channel_mention}\n💡 Para configurar dónde se publican los videos de YouTube usa `/configure-youtube`.",
+  "configure.twitch.success": "✅ Canal de **streams en vivo** configurado: {channel_mention}\n💡 Para YouTube: `/configure-youtube` (videos) y `/configure-youtube-live` (directos).",
   "configure.youtube.success": "✅ Canal de **videos de YouTube** configurado: {channel_mention}",
+"configure.youtubelive.success": "✅ Canal de **directos de YouTube** configurado: {channel_mention}",
 
   "streamer.added.title": "Streamer añadido correctamente",
   "streamer.added.field_user": "👤 Usuario",
@@ -68,12 +70,16 @@
   "mention.unknown": "Desconocido",
 
   "cmd.configure.name": "configurar",
-  "cmd.configure.desc": "Configura el canal donde se anunciarán los streams en vivo (Twitch y YouTube Live)",
+  "cmd.configure.desc": "Configura el canal donde se anunciarán los streams en vivo de Twitch",
   "cmd.configure.param_channel": "Canal donde se publicarán los anuncios de streams en vivo",
 
   "cmd.configure_youtube.name": "configurar-youtube",
-  "cmd.configure_youtube.desc": "Configura el canal donde se publicarán los videos y shorts de YouTube",
+  "cmd.configure_youtube.desc": "Configura el canal donde se publicarán los videos de YouTube (no directos)",
   "cmd.configure_youtube.param_channel": "Canal donde se publicarán los videos de YouTube",
+
+"cmd.configure_youtube_live.name": "configurar-youtube-directo",
+"cmd.configure_youtube_live.desc": "Configura el canal donde se publicarán los directos de YouTube",
+"cmd.configure_youtube_live.param_channel": "Canal donde se publicarán los directos de YouTube",
 
   "cmd.add.name": "añadir",
   "cmd.add.desc": "Añade un streamer de Twitch para monitorear",

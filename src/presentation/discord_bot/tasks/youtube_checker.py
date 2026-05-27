@@ -60,16 +60,27 @@ class YouTubeCheckerTask(commands.Cog):
 
     async def _announce_video(self, channel: YouTubeChannel, video: dict) -> None:
         """
-        Publica el video en el canal correcto:
-        - Usa youtube_channel_id si está configurado (canal exclusivo de videos).
-        - Si no, usa announcement_channel_id como fallback.
+        Publica el video/directo en el canal correcto según el tipo:
+        - Directos (liveBroadcastContent == "live"):
+            prioridad: youtube_live_channel_id > youtube_channel_id > announcement_channel_id
+        - Videos normales:
+            prioridad: youtube_channel_id > announcement_channel_id
         """
         config = await self._guild_repo.get_by_id(channel.guild_id)
         if not config:
             return
 
-        # Prioridad: canal dedicado a YouTube > canal general de anuncios
-        target_channel_id = config.youtube_channel_id or config.announcement_channel_id
+        is_live = video.get("liveBroadcastContent") == "live"
+
+        if is_live:
+            target_channel_id = (
+                config.youtube_live_channel_id
+                or config.youtube_channel_id
+                or config.announcement_channel_id
+            )
+        else:
+            target_channel_id = config.youtube_channel_id or config.announcement_channel_id
+
         if not target_channel_id:
             self._logger.warning(
                 "youtube_no_channel_configured",
@@ -91,8 +102,9 @@ class YouTubeCheckerTask(commands.Cog):
 
         try:
             msg = await channel_obj.send(content=content, embed=embed)
+            log_key = "youtube_live_announced" if is_live else "youtube_video_announced"
             self._logger.info(
-                "youtube_video_announced",
+                log_key,
                 guild_id=channel.guild_id,
                 channel_id=channel.channel_id,
                 video_id=video["video_id"],

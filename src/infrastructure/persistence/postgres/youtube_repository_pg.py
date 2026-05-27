@@ -59,7 +59,9 @@ class PostgresYouTubeRepository(IYouTubeRepository):
         query = """
             SELECT y.* FROM youtube_channels y
             INNER JOIN guild_configs g ON y.guild_id = g.guild_id
-            WHERE g.announcement_channel_id IS NOT NULL;
+            WHERE g.announcement_channel_id IS NOT NULL
+               OR g.youtube_channel_id IS NOT NULL
+               OR g.youtube_live_channel_id IS NOT NULL;
         """
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(query)

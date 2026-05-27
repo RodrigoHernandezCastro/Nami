@@ -24,6 +24,7 @@
 
   "help.youtube.title": "🔴 YouTube Commands",
   "help.youtube.configure": "**`/configure-youtube <channel>`**\nChannel where YouTube videos are posted.",
+"help.youtube.configure_live": "**`/configure-youtube-live <channel>`**\nChannel where YouTube live streams are posted.",
   "help.youtube.add": "**`/add-youtube <username> [message] [mention] [roles]`**\nAdds a YouTube channel to monitor.",
   "help.youtube.remove": "**`/remove-youtube <username>`**\nStops monitoring a YouTube channel.",
   "help.youtube.list": "**`/list-youtube`**\nShows monitored YouTube channels.",
@@ -32,8 +33,9 @@
   "help.admin.language": "**`/language <es|en|pl|ja>`**\nChanges the bot's language for this server.",
   "help.admin.help": "**`/help [category]`**\nShows this help.",
 
-  "configure.twitch.success": "✅ **Live streams** channel configured: {channel_mention}\n💡 To configure where YouTube videos are posted, use `/configure-youtube`.",
+  "configure.twitch.success": "✅ **Live streams** channel configured: {channel_mention}\n💡 For YouTube: `/configure-youtube` (videos) and `/configure-youtube-live` (live streams).",
   "configure.youtube.success": "✅ **YouTube videos** channel configured: {channel_mention}",
+"configure.youtubelive.success": "✅ **YouTube live streams** channel configured: {channel_mention}",
 
   "streamer.added.title": "Streamer added successfully",
   "streamer.added.field_user": "👤 User",
@@ -68,12 +70,16 @@
   "mention.unknown": "Unknown",
 
   "cmd.configure.name": "configure",
-  "cmd.configure.desc": "Set the channel where live streams (Twitch & YouTube Live) are announced",
+  "cmd.configure.desc": "Set the channel where Twitch live streams are announced",
   "cmd.configure.param_channel": "Channel where live stream announcements will be posted",
 
   "cmd.configure_youtube.name": "configure-youtube",
-  "cmd.configure_youtube.desc": "Set the channel where YouTube videos and shorts are posted",
+  "cmd.configure_youtube.desc": "Set the channel where YouTube videos (not live streams) are posted",
   "cmd.configure_youtube.param_channel": "Channel where YouTube videos will be posted",
+
+"cmd.configure_youtube_live.name": "configure-youtube-live",
+"cmd.configure_youtube_live.desc": "Set the channel where YouTube live streams are announced",
+"cmd.configure_youtube_live.param_channel": "Channel where YouTube live streams will be posted",
 
   "cmd.add.name": "add",
   "cmd.add.desc": "Add a Twitch streamer to monitor",

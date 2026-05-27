@@ -15,7 +15,8 @@ class PostgresGuildRepository(IGuildRepository):
 
     async def get_by_id(self, guild_id: int) -> Optional[GuildConfig]:
         query = """
-            SELECT guild_id, announcement_channel_id, streamer_limit,
+            SELECT guild_id, announcement_channel_id, youtube_channel_id,
+                   youtube_live_channel_id, streamer_limit,
                    default_mention_type, language
             FROM guild_configs
             WHERE guild_id = $1;
@@ -29,15 +30,19 @@ class PostgresGuildRepository(IGuildRepository):
     async def create_or_update(self, config: GuildConfig) -> GuildConfig:
         query = """
             INSERT INTO guild_configs
-                (guild_id, announcement_channel_id, streamer_limit,
+                (guild_id, announcement_channel_id, youtube_channel_id,
+                 youtube_live_channel_id, streamer_limit,
                  default_mention_type, language)
-            VALUES ($1, $2, $3, $4, $5)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             ON CONFLICT (guild_id) DO UPDATE SET
                 announcement_channel_id = EXCLUDED.announcement_channel_id,
+                youtube_channel_id = EXCLUDED.youtube_channel_id,
+                youtube_live_channel_id = EXCLUDED.youtube_live_channel_id,
                 streamer_limit = EXCLUDED.streamer_limit,
                 default_mention_type = EXCLUDED.default_mention_type,
                 language = EXCLUDED.language
-            RETURNING guild_id, announcement_channel_id, streamer_limit,
+            RETURNING guild_id, announcement_channel_id, youtube_channel_id,
+                      youtube_live_channel_id, streamer_limit,
                       default_mention_type, language;
         """
         async with self._pool.acquire() as conn:
@@ -45,6 +50,8 @@ class PostgresGuildRepository(IGuildRepository):
                 query,
                 config.guild_id,
                 config.announcement_channel_id,
+                config.youtube_channel_id,
+                config.youtube_live_channel_id,
                 config.streamer_limit,
                 config.default_mention_type,
                 config.language,
@@ -74,6 +81,8 @@ class PostgresGuildRepository(IGuildRepository):
         return GuildConfig(
             guild_id=row["guild_id"],
             announcement_channel_id=row["announcement_channel_id"],
+            youtube_channel_id=row.get("youtube_channel_id"),
+            youtube_live_channel_id=row.get("youtube_live_channel_id"),
             streamer_limit=row["streamer_limit"],
             default_mention_type=row["default_mention_type"],
             language=row["language"],

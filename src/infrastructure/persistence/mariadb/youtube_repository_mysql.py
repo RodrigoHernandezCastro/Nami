@@ -67,7 +67,8 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
             FROM youtube_channels y
             INNER JOIN guild_configs g ON y.guild_id = g.guild_id
             WHERE g.announcement_channel_id IS NOT NULL
-               OR g.youtube_channel_id IS NOT NULL;
+               OR g.youtube_channel_id IS NOT NULL
+               OR g.youtube_live_channel_id IS NOT NULL;
         """
         async with self._pool.acquire() as conn:
             async with conn.cursor(aiomysql.DictCursor) as cur:

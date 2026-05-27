@@ -93,6 +93,7 @@ class HelpGroup(app_commands.Group):
             name=t("help.youtube.title", lang),
             value=(
                 f"{t('help.youtube.configure', lang)}\n\n"
+                f"{t('help.youtube.configure_live', lang)}\n\n"
                 f"{t('help.youtube.add', lang)}\n\n"
                 f"{t('help.youtube.remove', lang)}\n\n"
                 f"{t('help.youtube.list', lang)}"
@@ -148,6 +149,7 @@ class HelpGroup(app_commands.Group):
             color=discord.Color.red(),
             description=(
                 f"{t('help.youtube.configure', lang)}\n\n"
+                f"{t('help.youtube.configure_live', lang)}\n\n"
                 f"{t('help.youtube.add', lang)}\n\n"
                 f"{t('help.youtube.remove', lang)}\n\n"
                 f"{t('help.youtube.list', lang)}"

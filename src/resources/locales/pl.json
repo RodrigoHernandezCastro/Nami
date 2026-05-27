@@ -24,6 +24,7 @@
 
   "help.youtube.title": "🔴 Komendy YouTube",
   "help.youtube.configure": "**`/configure-youtube <kanał>`**\nKanał, na którym publikowane są filmy z YouTube.",
+"help.youtube.configure_live": "**`/configure-youtube-live <kanał>`**\nKanał, na którym publikowane są transmisje na żywo z YouTube.",
   "help.youtube.add": "**`/add-youtube <użytkownik> [wiadomość] [wzmianka] [role]`**\nDodaje kanał YouTube do monitorowania.",
   "help.youtube.remove": "**`/remove-youtube <użytkownik>`**\nPrzestaje monitorować kanał YouTube.",
   "help.youtube.list": "**`/list-youtube`**\nPokazuje monitorowane kanały YouTube.",
@@ -32,8 +33,9 @@
   "help.admin.language": "**`/language <es|en|pl|ja>`**\nZmienia język bota dla tego serwera.",
   "help.admin.help": "**`/help [kategoria]`**\nPokazuje tę pomoc.",
 
-  "configure.twitch.success": "✅ Kanał **transmisji na żywo** skonfigurowany: {channel_mention}\n💡 Aby skonfigurować kanał dla filmów YouTube, użyj `/configure-youtube`.",
-  "configure.youtube.success": "✅ Kanał **filmów YouTube** skonfigurowany: {channel_mention}",
+"configure.twitch.success": "✅ Kanał **transmisji na żywo** skonfigurowany: {channel_mention}\n💡 YouTube: `/configure-youtube` (filmy) i `/configure-youtube-live` (transmisje na żywo).",
+"configure.youtube.success": "✅ Kanał **filmów YouTube** skonfigurowany: {channel_mention}",
+"configure.youtubelive.success": "✅ Kanał **transmisji na żywo YouTube** skonfigurowany: {channel_mention}",
 
   "streamer.added.title": "Streamer dodany pomyślnie",
   "streamer.added.field_user": "👤 Użytkownik",
@@ -68,12 +70,16 @@
   "mention.unknown": "Nieznany",
 
   "cmd.configure.name": "konfiguruj",
-  "cmd.configure.desc": "Ustaw kanał, na którym ogłaszane są transmisje na żywo (Twitch i YouTube Live)",
+  "cmd.configure.desc": "Ustaw kanał, na którym ogłaszane są transmisje na żywo z Twitcha",
   "cmd.configure.param_channel": "Kanał, na którym będą publikowane ogłoszenia transmisji",
 
   "cmd.configure_youtube.name": "konfiguruj-youtube",
-  "cmd.configure_youtube.desc": "Ustaw kanał, na którym publikowane są filmy i shorty z YouTube",
+  "cmd.configure_youtube.desc": "Ustaw kanał, na którym publikowane są filmy z YouTube (nie transmisje na żywo)",
   "cmd.configure_youtube.param_channel": "Kanał, na którym będą publikowane filmy YouTube",
+
+"cmd.configure_youtube_live.name": "konfiguruj-youtube-live",
+"cmd.configure_youtube_live.desc": "Ustaw kanał, na którym publikowane są transmisje na żywo z YouTube",
+"cmd.configure_youtube_live.param_channel": "Kanał, na którym będą publikowane transmisje na żywo z YouTube",
 
   "cmd.add.name": "dodaj",
   "cmd.add.desc": "Dodaj streamera Twitch do monitorowania",

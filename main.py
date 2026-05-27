@@ -31,7 +31,7 @@ async def main() -> None:
     try:
         await bot.start(settings.DISCORD_TOKEN)
     except KeyboardInterrupt:
-        print("\n⏹ Apagando bot...")
+        print("\nApagando bot...")
     except Exception as e:
         # Imprime el error real que rompió el bot (p.ej. el del setup_hook)
         # ANTES de intentar el shutdown, para que el shutdown nunca

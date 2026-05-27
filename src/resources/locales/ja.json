@@ -24,6 +24,7 @@
 
   "help.youtube.title": "🔴 YouTubeコマンド",
   "help.youtube.configure": "**`/configure-youtube <チャンネル>`**\nYouTube動画を投稿するチャンネルを設定します。",
+"help.youtube.configure_live": "**`/configure-youtube-live <チャンネル>`**\nYouTubeライブ配信を投稿するチャンネルを設定します。",
   "help.youtube.add": "**`/add-youtube <ユーザー名> [メッセージ] [メンション] [ロール]`**\nYouTubeチャンネルを監視に追加します。",
   "help.youtube.remove": "**`/remove-youtube <ユーザー名>`**\nYouTubeチャンネルの監視を停止します。",
   "help.youtube.list": "**`/list-youtube`**\n監視中のYouTubeチャンネルを表示します。",
@@ -32,8 +33,9 @@
   "help.admin.language": "**`/language <es|en|pl|ja>`**\nこのサーバーのボットの言語を変更します。",
   "help.admin.help": "**`/help [カテゴリ]`**\nこのヘルプを表示します。",
 
-  "configure.twitch.success": "✅ **ライブ配信** チャンネルを設定しました: {channel_mention}\n💡 YouTube動画用のチャンネルを設定するには `/configure-youtube` を使用してください。",
-  "configure.youtube.success": "✅ **YouTube動画** チャンネルを設定しました: {channel_mention}",
+"configure.twitch.success": "✅ **ライブ配信** チャンネルを設定しました: {channel_mention}\n💡 YouTube: `/configure-youtube` (動画) と `/configure-youtube-live` (ライブ) を使用してください。",
+"configure.youtube.success": "✅ **YouTube動画** チャンネルを設定しました: {channel_mention}",
+"configure.youtubelive.success": "✅ **YouTubeライブ** チャンネルを設定しました: {channel_mention}",
 
   "streamer.added.title": "ストリーマーを追加しました",
   "streamer.added.field_user": "👤 ユーザー",
@@ -68,12 +70,16 @@
   "mention.unknown": "不明",
 
   "cmd.configure.name": "configure",
-  "cmd.configure.desc": "ライブ配信(TwitchとYouTube Live)を通知するチャンネルを設定します",
+  "cmd.configure.desc": "Twitchのライブ配信を通知するチャンネルを設定します",
   "cmd.configure.param_channel": "ライブ配信の通知が投稿されるチャンネル",
 
   "cmd.configure_youtube.name": "configure-youtube",
-  "cmd.configure_youtube.desc": "YouTube動画とショートが投稿されるチャンネルを設定します",
+  "cmd.configure_youtube.desc": "YouTube動画(ライブ配信以外)が投稿されるチャンネルを設定します",
   "cmd.configure_youtube.param_channel": "YouTube動画が投稿されるチャンネル",
+
+"cmd.configure_youtube_live.name": "configure-youtube-live",
+"cmd.configure_youtube_live.desc": "YouTubeライブ配信が投稿されるチャンネルを設定します",
+"cmd.configure_youtube_live.param_channel": "YouTubeライブ配信が投稿されるチャンネル",
 
   "cmd.add.name": "add",
   "cmd.add.desc": "Twitchストリーマーを監視に追加します",
