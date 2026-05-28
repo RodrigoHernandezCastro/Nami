@@ -30,9 +30,7 @@ class RemoveYouTubeChannelUseCase:
             command.channel_id,
         )
         if not removed:
-            raise YouTubeChannelNotFoundError(
-                f"Canal {command.channel_id} no está monitoreado."
-            )
+            raise YouTubeChannelNotFoundError(channel=command.channel_id)
 
         self._logger.info(
             "youtube_channel_removed",

@@ -31,9 +31,7 @@ class UpdateStreamerUseCase:
         streamers = await self._streamer_repo.find_by_guild(command.guild_id)
         existing = [s for s in streamers if s.username.lower() == command.username.lower()]
         if not existing:
-            raise StreamerNotFoundError(
-                f"'{command.username}' no está en la lista de monitoreo."
-            )
+            raise StreamerNotFoundError(username=command.username)
 
         streamer = existing[0]
         streamer.custom_message = command.custom_message

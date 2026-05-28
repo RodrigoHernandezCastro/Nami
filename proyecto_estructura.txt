@@ -1,4 +1,12 @@
 /
+├── .pytest_cache
+│   ├── v
+│   │   └── cache
+│   │       ├── lastfailed
+│   │       └── nodeids
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   └── README.md
 ├── docs
 │   ├── 01-architecture.md
 │   ├── 02-project-structure.md
@@ -45,6 +53,7 @@
 │   │       ├── configure_channel.py
 │   │       ├── configure_channel_youtube.py
 │   │       ├── configure_channel_youtube_live.py
+│   │       ├── configure_youtube_live_settings.py
 │   │       ├── get_global_leaderboard.py
 │   │       ├── get_guild_leaderboard.py
 │   │       ├── kofi.py
@@ -53,7 +62,9 @@
 │   │       ├── play_jankenpon.py
 │   │       ├── remove_streamer.py
 │   │       ├── remove_youtube_channel.py
-│   │       └── set_guild_language.py
+│   │       ├── set_guild_language.py
+│   │       ├── update_streamer.py
+│   │       └── update_youtube_channel.py
 │   ├── composition_root
 │   │   ├── __init__.py
 │   │   └── container.py
@@ -104,7 +115,8 @@
 │   │       │   ├── 007_video_history.sql
 │   │       │   ├── 008_default_language.sql
 │   │       │   ├── 009_jankenpon_xp.sql
-│   │       │   └── 010_youtube_live_channel.sql
+│   │       │   ├── 010_youtube_live_channel.sql
+│   │       │   └── 011_youtube_channel_live_settings.sql
 │   │       ├── postgres
 │   │       │   ├── __init__.py
 │   │       │   ├── connection.py
@@ -149,6 +161,21 @@
 │   ├── __init__.py
 │   ├── debug_youtube.py
 │   └── test_api.py
+├── test_clases
+│   ├── application
+│   │   └── uses_cases_test
+│   │       ├── configure_channel_youtube_live_test.py
+│   │       ├── test_add_youtube_channel.py
+│   │       └── test_play_jankenpon.py
+│   ├── domain
+│   │   ├── entities
+│   │   │   └── test_user_xp.py
+│   │   └── value_objects
+│   │       ├── test_jankenpon_move.py
+│   │       └── test_level.py
+│   ├── infrastructure
+│   └── presentation
+│       └── test_jankenpon_parser.py
 ├── venv
 │   ├── bin
 │   │   ├── activate
@@ -1267,6 +1294,7 @@
 │   │               └── WHEEL
 │   ├── .gitignore
 │   └── pyvenv.cfg
+├── .coverage
 ├── .env.example
 ├── .gitignore
 ├── flake.lock

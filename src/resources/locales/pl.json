@@ -160,5 +160,15 @@
   "jankenpon.lb.entry": "{medal} <@{user_id}> — Pz **{level}** · **{xp}** XP · _{games} gier_",
   "jankenpon.lb.entry_global": "{medal} <@{user_id}> — Pz **{level}** · **{xp}** XP łącznie · _{games} gier_",
   "jankenpon.lb.footer.server": "Top 5 serwera — użyj `!jankenpon-lb global` dla rankingu globalnego.",
-  "jankenpon.lb.footer.global": "Globalny top 5 — XP zsumowane ze wszystkich serwerów."
+  "jankenpon.lb.footer.global": "Globalny top 5 — XP zsumowane ze wszystkich serwerów.",
+  "error.streamer_already_exists": "**{username}** jest już monitorowany.",
+  "error.streamer_limit_reached": "Osiągnięto limit streamerów ({limit}).",
+  "error.streamer_not_on_twitch": "**{username}** nie istnieje na Twitchu.",
+  "error.channel_not_configured": "Najpierw skonfiguruj kanał ogłoszeń za pomocą `/configure`.",
+  "error.streamer_not_found": "**{username}** nie jest monitorowany.",
+  "error.youtube_channel_not_found": "Kanał `{channel}` nie jest monitorowany.",
+  "error.channel_not_found": "Kanał YouTube `{channel}` nie istnieje.",
+  "error.channel_limit_reached": "Osiągnięto limit kanałów ({limit}).",
+  "error.domain_generic": "Nie można było wykonać tej czynności.",
+  "error.unexpected": "Coś poszło nie tak. Zespół został powiadomiony."
 }

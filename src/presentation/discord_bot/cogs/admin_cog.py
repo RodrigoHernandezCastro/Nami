@@ -37,6 +37,7 @@ from src.application.use_cases.set_guild_language import (
 from src.domain.exceptions.domain_exceptions import DomainError
 from src.application.interfaces.translator import ITranslator
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
+from src.presentation.discord_bot.error_messages import domain_error_message
 
 
 # ---------------------------------------------------------------------------
@@ -275,7 +276,5 @@ class AdminCog(commands.Cog):
             await interaction.followup.send(msg, ephemeral=True)
 
         except DomainError as e:
-            warning = await self._i18n.t(
-                "common.warning", interaction.guild_id, message=str(e)
-            )
+            warning = await domain_error_message(e, interaction.guild_id, self._i18n)
             await interaction.followup.send(warning, ephemeral=True)

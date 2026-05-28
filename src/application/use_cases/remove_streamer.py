@@ -33,9 +33,7 @@ class RemoveStreamerUseCase:
             command.username.lower(),
         )
         if not removed:
-            raise StreamerNotFoundError(
-                f"'{command.username}' no está en la lista de monitoreo."
-            )
+            raise StreamerNotFoundError(username=command.username)
 
         self._logger.info(
             "streamer_removed",

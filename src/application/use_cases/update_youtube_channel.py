@@ -34,9 +34,7 @@ class UpdateYouTubeChannelUseCase:
         channels = await self._youtube_repo.find_by_guild(command.guild_id)
         existing = [c for c in channels if c.channel_id == command.channel_id]
         if not existing:
-            raise YouTubeChannelNotFoundError(
-                f"Canal '{command.channel_id}' no está monitoreado."
-            )
+            raise YouTubeChannelNotFoundError(channel=command.channel_id)
 
         channel = existing[0]
         channel.custom_message = command.custom_message

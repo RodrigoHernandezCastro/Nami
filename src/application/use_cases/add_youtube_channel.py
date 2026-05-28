@@ -47,9 +47,7 @@ class AddYouTubeChannelUseCase:
         """
         # 1) Validar que el canal existe en YouTube y obtener su nombre
         if not await self._youtube_service.channel_exists(command.channel_id):
-            raise ChannelNotFoundError(
-                f"El canal '{command.channel_id}' no existe en YouTube."
-            )
+            raise ChannelNotFoundError(channel=command.channel_id)
 
         details = await self._youtube_service.get_channel_details(command.channel_id)
         channel_name = details["title"] if details else command.channel_id
@@ -61,17 +59,12 @@ class AddYouTubeChannelUseCase:
             or guild_config.youtube_channel_id
             or guild_config.youtube_live_channel_id
         ):
-            raise ChannelNotConfiguredError(
-                "No hay ningún canal de anuncios configurado. "
-                "Usa /configure, /configure-youtube o /configure-youtube-live primero."
-            )
+            raise ChannelNotConfiguredError()
 
         # 3) Validar límite de canales
         current_count = await self._youtube_repo.count_by_guild(command.guild_id)
         if current_count >= guild_config.streamer_limit:
-            raise ChannelLimitReachedError(
-                f"Límite alcanzado: {guild_config.streamer_limit} canales."
-            )
+            raise ChannelLimitReachedError(limit=guild_config.streamer_limit)
 
         # 4) Persistir
         channel = YouTubeChannel(
@@ -105,7 +98,5 @@ class AddYouTubeChannelUseCase:
         """
         channel_id = await self._youtube_service.username_to_channel_id(username)
         if not channel_id:
-            raise ChannelNotFoundError(
-                f"No se encontró ningún canal de YouTube para '{username}'."
-            )
+            raise ChannelNotFoundError(channel=username)
         return channel_id

@@ -39,9 +39,7 @@ class PostgresStreamerRepository(IStreamerRepository):
                 streamer.id = row["id"]
                 return streamer
         except asyncpg.UniqueViolationError as e:
-            raise StreamerAlreadyExistsError(
-                f"'{streamer.username}' ya existe en este servidor."
-            ) from e
+            raise StreamerAlreadyExistsError(username=streamer.username) from e
 
     async def update(self, streamer: Streamer) -> Streamer:
         query = """

@@ -119,7 +119,7 @@ class NamiBot(commands.Bot):
                 driver=self.settings.db_driver,
             )
 
-        GlobalErrorHandler(self, self.container.logger).register()
+        GlobalErrorHandler(self, self.container.logger, self.container.lang_resolver).register()
 
         # 3) Sync slash commands
         DEV_GUILD_ID = self.settings.DEV_GUILD_ID

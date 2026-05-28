@@ -160,5 +160,15 @@
   "jankenpon.lb.entry": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** XP · _{games} 戦_",
   "jankenpon.lb.entry_global": "{medal} <@{user_id}> — Lv **{level}** · **{xp}** XP合計 · _{games} 戦_",
   "jankenpon.lb.footer.server": "サーバートップ5 — `!jankenpon-lb global` でグローバルランキングを表示。",
-  "jankenpon.lb.footer.global": "グローバルトップ5 — 全サーバーのXP合計。"
+  "jankenpon.lb.footer.global": "グローバルトップ5 — 全サーバーのXP合計。",
+  "error.streamer_already_exists": "**{username}** はすでに監視されています。",
+  "error.streamer_limit_reached": "ストリーマーの上限に達しました ({limit})。",
+  "error.streamer_not_on_twitch": "**{username}** はTwitchに存在しません。",
+  "error.channel_not_configured": "まず `/configure` で通知チャンネルを設定してください。",
+  "error.streamer_not_found": "**{username}** は監視されていません。",
+  "error.youtube_channel_not_found": "チャンネル `{channel}` は監視されていません。",
+  "error.channel_not_found": "YouTubeチャンネル `{channel}` は存在しません。",
+  "error.channel_limit_reached": "チャンネルの上限に達しました ({limit})。",
+  "error.domain_generic": "その操作を完了できませんでした。",
+  "error.unexpected": "エラーが発生しました。チームに通知されました。"
 }

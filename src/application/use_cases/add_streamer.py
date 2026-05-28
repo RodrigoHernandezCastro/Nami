@@ -56,20 +56,14 @@ class AddStreamerUseCase:
         # 2) Reglas de negocio
         guild_config = await self._guild_repo.get_by_id(command.guild_id)
         if not guild_config or not guild_config.announcement_channel_id:
-            raise ChannelNotConfiguredError(
-                "El canal de anuncios no está configurado."
-            )
+            raise ChannelNotConfiguredError()
 
         current = await self._streamer_repo.count_by_guild(command.guild_id)
         if current >= guild_config.streamer_limit:
-            raise StreamerLimitReachedError(
-                f"Límite alcanzado: {guild_config.streamer_limit}"
-            )
+            raise StreamerLimitReachedError(limit=guild_config.streamer_limit)
 
         if not await self._twitch.user_exists(username.value):
-            raise StreamerNotOnTwitchError(
-                f"'{username.value}' no existe en Twitch."
-            )
+            raise StreamerNotOnTwitchError(username=username.value)
 
         # 3) Persistir
         streamer = Streamer(

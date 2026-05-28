@@ -39,9 +39,7 @@ class MariaDBStreamerRepository(IStreamerRepository):
                     return streamer
                 except aiomysql.IntegrityError as e:
                     if e.args[0] == 1062:  # Duplicate entry
-                        raise StreamerAlreadyExistsError(
-                            f"'{streamer.username}' ya existe en este servidor."
-                        ) from e
+                        raise StreamerAlreadyExistsError(username=streamer.username) from e
                     raise
 
     async def update(self, streamer: Streamer) -> Streamer:

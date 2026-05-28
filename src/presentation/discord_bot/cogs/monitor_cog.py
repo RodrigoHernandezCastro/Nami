@@ -37,6 +37,7 @@ from src.application.use_cases.configure_channel_youtube_live import (
 from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
+from src.presentation.discord_bot.error_messages import domain_error_message
 
 
 class MonitorCog(commands.Cog):
@@ -102,7 +103,10 @@ class MonitorCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /configure-youtube -----------
     @app_commands.command(
@@ -139,7 +143,10 @@ class MonitorCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /configure-youtube-live -----------
     @app_commands.command(
@@ -176,7 +183,10 @@ class MonitorCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /add -----------
     @app_commands.command(
@@ -290,7 +300,10 @@ class MonitorCog(commands.Cog):
             await interaction.followup.send(embed=embed, ephemeral=True)
 
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /remove -----------
     @app_commands.command(
@@ -319,7 +332,10 @@ class MonitorCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /list -----------
     @app_commands.command(
@@ -483,7 +499,10 @@ class MonitorCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- helpers -----------
     async def _format_mention_info(

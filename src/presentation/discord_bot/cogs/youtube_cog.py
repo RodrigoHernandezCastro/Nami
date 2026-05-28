@@ -33,6 +33,7 @@ from src.application.use_cases.configure_youtube_live_settings import (
 from src.application.interfaces.translator import ITranslator
 from src.domain.exceptions.domain_exceptions import DomainError, ChannelNotFoundError
 from src.presentation.discord_bot.i18n_helper import GuildLanguageResolver
+from src.presentation.discord_bot.error_messages import domain_error_message
 
 
 class YouTubeCog(commands.Cog):
@@ -173,7 +174,10 @@ class YouTubeCog(commands.Cog):
             await interaction.followup.send(embed=embed, ephemeral=True)
 
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /edit-youtube -----------
     @app_commands.command(
@@ -287,7 +291,10 @@ class YouTubeCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /add-youtube-live -----------
     @app_commands.command(
@@ -389,7 +396,10 @@ class YouTubeCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- /list-youtube -----------
     @app_commands.command(
@@ -469,7 +479,10 @@ class YouTubeCog(commands.Cog):
             )
             await interaction.followup.send(msg, ephemeral=True)
         except DomainError as e:
-            await self._send_warning(interaction, str(e))
+            await self._send_warning(
+                interaction,
+                await domain_error_message(e, interaction.guild_id, self._i18n),
+            )
 
     # ----------- helpers -----------
     async def _format_mention(
