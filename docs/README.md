@@ -5,7 +5,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Discord.py](https://img.shields.io/badge/discord.py-2.4-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![MariaDB](https://img.shields.io/badge/MariaDB-11-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
 [![Twitch](https://img.shields.io/badge/Twitch_API-9146FF?style=for-the-badge&logo=twitch&logoColor=white)](https://dev.twitch.tv/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
@@ -44,7 +44,7 @@
 - 🎨 **Anuncios Personalizables** — Mensajes únicos por streamer, con embeds enriquecidos.
 - 👥 **Menciones Flexibles** — `@everyone`, `@here` o hasta **3 roles específicos** por streamer.
 - 🌐 **Multi-Servidor** — Un solo bot puede servir a múltiples comunidades simultáneamente.
-- ⚡ **Alta Disponibilidad** — Arquitectura asíncrona con pool de conexiones PostgreSQL.
+- ⚡ **Alta Disponibilidad** — Arquitectura asíncrona con pool de conexiones MariaDB.
 - 🔐 **Seguro por Diseño** — Validación a nivel de dominio, manejo robusto de errores.
 - 📊 **Logging Estructurado** — Logs en JSON listos para observabilidad (Loki, Datadog, ELK).
 - 🏛️ **Clean Architecture** — Código mantenible, testeable y extensible.
@@ -76,7 +76,7 @@
 | :--- | :--- |
 | **Lenguaje** | Python 3.12+ |
 | **Framework Bot** | discord.py 2.4 |
-| **Base de Datos** | PostgreSQL 15 + asyncpg |
+| **Base de Datos** | MariaDB 11 + aiomysql |
 | **API Externa** | Twitch Helix API |
 | **Configuración** | Pydantic Settings |
 | **Logging** | structlog (JSON) |
@@ -91,7 +91,7 @@
 ### 📦 Requisitos Previos
 
 - Python 3.12 o superior.
-- PostgreSQL 15 o superior.
+- MariaDB 11 o superior.
 - Una aplicación de [Discord Developer Portal](https://discord.com/developers/applications).
 - Credenciales de [Twitch Developer Console](https://dev.twitch.tv/console).
 
@@ -123,7 +123,7 @@
 
 5. **Crear la base de datos:**
    ```bash
-   psql -U postgres
+   mysql -u root -p
    CREATE DATABASE nami_bot;
    \q
    ```
@@ -147,27 +147,31 @@
 Crea un archivo `.env` en la raíz del proyecto basándote en lo siguiente:
 
 ```env
-# 🤖 Discord
-DISCORD_TOKEN=tu_token_de_discord_bot
+# Discord
+DISCORD_TOKEN=<DISCORD_TOKEN>
 
-# 📺 Twitch API
-TWITCH_CLIENT_ID=tu_twitch_client_id
-TWITCH_CLIENT_SECRET=tu_twitch_client_secret
+# Twitch API
+TWITCH_CLIENT_ID=<TWITCH_CLIENT_ID>
+TWITCH_CLIENT_SECRET=<TWITCH_CLIENT_SECRET>
 
-# 🗄️ PostgreSQL
-DATABASE_URL=postgresql://usuario:password@127.0.0.1:5432/nami_bot
+# Base de datos (MariaDB)
+DB_HOST=<DB_HOST>
+DB_PORT=<DB_PORT>
+DB_USER=<DB_USER>
+DB_PASSWORD=<DB_PASSWORD>
+DB_NAME=<DB_NAME>
 
-# 📝 Logging
+# Logging
 LOG_LEVEL=INFO
 
-# ⚙️ Reglas de negocio
+# Reglas de negocio
 DEFAULT_STREAMER_LIMIT=15
 CHECK_INTERVAL_SECONDS=60
 ```
 
 ### 🔗 Obtener Credenciales
 
-<details> <summary><b>📘 Cómo obtener el token de Discord</b></summary>
+<details> <summary><b>Cómo obtener el token de Discord</b></summary>
 
 1. Ve a [Discord Developer Portal](https://discord.com/developers/applications).
 2. Crea una **New Application**.
@@ -176,7 +180,7 @@ CHECK_INTERVAL_SECONDS=60
 5. Invita al bot usando la pestaña **OAuth2 -> URL Generator** con los scopes `bot` y `applications.commands`.
 </details> 
 
-<details> <summary><b>📺 Cómo obtener credenciales de Twitch</b></summary>
+<details> <summary><b>Cómo obtener credenciales de Twitch</b></summary>
 
 1. Entra en [Twitch Developer Console](https://dev.twitch.tv/console).
 2. Registra una nueva aplicación.
@@ -206,17 +210,17 @@ El bot sigue los principios de **Clean Architecture** (Arquitectura Hexagonal), 
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    🟢 PRESENTATION                          │
+│                    PRESENTATION                            │
 │          (Discord Cogs, Tareas Background)                  │
 ├─────────────────────────────────────────────────────────────┤
-│                    🟡 APPLICATION                           │
+│                    APPLICATION                              │
 │        (Use Cases — Lógica de Negocio Pura)                 │
 ├─────────────────────────────────────────────────────────────┤
-│                    🟣 DOMAIN                                │
+│                    DOMAIN                                   │
 │       (Entidades, Value Objects, Excepciones)               │
 ├─────────────────────────────────────────────────────────────┤
-│                    🔵 INFRASTRUCTURE                        │
-│    (PostgreSQL, Twitch API, Logging, Config)                │
+│                    INFRASTRUCTURE                           │
+│    (MariaDB, Twitch API, Logging, Config)                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -261,7 +265,7 @@ docker-compose up -d
 ## 🛣️ Roadmap
 
 - [x] Refactorización a Clean Architecture.
-- [x] Soporte para PostgreSQL.
+- [x] Soporte para MariaDB.
 - [ ] Implementación de Twitch EventSub (Webhooks).
 - [ ] Dashboard Web de gestión.
 - [ ] Soporte para Kick y YouTube Live.
