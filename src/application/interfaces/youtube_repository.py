@@ -23,6 +23,17 @@ class IYouTubeRepository(ABC):
     async def count_by_guild(self, guild_id: int) -> int: ...
 
     @abstractmethod
+    async def update(self, channel: YouTubeChannel) -> YouTubeChannel: ...
+
+    @abstractmethod
+    async def update_live_settings(
+        self, guild_id: int, channel_id: str,
+        live_custom_message: Optional[str],
+        live_mention_type: Optional[str],
+        live_mention_role_ids: Optional[List[int]],
+    ) -> bool: ...
+
+    @abstractmethod
     async def update_video_history(self, channel_id: int, video_id: str) -> bool:
         """Añade video_id al historial de anunciados (últimos 5)."""
         ...

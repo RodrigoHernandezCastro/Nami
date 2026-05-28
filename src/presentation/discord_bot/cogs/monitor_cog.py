@@ -26,6 +26,7 @@ import random
 from src.application.use_cases.add_streamer import AddStreamerUseCase, AddStreamerCommand
 from src.application.use_cases.remove_streamer import RemoveStreamerUseCase, RemoveStreamerCommand
 from src.application.use_cases.list_streamers import ListStreamersUseCase, ListStreamersQuery
+from src.application.use_cases.update_streamer import UpdateStreamerUseCase, UpdateStreamerCommand
 from src.application.use_cases.configure_channel import ConfigureChannelUseCase, ConfigureChannelCommand
 from src.application.use_cases.configure_channel_youtube import (
     ConfigureChannelYouTubeUseCase, ConfigureChannelYouTubeCommand,
@@ -47,6 +48,7 @@ class MonitorCog(commands.Cog):
         add_streamer_uc: AddStreamerUseCase,
         remove_streamer_uc: RemoveStreamerUseCase,
         list_streamers_uc: ListStreamersUseCase,
+        update_streamer_uc: UpdateStreamerUseCase,
         configure_channel_uc: ConfigureChannelUseCase,
         configure_youtube_uc: ConfigureChannelYouTubeUseCase,
         configure_youtube_live_uc: ConfigureChannelYouTubeLiveUseCase,
@@ -58,6 +60,7 @@ class MonitorCog(commands.Cog):
         self._add_uc = add_streamer_uc
         self._remove_uc = remove_streamer_uc
         self._list_uc = list_streamers_uc
+        self._update_streamer_uc = update_streamer_uc
         self._configure_uc = configure_channel_uc
         self._configure_youtube_uc = configure_youtube_uc
         self._configure_youtube_live_uc = configure_youtube_live_uc
@@ -367,6 +370,120 @@ class MonitorCog(commands.Cog):
 
         embed.set_footer(text=t("streamer.list.footer", lang, count=len(streamers)))
         await interaction.followup.send(embed=embed, ephemeral=True)
+
+    # ----------- /edit-twitch -----------
+    @app_commands.command(
+        name=_T("edit-twitch", key="cmd.edit_twitch.name"),
+        description=_T(
+            "Edit a monitored Twitch streamer's settings",
+            key="cmd.edit_twitch.desc",
+        ),
+    )
+    @app_commands.describe(
+        user=_T(
+            "Twitch username to edit",
+            key="cmd.edit_twitch.param_user",
+        ),
+        message=_T(
+            "New custom message when announcing the stream",
+            key="cmd.edit_twitch.param_message",
+        ),
+        mention=_T(
+            "New mention type when announcing",
+            key="cmd.edit_twitch.param_mention",
+        ),
+        role1=_T(
+            "First role to mention (only if mention='role')",
+            key="cmd.edit_twitch.param_role1",
+        ),
+        role2=_T(
+            "Second role to mention (optional)",
+            key="cmd.edit_twitch.param_role2",
+        ),
+        role3=_T(
+            "Third role to mention (optional)",
+            key="cmd.edit_twitch.param_role3",
+        ),
+    )
+    @app_commands.choices(
+        mention=[
+            app_commands.Choice(
+                name=_T("None", key="choice.mention.none"),
+                value="ninguno",
+            ),
+            app_commands.Choice(
+                name=_T("@everyone", key="choice.mention.everyone"),
+                value="everyone",
+            ),
+            app_commands.Choice(
+                name=_T("@here", key="choice.mention.here"),
+                value="here",
+            ),
+            app_commands.Choice(
+                name=_T("Specific role", key="choice.mention.role"),
+                value="rol",
+            ),
+        ]
+    )
+    @app_commands.default_permissions(administrator=True)
+    async def edit_twitch(
+        self,
+        interaction: discord.Interaction,
+        user: str,
+        message: Optional[str] = None,
+        mention: Optional[app_commands.Choice[str]] = None,
+        role1: Optional[discord.Role] = None,
+        role2: Optional[discord.Role] = None,
+        role3: Optional[discord.Role] = None,
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+
+        streamers = await self._list_uc.execute(
+            ListStreamersQuery(guild_id=interaction.guild_id)
+        )
+        existing = [s for s in streamers if s.username.lower() == user.lower()]
+        if not existing:
+            msg = await self._i18n.t(
+                "streamer.not_found", interaction.guild_id, username=user
+            )
+            await interaction.followup.send(msg, ephemeral=True)
+            return
+
+        current = existing[0]
+        mention_type = mention.value if mention else current.mention_type
+
+        mention_role_ids = current.mention_role_ids
+        if mention_type == "rol":
+            provided_roles = [r for r in (role1, role2, role3) if r is not None]
+            if provided_roles:
+                mention_role_ids = [r.id for r in provided_roles]
+            elif not current.mention_role_ids:
+                msg = await self._i18n.t(
+                    "streamer.role_required", interaction.guild_id
+                )
+                await interaction.followup.send(msg, ephemeral=True)
+                return
+        elif mention is not None:
+            mention_role_ids = None
+
+        new_message = message if message is not None else current.custom_message
+
+        try:
+            await self._update_streamer_uc.execute(
+                UpdateStreamerCommand(
+                    guild_id=interaction.guild_id,
+                    username=user,
+                    custom_message=new_message,
+                    mention_type=mention_type,
+                    mention_role_ids=mention_role_ids,
+                )
+            )
+            msg = await self._i18n.t(
+                "streamer.edited", interaction.guild_id, username=user
+            )
+            await interaction.followup.send(msg, ephemeral=True)
+        except DomainError as e:
+            await self._send_warning(interaction, str(e))
 
     # ----------- helpers -----------
     async def _format_mention_info(

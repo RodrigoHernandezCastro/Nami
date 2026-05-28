@@ -84,6 +84,7 @@ class HelpGroup(app_commands.Group):
             value=(
                 f"{t('help.twitch.configure', lang)}\n\n"
                 f"{t('help.twitch.add', lang)}\n\n"
+                f"{t('help.twitch.edit', lang)}\n\n"
                 f"{t('help.twitch.remove', lang)}\n\n"
                 f"{t('help.twitch.list', lang)}"
             ),
@@ -95,6 +96,8 @@ class HelpGroup(app_commands.Group):
                 f"{t('help.youtube.configure', lang)}\n\n"
                 f"{t('help.youtube.configure_live', lang)}\n\n"
                 f"{t('help.youtube.add', lang)}\n\n"
+                f"{t('help.youtube.edit', lang)}\n\n"
+                f"{t('help.youtube.add_live', lang)}\n\n"
                 f"{t('help.youtube.remove', lang)}\n\n"
                 f"{t('help.youtube.list', lang)}"
             ),
@@ -127,6 +130,7 @@ class HelpGroup(app_commands.Group):
             description=(
                 f"{t('help.twitch.configure', lang)}\n\n"
                 f"{t('help.twitch.add', lang)}\n\n"
+                f"{t('help.twitch.edit', lang)}\n\n"
                 f"{t('help.twitch.remove', lang)}\n\n"
                 f"{t('help.twitch.list', lang)}"
             ),
@@ -151,6 +155,8 @@ class HelpGroup(app_commands.Group):
                 f"{t('help.youtube.configure', lang)}\n\n"
                 f"{t('help.youtube.configure_live', lang)}\n\n"
                 f"{t('help.youtube.add', lang)}\n\n"
+                f"{t('help.youtube.edit', lang)}\n\n"
+                f"{t('help.youtube.add_live', lang)}\n\n"
                 f"{t('help.youtube.remove', lang)}\n\n"
                 f"{t('help.youtube.list', lang)}"
             ),

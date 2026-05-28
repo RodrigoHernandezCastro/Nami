@@ -44,6 +44,26 @@ class MariaDBStreamerRepository(IStreamerRepository):
                         ) from e
                     raise
 
+    async def update(self, streamer: Streamer) -> Streamer:
+        query = """
+            UPDATE streamers
+            SET custom_message = %s, mention_type = %s, mention_role_ids = %s
+            WHERE guild_id = %s AND LOWER(username) = LOWER(%s);
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    query,
+                    (
+                        streamer.custom_message,
+                        streamer.mention_type,
+                        json.dumps(streamer.mention_role_ids or []),
+                        streamer.guild_id,
+                        streamer.username,
+                    ),
+                )
+        return streamer
+
     async def remove(self, guild_id: int, username: str) -> bool:
         # MariaDB no hace LOWER() en índices por defecto, lo forzamos en Python
         query = "DELETE FROM streamers WHERE guild_id = %s AND LOWER(username) = LOWER(%s);"

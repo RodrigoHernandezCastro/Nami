@@ -43,6 +43,23 @@ class PostgresStreamerRepository(IStreamerRepository):
                 f"'{streamer.username}' ya existe en este servidor."
             ) from e
 
+    async def update(self, streamer: Streamer) -> Streamer:
+        query = """
+            UPDATE streamers
+            SET custom_message = $1, mention_type = $2, mention_role_ids = $3
+            WHERE guild_id = $4 AND LOWER(username) = LOWER($5);
+        """
+        async with self._pool.acquire() as conn:
+            await conn.execute(
+                query,
+                streamer.custom_message,
+                streamer.mention_type,
+                json.dumps(streamer.mention_role_ids or []),
+                streamer.guild_id,
+                streamer.username,
+            )
+        return streamer
+
     async def remove(self, guild_id: int, username: str) -> bool:
         query = """
             DELETE FROM streamers

@@ -14,7 +14,7 @@ class AnalizadorBot(discord.Client):
         super().__init__(intents=intents)
 
     async def on_ready(self):
-        print(f"✅ Logueado exitosamente como {self.user}")
+        print(f"Logueado exitosamente como {self.user}")
         print("-" * 50)
         print(f"{'GUILD ID':<20} | {'NOMBRE DEL SERVIDOR'}")
         print("-" * 50)
@@ -26,7 +26,7 @@ class AnalizadorBot(discord.Client):
             print(f"{guild.id:<20} | {guild.name}")
             
         print("-" * 50)
-        print(f"📊 Número total de servidores: {total_servidores}")
+        print(f"Número total de servidores: {total_servidores}")
         
         # Apagamos el script automáticamente una vez que terminamos de leer
         print("\nDesconectando...")
@@ -34,7 +34,7 @@ class AnalizadorBot(discord.Client):
 
 if __name__ == "__main__":
     if not TOKEN:
-        print("❌ Error: No se encontró DISCORD_TOKEN en el archivo .env")
+        print("Error: No se encontró DISCORD_TOKEN en el archivo .env")
     else:
         print("Iniciando análisis de servidores...")
         cliente = AnalizadorBot()

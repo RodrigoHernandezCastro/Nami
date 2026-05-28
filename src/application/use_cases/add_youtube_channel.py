@@ -54,12 +54,16 @@ class AddYouTubeChannelUseCase:
         details = await self._youtube_service.get_channel_details(command.channel_id)
         channel_name = details["title"] if details else command.channel_id
 
-        # 2) Validar que el servidor tiene canal de anuncios configurado
+        # 2) Validar que el servidor tiene al menos un canal de anuncios configurado
         guild_config = await self._guild_repo.get_by_id(command.guild_id)
-        if not guild_config or not guild_config.announcement_channel_id:
+        if not guild_config or not (
+            guild_config.announcement_channel_id
+            or guild_config.youtube_channel_id
+            or guild_config.youtube_live_channel_id
+        ):
             raise ChannelNotConfiguredError(
-                "El canal de anuncios no está configurado. "
-                "Usa /configurar-canal primero."
+                "No hay ningún canal de anuncios configurado. "
+                "Usa /configure, /configure-youtube o /configure-youtube-live primero."
             )
 
         # 3) Validar límite de canales

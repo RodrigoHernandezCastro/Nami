@@ -85,4 +85,4 @@ def parse_move(raw: str) -> Optional[Move]:
 
 def valid_examples() -> str:
     """Devuelve una lista corta de ejemplos válidos para mostrar al usuario."""
-    return "rock, paper, scissors, piedra, papel, tijera, 🪨, 📄, ✂️"
+    return "rock, paper, scissors, piedra, papel, tijera"

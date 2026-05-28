@@ -89,7 +89,7 @@ async def migrate_guild_configs(pg, my_conn) -> int:
 
 
 async def migrate_streamers(pg, my_conn) -> int:
-    print("\n🎮 Migrando streamers...")
+    print("\nMigrando streamers...")
     rows = await pg.fetch("SELECT * FROM streamers ORDER BY id;")
     if not rows:
         print("    Sin registros.")
@@ -123,7 +123,7 @@ async def migrate_streamers(pg, my_conn) -> int:
 
 
 async def migrate_youtube_channels(pg, my_conn) -> int:
-    print("\n📺 Migrando youtube_channels...")
+    print("\nMigrando youtube_channels...")
     rows = await pg.fetch("SELECT * FROM youtube_channels ORDER BY id;")
     if not rows:
         print("    Sin registros.")
@@ -191,7 +191,7 @@ async def verify(pg, my_conn) -> None:
         print(f"  {status} {table}: PG={pg_count}  MariaDB={my_count}")
 
     if all_ok:
-        print("\n🎉 Migración completada. Todos los conteos coinciden.")
+        print("\nMigración completada. Todos los conteos coinciden.")
     else:
         print("\n  Hay diferencias. Revisa los errores anteriores.")
 

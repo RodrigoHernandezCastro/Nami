@@ -98,7 +98,7 @@ class YouTubeCheckerTask(commands.Cog):
             return
 
         embed = YouTubeEmbedBuilder.build_video_embed(video, channel)
-        content = YouTubeEmbedBuilder.build_mention_content(channel)
+        content = YouTubeEmbedBuilder.build_mention_content(channel, is_live=is_live)
 
         try:
             msg = await channel_obj.send(content=content, embed=embed)

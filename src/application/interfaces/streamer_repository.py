@@ -7,6 +7,9 @@ class IStreamerRepository(ABC):
     async def add(self, streamer: Streamer) -> Streamer: ...
 
     @abstractmethod
+    async def update(self, streamer: Streamer) -> Streamer: ...
+
+    @abstractmethod
     async def remove(self, guild_id: int, username: str) -> bool: ...
 
     @abstractmethod

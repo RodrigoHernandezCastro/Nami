@@ -63,7 +63,7 @@ class TreeGenerator:
         with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(f"{self.root_dir.name}/\n")
             f.write("\n".join(self.tree))
-        print(f"✅ Estructura guardada con éxito en: {self.output_file}")
+        print(f"Estructura guardada con éxito en: {self.output_file}")
 
 if __name__ == "__main__":
     # Ejecuta el generador en el directorio actual

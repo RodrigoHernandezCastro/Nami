@@ -17,23 +17,20 @@ class YouTubeEmbedBuilder:
         is_short = YouTubeEmbedBuilder._is_short(video)
 
         if is_live:
-            type_emoji = "🔴"
             embed = discord.Embed(
-                title=f"{type_emoji} LIVE — {title}",
+                title=f"LIVE — {title}",
                 url=video_url,
                 color=discord.Color.from_str("#FF0000"),
             )
         elif is_short:
-            type_emoji = "📱"
             embed = discord.Embed(
-                title=f"{type_emoji} {title}",
+                title=f"SHORT: {title}",
                 url=video_url,
                 color=discord.Color.red(),
             )
         else:
-            type_emoji = "📹"
             embed = discord.Embed(
-                title=f"{type_emoji} {title}",
+                title=title,
                 url=video_url,
                 color=discord.Color.red(),
             )
@@ -49,16 +46,19 @@ class YouTubeEmbedBuilder:
         return "#shorts" in title or "shorts" in title
 
     @staticmethod
-    def build_mention_content(channel: 'YouTubeChannel') -> str:
-        """Construye mención según configuración."""
+    def build_mention_content(channel: 'YouTubeChannel', is_live: bool = False) -> str:
+        """Construye mención según configuración (y tipo de contenido)."""
+        mention_type = channel.get_mention_type(is_live)
+        role_ids = channel.get_mention_role_ids(is_live)
+
         mention = ""
-        if channel.mention_type == "everyone":
+        if mention_type == "everyone":
             mention = "@everyone"
-        elif channel.mention_type == "here":
+        elif mention_type == "here":
             mention = "@here"
-        elif channel.mention_type == "rol" and channel.mention_role_ids:
-            mentions = [f"<@&{rid}>" for rid in channel.mention_role_ids]
+        elif mention_type == "rol" and role_ids:
+            mentions = [f"<@&{rid}>" for rid in role_ids]
             mention = " ".join(mentions)
 
-        message = channel.custom_message
+        message = channel.get_message(is_live)
         return f"{mention} {message}".strip()

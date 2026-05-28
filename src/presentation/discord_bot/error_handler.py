@@ -10,14 +10,14 @@ class GlobalErrorHandler:
     """Handler centralizado de errores para comandos slash."""
 
     ERROR_MAP = {
-        StreamerAlreadyExistsError: ("⚠️", "Ese streamer ya está registrado."),
-        StreamerLimitReachedError:  ("📛", "Has alcanzado el límite de streamers."),
-        StreamerNotOnTwitchError:   ("❌", "Ese usuario no existe en Twitch."),
-        ChannelNotConfiguredError:  ("⚙️", "Configura primero el canal con `/configurar`."),
-        StreamerNotFoundError:      ("🔍", "No encontré ese streamer."),
-        YouTubeChannelNotFoundError:("📺", "Ese canal de YouTube no está monitoreado."),
-        ChannelNotFoundError:       ("❌", "El canal de YouTube no existe."),
-        ChannelLimitReachedError:   ("📛", "Has alcanzado el límite de canales."),
+        StreamerAlreadyExistsError: "Ese streamer ya está registrado.",
+        StreamerLimitReachedError:  "Has alcanzado el límite de streamers.",
+        StreamerNotOnTwitchError:   "Ese usuario no existe en Twitch.",
+        ChannelNotConfiguredError:  "Configura primero el canal con `/configurar`.",
+        StreamerNotFoundError:      "No encontré ese streamer.",
+        YouTubeChannelNotFoundError:"Ese canal de YouTube no está monitoreado.",
+        ChannelNotFoundError:       "El canal de YouTube no existe.",
+        ChannelLimitReachedError:   "Has alcanzado el límite de canales.",
     }
 
     def __init__(self, bot: commands.Bot, logger) -> None:
@@ -41,10 +41,10 @@ class GlobalErrorHandler:
         """
         original = getattr(error, "original", error)
 
-        for exc_type, (emoji, default_msg) in self.ERROR_MAP.items():
+        for exc_type, default_msg in self.ERROR_MAP.items():
             if isinstance(original, exc_type):
                 msg = str(original) or default_msg
-                await self._respond(interaction, f"{emoji} {msg}")
+                await self._respond(interaction, msg)
                 self.logger.info(
                     "domain_error",
                     type=exc_type.__name__,

@@ -122,6 +122,9 @@ class Container:
         from src.application.use_cases.add_youtube_channel import AddYouTubeChannelUseCase
         from src.application.use_cases.remove_youtube_channel import RemoveYouTubeChannelUseCase
         from src.application.use_cases.list_youtube_channels import ListYouTubeChannelsUseCase
+        from src.application.use_cases.update_youtube_channel import UpdateYouTubeChannelUseCase
+        from src.application.use_cases.configure_youtube_live_settings import ConfigureYouTubeLiveSettingsUseCase
+        from src.application.use_cases.update_streamer import UpdateStreamerUseCase
         from src.application.use_cases.check_youtube_videos import CheckYouTubeVideosUseCase
         from src.application.use_cases.set_guild_language import SetGuildLanguageUseCase
         # NUEVO: jankenpon
@@ -141,6 +144,10 @@ class Container:
             logger=self._logger,
         )
         self.list_streamers_uc = ListStreamersUseCase(self.streamer_repo)
+        self.update_streamer_uc = UpdateStreamerUseCase(
+            streamer_repo=self.streamer_repo,
+            logger=self._logger,
+        )
         self.configure_channel_uc = ConfigureChannelUseCase(
             guild_repo=self.guild_repo,
             logger=self._logger,
@@ -163,6 +170,15 @@ class Container:
             logger=self._logger,
         )
         self.list_youtube_uc = ListYouTubeChannelsUseCase(self.youtube_repo)
+        self.update_youtube_uc = UpdateYouTubeChannelUseCase(
+            youtube_repo=self.youtube_repo,
+            youtube_service=self.youtube_service,
+            logger=self._logger,
+        )
+        self.configure_youtube_live_settings_uc = ConfigureYouTubeLiveSettingsUseCase(
+            youtube_repo=self.youtube_repo,
+            logger=self._logger,
+        )
         self.check_youtube_uc = CheckYouTubeVideosUseCase(
             youtube_repo=self.youtube_repo,
             youtube_service=self.youtube_service,

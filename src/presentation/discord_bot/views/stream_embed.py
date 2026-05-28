@@ -23,10 +23,10 @@ class StreamEmbedBuilder:
             color=discord.Color.purple(),
             timestamp=datetime.utcnow(),
         )
-        embed.add_field(name="🎮 Jugando", value=game, inline=True)
-        embed.add_field(name="👥 Espectadores", value=str(viewers), inline=True)
+        embed.add_field(name="Jugando", value=game, inline=True)
+        embed.add_field(name="Espectadores", value=str(viewers), inline=True)
         embed.add_field(
-            name="🔗 Enlace",
+            name="Enlace",
             value=f"[Ver stream]({url})",
             inline=False,
         )

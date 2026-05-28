@@ -1,17 +1,17 @@
 # ============================================
-# 🎮 CORE - Bot de Discord
+# CORE - Bot de Discord
 # ============================================
 discord.py==2.4.0
 
 # ============================================
-# 🗄️ BASE DE DATOS - Dual PostgreSQL/MariaDB
+# BASE DE DATOS - Dual PostgreSQL/MariaDB
 # ============================================
 asyncpg==0.31.0                    # PostgreSQL (LOCAL)
 aiomysql==0.2.0                    # MariaDB (TERAMONT)
 PyMySQL==1.1.1                     # MariaDB driver sync
 
 # ============================================
-# 🌐 APIs Externas - Twitch + YouTube
+# APIs Externas - Twitch + YouTube
 # ============================================
 aiohttp==3.9.5
 aiohttp-retry==2.8.3
@@ -28,7 +28,7 @@ proto-plus==1.27.2
 protobuf==7.34.1
 
 # ============================================
-# ⚙️ Configuración y Validación
+# Configuración y Validación
 # ============================================
 pydantic==2.8.2
 pydantic-core==2.20.1
@@ -36,18 +36,18 @@ pydantic-settings==2.4.0
 python-dotenv==1.0.1
 
 # ============================================
-# 📝 Logging Estructurado
+# Logging Estructurado
 # ============================================
 structlog==24.4.0
 
 # ============================================
-# 🕐 Utilidades Temporales
+# Utilidades Temporales
 # ============================================
 python-dateutil==2.9.0
 tzdata==2024.1
 
 # ============================================
-# 🧪 TESTING (opcional - desarrollo)
+# TESTING (opcional - desarrollo)
 # ============================================
 pytest==8.3.2
 pytest-asyncio==0.23.8
@@ -56,7 +56,7 @@ pytest-mock==3.14.0
 faker==26.3.0
 
 # ============================================
-# 🎨 Code Quality (opcional - desarrollo)
+# Code Quality (opcional - desarrollo)
 # ============================================
 black==24.8.0
 ruff==0.6.2

@@ -31,15 +31,10 @@ class UserXP:
         return xp_delta
 
     def add_loss(self, xp_delta: int = -1) -> int:
-        """
-        Aplica una derrota. La XP nunca baja de 0, así que el delta real
-        puede ser menor que el solicitado si el usuario está cerca de 0.
-        """
-        before = self.xp
         self.xp = max(0, self.xp + xp_delta)
         self.losses += 1
         self.games_played += 1
-        return self.xp - before  # delta real (puede ser 0 si ya estaba en 0)
+        return xp_delta
 
     def add_draw(self, xp_delta: int = 1) -> int:
         """Aplica un empate."""

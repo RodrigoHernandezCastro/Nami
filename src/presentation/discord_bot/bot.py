@@ -43,6 +43,7 @@ class NamiBot(commands.Bot):
                 add_streamer_uc=self.container.add_streamer_uc,
                 remove_streamer_uc=self.container.remove_streamer_uc,
                 list_streamers_uc=self.container.list_streamers_uc,
+                update_streamer_uc=self.container.update_streamer_uc,
                 configure_channel_uc=self.container.configure_channel_uc,
                 configure_youtube_uc=self.container.configure_youtube_uc,
                 configure_youtube_live_uc=self.container.configure_youtube_live_uc,
@@ -65,6 +66,8 @@ class NamiBot(commands.Bot):
                 add_youtube_uc=self.container.add_youtube_uc,
                 remove_youtube_uc=self.container.remove_youtube_uc,
                 list_youtube_uc=self.container.list_youtube_uc,
+                update_youtube_uc=self.container.update_youtube_uc,
+                configure_youtube_live_uc=self.container.configure_youtube_live_settings_uc,
                 lang_resolver=self.container.lang_resolver,
                 translator=self.container.translator,
             )

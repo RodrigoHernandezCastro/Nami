@@ -16,9 +16,10 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
     async def add(self, channel: YouTubeChannel) -> YouTubeChannel:
         query = """
             INSERT INTO youtube_channels
-                (guild_id, channel_id, channel_name, custom_message, mention_type,
-                 mention_role_ids, added_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s);
+                (guild_id, channel_id, channel_name, custom_message,
+                 live_custom_message, mention_type, live_mention_type,
+                 mention_role_ids, live_mention_role_ids, added_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
         async with self._pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -29,8 +30,11 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                         channel.channel_id,
                         channel.channel_name,
                         channel.custom_message,
+                        channel.live_custom_message,
                         channel.mention_type,
+                        channel.live_mention_type,
                         json.dumps(channel.mention_role_ids or []),
+                        json.dumps(channel.live_mention_role_ids) if channel.live_mention_role_ids is not None else None,
                         channel.added_at,
                     ),
                 )
@@ -47,7 +51,8 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
     async def find_by_guild(self, guild_id: int) -> List[YouTubeChannel]:
         query = """
             SELECT id, guild_id, channel_id, channel_name, custom_message,
-                   mention_type, mention_role_ids, last_announced_video_id,
+                   live_custom_message, mention_type, live_mention_type,
+                   mention_role_ids, live_mention_role_ids, last_announced_video_id,
                    announced_video_history, added_at, uploads_playlist_id
             FROM youtube_channels
             WHERE guild_id = %s
@@ -62,7 +67,8 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
     async def find_all_with_channel(self) -> List[YouTubeChannel]:
         query = """
             SELECT y.id, y.guild_id, y.channel_id, y.channel_name, y.custom_message,
-                   y.mention_type, y.mention_role_ids, y.last_announced_video_id,
+                   y.live_custom_message, y.mention_type, y.live_mention_type,
+                   y.mention_role_ids, y.live_mention_role_ids, y.last_announced_video_id,
                    y.announced_video_history, y.added_at, y.uploads_playlist_id
             FROM youtube_channels y
             INNER JOIN guild_configs g ON y.guild_id = g.guild_id
@@ -115,9 +121,59 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
                 await cur.execute(query, (playlist_id, channel_id))
                 return cur.rowcount > 0
 
+    async def update(self, channel: YouTubeChannel) -> YouTubeChannel:
+        query = """
+            UPDATE youtube_channels
+            SET channel_name = %s, custom_message = %s, mention_type = %s,
+                mention_role_ids = %s
+            WHERE guild_id = %s AND channel_id = %s;
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    query,
+                    (
+                        channel.channel_name,
+                        channel.custom_message,
+                        channel.mention_type,
+                        json.dumps(channel.mention_role_ids or []),
+                        channel.guild_id,
+                        channel.channel_id,
+                    ),
+                )
+        return channel
+
+    async def update_live_settings(
+        self, guild_id: int, channel_id: str,
+        live_custom_message: Optional[str],
+        live_mention_type: Optional[str],
+        live_mention_role_ids: Optional[List[int]],
+    ) -> bool:
+        query = """
+            UPDATE youtube_channels
+            SET live_custom_message = %s, live_mention_type = %s,
+                live_mention_role_ids = %s
+            WHERE guild_id = %s AND channel_id = %s;
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    query,
+                    (
+                        live_custom_message,
+                        live_mention_type,
+                        json.dumps(live_mention_role_ids) if live_mention_role_ids is not None else None,
+                        guild_id,
+                        channel_id,
+                    ),
+                )
+                return cur.rowcount > 0
+
     @staticmethod
     def _row_to_entity(row: dict) -> YouTubeChannel:
         role_ids = json.loads(row.get("mention_role_ids") or "[]")
+        live_role_ids_raw = row.get("live_mention_role_ids")
+        live_role_ids = json.loads(live_role_ids_raw) if live_role_ids_raw and live_role_ids_raw != "[]" else None
 
         raw_history = row.get("announced_video_history") or "[]"
         try:
@@ -131,8 +187,11 @@ class MariaDBYouTubeRepository(IYouTubeRepository):
             channel_id=row["channel_id"],
             channel_name=row.get("channel_name"),
             custom_message=row["custom_message"],
+            live_custom_message=row.get("live_custom_message"),
             mention_type=row["mention_type"],
+            live_mention_type=row.get("live_mention_type"),
             mention_role_ids=role_ids,
+            live_mention_role_ids=live_role_ids,
             last_announced_video_id=row.get("last_announced_video_id"),
             added_at=row["added_at"],
             announced_video_history=[str(v) for v in history],
