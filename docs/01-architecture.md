@@ -159,14 +159,14 @@ Translates user interactions (Discord commands) into use case calls.
 
 ```python
 # src/presentation/discord_bot/cogs/monitor_cog.py
-@app_commands.command(name="añadir")
-async def add_streamer(self, interaction, usuario: str):
+@app_commands.command(name="add", description="Add a Twitch streamer to monitor")
+async def add_streamer(self, interaction, user: str):
     # Translate Discord → Command
-    cmd = AddStreamerCommand(guild_id=interaction.guild_id, username=usuario)
+    cmd = AddStreamerCommand(guild_id=interaction.guild_id, username=user)
     # Execute use case
     streamer = await self._add_uc.execute(cmd)
     # Respond to user
-    await interaction.followup.send(f"✅ Añadido: {streamer.username}")
+    await interaction.followup.send(f"✅ Added: {streamer.username}")
 ```
 
 ---

@@ -197,10 +197,20 @@ Nami uses **Slash Commands** (`/`) for native and modern integration.
 
 | Command | Parameters | Description | Permissions |
 | :--- | :--- | :--- | :--- |
-| `/configurar` | `channel` | Sets the channel where alerts will be sent. | Administrator |
-| `/añadir` | `user`, `message`, `mention` | Adds a streamer to monitoring. | Administrator |
-| `/eliminar` | `user` | Removes a streamer from the database. | Administrator |
-| `/listar` | - | Shows all followed streamers in the server. | Everyone |
+| `/configure` | `channel` | Set the Twitch announcement channel. | Administrator |
+| `/configure-youtube` | `channel` | Set the YouTube video announcement channel. | Administrator |
+| `/configure-youtube-live` | `channel` | Set the YouTube live announcement channel. | Administrator |
+| `/add` | `user`, `message`, `mention` | Add a Twitch streamer to monitor. | Administrator |
+| `/remove` | `user` | Stop monitoring a Twitch streamer. | Administrator |
+| `/list` | - | Show all monitored Twitch streamers. | Administrator |
+| `/edit-twitch` | `user`, `message`, `mention` | Edit a monitored Twitch streamer's settings. | Administrator |
+| `/add-youtube` | `user`, `message`, `mention` | Add a YouTube channel to monitor. | Administrator |
+| `/edit-youtube` | `user`, `message`, `mention` | Edit a monitored YouTube channel. | Administrator |
+| `/add-youtube-live` | `user`, `live_message`, `live_mention` | Configure YouTube live stream settings. | Administrator |
+| `/list-youtube` | - | Show all monitored YouTube channels. | Administrator |
+| `/remove-youtube` | `user` | Stop monitoring a YouTube channel. | Administrator |
+| `/language` | `language` | Change the bot's language for this server. | Administrator |
+| `/help all\|twitch\|youtube\|admin` | - | Show available commands by category. | Administrator |
 
 ---
 

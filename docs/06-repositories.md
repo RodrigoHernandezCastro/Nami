@@ -101,8 +101,6 @@ blacklist        → BlacklistRepository
 
 ### 2. Expressive method names
 
-# Repository Guide: Conventions, Implementation, and Testing
-
 ## ✅ Naming Conventions
 
 Use descriptive and consistent names across all repository methods:

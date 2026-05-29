@@ -23,14 +23,6 @@ Step-by-step guide to deploy Nami Bot on the Teramont server with MariaDB.
 
 ## 🗄️ Step 1: Configure the Database
 
-### 1.1. Make sure to have MariaDB
-
-In the Teramont panel → **Manage Databases**:
-
-# Production Deployment Guide (Teramont)
-
-## 🗄️ Step 1: Configure the Database
-
 ### 1.1. Connection credentials
 
 | Parameter | Value |
@@ -414,7 +406,7 @@ If it consumes too much RAM, check DB connections or HTTP sessions that aren't b
 - [ ] Manual test successful (`python main.py`)
 - [ ] systemd/PM2 service configured
 - [ ] Bot invited to the Discord server
-- [ ] `/configurar` command tested
-- [ ] `/añadir` command tested
+- [ ] `/configure` command tested
+- [ ] `/add` command tested
 - [ ] Logs verified
 - [ ] Automatic backup configured

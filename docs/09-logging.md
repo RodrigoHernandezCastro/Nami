@@ -102,7 +102,6 @@ logger.info("streamer_added", username=username, guild_id=guild_id)
 ```
 
 ### Appropriate levels
-# Logging Guide: Levels, Events, and Configuration
 
 ## 📊 Log Levels
 
