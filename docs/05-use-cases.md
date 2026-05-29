@@ -1,14 +1,14 @@
-# 🎯 Casos de Uso
+# 🎯 Use Cases
 
-## ¿Qué es un Caso de Uso?
+## What is a Use Case?
 
-Un **caso de uso** representa **una acción del sistema**: "Añadir un streamer", "Configurar canal", "Verificar streams en vivo".
+A **use case** represents **a system action**: "Add a streamer", "Configure channel", "Check live streams".
 
-Es una **clase con un único método público**: `execute()`.
+It is a **class with a single public method**: `execute()`.
 
 ---
 
-## 🏗️ Estructura Estándar
+## 🏗️ Standard Structure
 
 ```python
 from dataclasses import dataclass
@@ -16,21 +16,21 @@ from src.application.interfaces.streamer_repository import IStreamerRepository
 from src.application.interfaces.logger import ILogger
 
 
-# 1) Input: qué necesita el caso de uso
+# 1) Input: what the use case needs
 @dataclass
 class MyUseCaseCommand:
     guild_id: int
     some_param: str
 
 
-# 2) Output (opcional): qué devuelve
+# 2) Output (optional): what it returns
 @dataclass
 class MyUseCaseResult:
     success: bool
     data: str
 
 
-# 3) El caso de uso
+# 3) The use case
 class MyUseCase:
     def __init__(
         self,
@@ -41,9 +41,9 @@ class MyUseCase:
         self._logger = logger
 
     async def execute(self, command: MyUseCaseCommand) -> MyUseCaseResult:
-        # 1. Validaciones de dominio
-        # 2. Reglas de negocio
-        # 3. Persistencia
+        # 1. Domain validations
+        # 2. Business rules
+        # 3. Persistence
         # 4. Logging
         # 5. Return
         ...
@@ -51,28 +51,28 @@ class MyUseCase:
 
 ---
 
-## 📏 Reglas de Oro
+## 📏 Golden Rules
 
-### ✅ SÍ debe hacer
+### ✅ MUST do
 
-- Recibir dependencias **solo por interfaces** (`IStreamerRepository`, no `MariaDBStreamerRepository`)
-- Lanzar excepciones del dominio (`StreamerNotFoundError`)
-- Loggear eventos importantes
-- Validar reglas de negocio
+- Receive dependencies **only through interfaces** (`IStreamerRepository`, not `MariaDBStreamerRepository`)
+- Throw domain exceptions (`StreamerNotFoundError`)
+- Log important events
+- Validate business rules
 
-### ❌ NO debe hacer
+### ❌ MUST NOT do
 
-- Importar `discord.py`
-- Importar `aiomysql` o `aiohttp`
-- Tener SQL
-- Formatear embeds
-- Saber que existe Discord
+- Import `discord.py`
+- Import `aiomysql` or `aiohttp`
+- Have SQL
+- Format embeds
+- Know that Discord exists
 
 ---
 
 ## 🔄 Command vs Query
 
-### Commands (modifican estado)
+### Commands (modify state)
 
 ```python
 @dataclass
@@ -81,7 +81,7 @@ class AddStreamerCommand:
     username: str
 ```
 
-### Queries (solo leen)
+### Queries (read only)
 
 ```python
 @dataclass
@@ -89,11 +89,11 @@ class ListStreamersQuery:
     guild_id: int
 ```
 
-Esta distinción viene del patrón **CQRS** (Command Query Responsibility Segregation).
+This distinction comes from the **CQRS** pattern (Command Query Responsibility Segregation).
 
 ---
 
-## 💡 Ejemplo Completo Comentado
+## 💡 Annotated Full Example
 
 ```python
 # src/application/use_cases/add_streamer.py
@@ -124,13 +124,13 @@ class AddStreamerCommand:
 
 class AddStreamerUseCase:
     """
-    Caso de uso: Añadir un streamer al monitoreo.
+    Use case: Add a streamer to monitoring.
 
-    Reglas de negocio:
-    1. El canal de anuncios debe estar configurado.
-    2. No se puede exceder el límite de streamers por servidor.
-    3. El usuario debe existir en Twitch.
-    4. El nombre de usuario debe ser válido (TwitchUsername).
+    Business rules:
+    1. The announcement channel must be configured.
+    2. The streamer limit per server cannot be exceeded.
+    3. The user must exist on Twitch.
+    4. The username must be valid (TwitchUsername).
     """
 
     def __init__(
@@ -146,29 +146,29 @@ class AddStreamerUseCase:
         self._logger = logger
 
     async def execute(self, command: AddStreamerCommand) -> Streamer:
-        # ═══ 1. VALIDACIÓN DE DOMINIO ═══
+        # ═══ 1. DOMAIN VALIDATION ═══
         username = TwitchUsername(command.username)
 
-        # ═══ 2. REGLAS DE NEGOCIO ═══
+        # ═══ 2. BUSINESS RULES ═══
         guild_config = await self._guild_repo.get_by_id(command.guild_id)
         if not guild_config or not guild_config.announcement_channel_id:
             raise ChannelNotConfiguredError(
-                "El canal de anuncios no está configurado."
+                "The announcement channel is not configured."
             )
 
         current_count = await self._streamer_repo.count_by_guild(command.guild_id)
         if current_count >= guild_config.streamer_limit:
             raise StreamerLimitReachedError(
-                f"Límite alcanzado: {guild_config.streamer_limit}"
+                f"Limit reached: {guild_config.streamer_limit}"
             )
 
-        # ═══ 3. VALIDACIÓN EXTERNA ═══
+        # ═══ 3. EXTERNAL VALIDATION ═══
         if not await self._twitch.user_exists(username.value):
             raise StreamerNotOnTwitchError(
-                f"'{username.value}' no existe en Twitch."
+                f"'{username.value}' does not exist on Twitch."
             )
 
-        # ═══ 4. PERSISTENCIA ═══
+        # ═══ 4. PERSISTENCE ═══
         streamer = Streamer(
             guild_id=command.guild_id,
             username=username.value,
@@ -191,7 +191,7 @@ class AddStreamerUseCase:
 
 ---
 
-## 🧪 Testeando un Caso de Uso
+## 🧪 Testing a Use Case
 
 ```python
 # tests/unit/application/test_add_streamer.py
@@ -211,7 +211,7 @@ async def test_add_streamer_fails_if_no_channel():
     twitch = AsyncMock()
     logger = AsyncMock()
 
-    guild_repo.get_by_id.return_value = None   # Sin config
+    guild_repo.get_by_id.return_value = None   # No config
 
     use_case = AddStreamerUseCase(streamer_repo, guild_repo, twitch, logger)
 

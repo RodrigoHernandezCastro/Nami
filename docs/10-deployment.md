@@ -3,65 +3,62 @@
 
 ## **📄 `docs/10-deployment.md`**
 
-<<<<<<< HEAD
+# 🚀 Deployment on Teramont
 
-=======
->>>>>>> a46807d6fcb4464d4d626b4d509ef59957a903eb
-# 🚀 Despliegue en Teramont
+Step-by-step guide to deploy Nami Bot on the Teramont server with MariaDB.
 
-Guía paso a paso para desplegar Nami Bot en el servidor de Teramont con MariaDB.
+---
 
+## 📋 Preparation
 
+### Requirements
 
-## 📋 Preparación
-
-### Requisitos
-
-- Cuenta activa en Teramont
-- Acceso SSH o panel web
-- Credenciales de:
+- Active Teramont account
+- SSH or web panel access
+- Credentials for:
   - Discord Bot Token
   - Twitch API (Client ID + Secret)
 
 ---
 
-## 🗄️ Paso 1: Configurar la Base de Datos
+## 🗄️ Step 1: Configure the Database
 
-### 1.1. Verificar MariaDB en Teramont
+### 1.1. Make sure to have MariaDB
 
-En el panel de Teramont → **Manage Databases**:
-# Guía de Despliegue en Producción (Teramont)
+In the Teramont panel → **Manage Databases**:
 
-## 🗄️ Paso 1: Configurar la Base de Datos
+# Production Deployment Guide (Teramont)
 
-### 1.1. Credenciales de conexión
+## 🗄️ Step 1: Configure the Database
 
-| Parámetro | Valor |
+### 1.1. Connection credentials
+
+| Parameter | Value |
 |---|---|
 | Host | `panther.teramont.net` |
-| Puerto | `3306` |
+| Port | `3306` |
 | Database | `s4356_nami_bot` |
-| Usuario | `u4356_D25QQuuYC6` |
-| Motor | MariaDB 10.8.8 |
+| User | `u4356_D25QQuuYC6` |
+| Engine | MariaDB 10.8.8 |
 
 ---
 
-### 1.2. Importar el esquema
+### 1.2. Import the schema
 
-**Opción A — Desde phpMyAdmin:**
+**Option A — From phpMyAdmin:**
 
-- Hacer clic en **phpMyAdmin**
-- Seleccionar `s4356_nami_bot`
-- Ir a la pestaña **SQL**
-- Pegar el contenido de **`001_initial_schema.sql`** → **Go**
+- Click **phpMyAdmin**
+- Select `s4356_nami_bot`
+- Go to the **SQL** tab
+- Paste the contents of **`001_initial_schema.sql`** → **Go**
 
-**Opción B — Desde el botón "Import SQL into Database":**
+**Option B — From the "Import SQL into Database" button:**
 
-- Clic en **Import SQL into Database**
-- Subir el archivo `001_initial_schema.sql`
-- Confirmar
+- Click **Import SQL into Database**
+- Upload the `001_initial_schema.sql` file
+- Confirm
 
-**Opción C — Desde el script Python:**
+**Option C — From the Python script:**
 
 ```bash
 python scripts/run_migrations.py
@@ -69,13 +66,13 @@ python scripts/run_migrations.py
 
 ---
 
-### 1.3. Verificar las tablas
+### 1.3. Verify the tables
 
 ```sql
 SHOW TABLES;
 ```
 
-Deberías ver:
+You should see:
 
 ```
 guild_configs
@@ -84,112 +81,112 @@ streamers
 
 ---
 
-## 🤖 Paso 2: Configurar el Bot
+## 🤖 Step 2: Configure the Bot
 
-### 2.1. Subir el código
+### 2.1. Upload the code
 
-**Opción A — Git (recomendado):**
+**Option A — Git (recommended):**
 
 ```bash
-ssh usuario@panther.teramont.net
+ssh user@panther.teramont.net
 cd ~
-git clone https://github.com/tu-usuario/nami-bot.git
+git clone https://github.com/your-user/nami-bot.git
 cd nami-bot
 ```
 
-**Opción B — FTP/SFTP:**
+**Option B — FTP/SFTP:**
 
-Sube todo el proyecto **excepto** las siguientes rutas:
+Upload the entire project **except** the following paths:
 
 - `venv/`
 - `__pycache__/`
-- `.env` (créalo directamente en el servidor)
+- `.env` (create it directly on the server)
 
 ---
 
-### 2.2. Crear entorno virtual
+### 2.2. Create virtual environment
 
 ```bash
 python3.11 -m venv venv
 source venv/bin/activate
 ```
 
-### 2.3. Instalar dependencias
+### 2.3. Install dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2.4. Crear el archivo `.env`
+### 2.4. Create the `.env` file
 
 ```bash
 nano .env
 ```
 
-Contenido:
+Contents:
 
 ```env
 # Discord
-DISCORD_TOKEN=tu_token_real
+DISCORD_TOKEN=your_real_token
 
 # Twitch
-TWITCH_CLIENT_ID=tu_client_id
-TWITCH_CLIENT_SECRET=tu_client_secret
+TWITCH_CLIENT_ID=your_client_id
+TWITCH_CLIENT_SECRET=your_client_secret
 
 # MariaDB (Teramont)
 DB_HOST=panther.teramont.net
 DB_PORT=3306
 DB_USER=u4356_D25QQuuYC6
-DB_PASSWORD=tu_password_real
+DB_PASSWORD=your_real_password
 DB_NAME=s4356_nami_bot
 
 # Logging
 LOG_LEVEL=INFO
 
-# Reglas de negocio
+# Business rules
 DEFAULT_STREAMER_LIMIT=15
 CHECK_INTERVAL_SECONDS=60
 ```
 
-Guardar con `Ctrl+O` + `Enter`, salir con `Ctrl+X`.
+Save with `Ctrl+O` + `Enter`, exit with `Ctrl+X`.
 
-> 🔒 **Seguridad:** Restringe los permisos del archivo inmediatamente.
+> 🔒 **Security:** Restrict the file permissions immediately.
 > ```bash
 > chmod 600 .env
 > ```
 
 ---
 
-## ▶️ Paso 3: Ejecutar el Bot
+## ▶️ Step 3: Run the Bot
 
-### 3.1. Prueba manual
+### 3.1. Manual test
 
 ```bash
 python main.py
 ```
 
-Si el bot arrancó correctamente, verás en los logs:
+If the bot starts correctly, you'll see in the logs:
 
 ```json
 {"event": "bot_ready", "commands_synced": 4, ...}
 ```
 
-Presiona `Ctrl+C` para detener.
+Press `Ctrl+C` to stop.
 
 ---
 
-### 3.2. Mantenerlo corriendo 24/7
+### 3.2. Keep it running 24/7
 
-**Opción A — systemd (recomendado):**
+**Option A — systemd (recommended):**
 
-Crea el archivo de servicio:
+Create the service file:
 
 ```bash
 sudo nano /etc/systemd/system/nami-bot.service
 ```
 
-Contenido:
+Contents:
 
 ```ini
 [Unit]
@@ -198,21 +195,21 @@ After=network.target
 
 [Service]
 Type=simple
-User=tu_usuario
-WorkingDirectory=/home/tu_usuario/nami-bot
-Environment="PATH=/home/tu_usuario/nami-bot/venv/bin"
-ExecStart=/home/tu_usuario/nami-bot/venv/bin/python main.py
+User=your_user
+WorkingDirectory=/home/your_user/nami-bot
+Environment="PATH=/home/your_user/nami-bot/venv/bin"
+ExecStart=/home/your_user/nami-bot/venv/bin/python main.py
 Restart=always
 RestartSec=10
 
-StandardOutput=append:/home/tu_usuario/nami-bot/logs/output.log
-StandardError=append:/home/tu_usuario/nami-bot/logs/error.log
+StandardOutput=append:/home/your_user/nami-bot/logs/output.log
+StandardError=append:/home/your_user/nami-bot/logs/error.log
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Activa el servicio:
+Enable the service:
 
 ```bash
 sudo systemctl daemon-reload
@@ -220,18 +217,18 @@ sudo systemctl enable nami-bot
 sudo systemctl start nami-bot
 ```
 
-Comandos útiles:
+Useful commands:
 
 ```bash
-sudo systemctl status nami-bot       # Ver estado
-sudo systemctl restart nami-bot      # Reiniciar
-sudo systemctl stop nami-bot         # Detener
-journalctl -u nami-bot -f            # Ver logs en vivo
+sudo systemctl status nami-bot       # Check status
+sudo systemctl restart nami-bot      # Restart
+sudo systemctl stop nami-bot         # Stop
+journalctl -u nami-bot -f            # View live logs
 ```
 
 ---
 
-**Opción B — PM2** (si el plan no permite systemd):
+**Option B — PM2** (if the plan doesn't support systemd):
 
 ```bash
 npm install -g pm2
@@ -240,50 +237,50 @@ pm2 save
 pm2 startup
 ```
 
-Comandos útiles:
+Useful commands:
 
 ```bash
-pm2 list                  # Ver procesos
-pm2 logs nami-bot         # Ver logs
-pm2 restart nami-bot      # Reiniciar
-pm2 stop nami-bot         # Detener
+pm2 list                  # View processes
+pm2 logs nami-bot         # View logs
+pm2 restart nami-bot      # Restart
+pm2 stop nami-bot         # Stop
 ```
 
 ---
 
-**Opción C — screen/tmux** (básico):
+**Option C — screen/tmux** (basic):
 
 ```bash
 screen -S nami
 source venv/bin/activate
 python main.py
 
-# Desconectar: Ctrl+A + D
-# Reconectar:  screen -r nami
+# Detach: Ctrl+A + D
+# Reattach:  screen -r nami
 ```
 
 ---
 
-## 🔁 Paso 4: Actualizar el Bot
+## 🔁 Step 4: Update the Bot
 
 ```bash
 cd ~/nami-bot
-git pull                            # Descargar cambios
+git pull                            # Download changes
 source venv/bin/activate
-pip install -r requirements.txt     # Por si hay nuevas dependencias
+pip install -r requirements.txt     # In case of new dependencies
 
-# Si hay migraciones nuevas:
+# If there are new migrations:
 python scripts/run_migrations.py
 
-# Reiniciar el bot
+# Restart the bot
 sudo systemctl restart nami-bot
 ```
 
 ---
 
-## 📊 Paso 5: Monitoreo
+## 📊 Step 5: Monitoring
 
-### Ver logs en tiempo real
+### View logs in real-time
 
 ```bash
 # systemd
@@ -293,13 +290,13 @@ journalctl -u nami-bot -f
 pm2 logs nami-bot
 ```
 
-### Filtrar errores con `jq`
+### Filter errors with `jq`
 
 ```bash
 journalctl -u nami-bot -f -o cat | jq 'select(.level == "error")'
 ```
 
-### Verificar estado de la BD
+### Check DB status
 
 ```sql
 SELECT COUNT(*) FROM streamers;
@@ -309,17 +306,17 @@ SELECT * FROM streamers ORDER BY added_at DESC LIMIT 10;
 
 ---
 
-## 🛡️ Paso 6: Seguridad
+## 🛡️ Step 6: Security
 
-### Checklist de seguridad
+### Security checklist
 
-- [ ] `.env` tiene permisos `600`
-- [ ] `.env` está en `.gitignore`
-- [ ] Password de BD es fuerte
-- [ ] Token de Discord no está en el código
-- [ ] Usar HTTPS para descargar dependencias
+- [ ] `.env` has `600` permissions
+- [ ] `.env` is in `.gitignore`
+- [ ] DB password is strong
+- [ ] Discord token is not in the code
+- [ ] Use HTTPS to download dependencies
 
-### `.gitignore` recomendado
+### Recommended `.gitignore`
 
 ```gitignore
 # Python
@@ -328,7 +325,7 @@ __pycache__/
 venv/
 .venv/
 
-# Secretos
+# Secrets
 .env
 .env.local
 
@@ -347,77 +344,77 @@ Thumbs.db
 
 ---
 
-## 💾 Paso 7: Backups
+## 💾 Step 7: Backups
 
-### Backup automático diario
+### Daily automatic backup
 
-Crea el script **`scripts/backup_db.sh`**:
+Create the script **`scripts/backup_db.sh`**:
 
 ```bash
 #!/bin/bash
 DATE=$(date +%Y%m%d)
-mysqldump -h panther.teramont.net -u u4356_D25QQuuYC6 -p'tu_password' s4356_nami_bot \
-    > /home/tu_usuario/backups/nami_$DATE.sql
+mysqldump -h panther.teramont.net -u u4356_D25QQuuYC6 -p'your_password' s4356_nami_bot \
+    > /home/your_user/backups/nami_$DATE.sql
 
-# Mantener solo los últimos 7 días
-find /home/tu_usuario/backups/ -name "nami_*.sql" -mtime +7 -delete
+# Keep only the last 7 days
+find /home/your_user/backups/ -name "nami_*.sql" -mtime +7 -delete
 ```
 
-Programa la ejecución con cron:
+Schedule execution with cron:
 
 ```bash
 chmod +x scripts/backup_db.sh
 crontab -e
 ```
 
-Añade esta línea (backup diario a las 3 AM):
+Add this line (daily backup at 3 AM):
 
 ```
-0 3 * * * /home/tu_usuario/nami-bot/scripts/backup_db.sh
+0 3 * * * /home/your_user/nami-bot/scripts/backup_db.sh
 ```
 
-> **Backup manual:** Panel de Teramont → **Export Database to SQL**
+> **Manual backup:** Teramont Panel → **Export Database to SQL**
 
 ---
 
-## 🚨 Solución de Problemas en Producción
+## 🚨 Troubleshooting in Production
 
-### El bot no arranca
+### The bot won't start
 
 ```bash
 sudo systemctl status nami-bot
 journalctl -u nami-bot -n 50
 ```
 
-### El bot se reinicia constantemente
+### The bot keeps restarting
 
 ```bash
 journalctl -u nami-bot -f | grep -i error
 ```
 
-Causas más comunes: `.env` mal configurado, BD inalcanzable, token de Discord inválido.
+Most common causes: misconfigured `.env`, unreachable DB, invalid Discord token.
 
-### Memoria alta
+### High memory usage
 
 ```bash
 ps aux | grep python
 ```
 
-Si consume demasiada RAM, revisa conexiones de BD o sesiones HTTP que no se estén cerrando correctamente.
+If it consumes too much RAM, check DB connections or HTTP sessions that aren't being properly closed.
 
 ---
 
-## ✅ Checklist Final
+## ✅ Final Checklist
 
-- [ ] BD creada y migrada
-- [ ] Código subido al servidor
-- [ ] `.env` configurado con credenciales reales
-- [ ] Entorno virtual creado
-- [ ] Dependencias instaladas
-- [ ] Prueba manual exitosa (`python main.py`)
-- [ ] Servicio systemd/PM2 configurado
-- [ ] Bot invitado al servidor Discord
-- [ ] Comando `/configurar` probado
-- [ ] Comando `/añadir` probado
-- [ ] Logs verificados
-- [ ] Backup automático configurado
+- [ ] DB created and migrated
+- [ ] Code uploaded to the server
+- [ ] `.env` configured with real credentials
+- [ ] Virtual environment created
+- [ ] Dependencies installed
+- [ ] Manual test successful (`python main.py`)
+- [ ] systemd/PM2 service configured
+- [ ] Bot invited to the Discord server
+- [ ] `/configurar` command tested
+- [ ] `/añadir` command tested
+- [ ] Logs verified
+- [ ] Automatic backup configured

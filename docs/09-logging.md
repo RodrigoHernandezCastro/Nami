@@ -1,20 +1,20 @@
-# 📝 Sistema de Logging
+# 📝 Logging System
 
-Nami usa **structlog** para logs estructurados en **formato JSON**. Ideal para observabilidad (Loki, Datadog, ELK, Grafana).
+Nami uses **structlog** for structured logs in **JSON format**. Ideal for observability (Loki, Datadog, ELK, Grafana).
 
 ---
 
-## 🎯 ¿Por qué JSON?
+## 🎯 Why JSON?
 
-### ❌ Log Tradicional (texto plano)
+### ❌ Traditional Logging (plain text)
 
 ```
 2025-01-15 12:34:56 INFO Streamer added: shroud in guild 123456
 ```
 
-Problema: difícil de filtrar/buscar programáticamente.
+Problem: difficult to filter/search programmatically.
 
-### ✅ Log Estructurado (JSON)
+### ✅ Structured Logging (JSON)
 
 ```json
 {
@@ -27,38 +27,38 @@ Problema: difícil de filtrar/buscar programáticamente.
 }
 ```
 
-Ventajas:
-- 🔍 Filtrable por campo (`guild_id=123456`)
-- 📊 Agregable (conteo de eventos)
-- 🌐 Consumible por herramientas de monitoreo
+Advantages:
+- 🔍 Filterable by field (`guild_id=123456`)
+- 📊 Aggregable (event counting)
+- 🌐 Consumable by monitoring tools
 
 ---
 
-## 🏗️ Arquitectura del Logger
+## 🏗️ Logger Architecture
 
 ```
 ┌────────────────────────────┐
 │     Use Case               │
 │  self._logger.info(...)    │
 └────────────┬───────────────┘
-             │ usa
+             │ uses
              ▼
 ┌────────────────────────────┐
-│  ILogger (interface)       │  ← Dominio no conoce structlog
+│  ILogger (interface)        │  ← Domain doesn't know structlog
 └────────────┬───────────────┘
-             │ implementa
+             │ implements
              ▼
 ┌────────────────────────────┐
-│  StructuredLogger          │  ← Implementación con structlog
+│  StructuredLogger          │  ← Implementation with structlog
 │  (infrastructure)          │
 └────────────────────────────┘
 ```
 
 ---
 
-## 📐 Interface `ILogger`
+## 📐 `ILogger` Interface
 
-**Ubicación:** `src/application/interfaces/logger.py`
+**Location:** `src/application/interfaces/logger.py`
 
 ```python
 from abc import ABC, abstractmethod
@@ -79,45 +79,45 @@ class ILogger(ABC):
 
 ---
 
-## 🎨 Convenciones
+## 🎨 Conventions
 
-### Eventos en `snake_case`
+### Events in `snake_case`
 
 ```python
-# ❌ MAL
+# ❌ BAD
 logger.info("Streamer Added Successfully")
 
-# ✅ BIEN
+# ✅ GOOD
 logger.info("streamer_added")
 ```
 
-### Datos como kwargs
+### Data as kwargs
 
 ```python
-# ❌ MAL: interpolación en el mensaje
+# ❌ BAD: interpolation in the message
 logger.info(f"Streamer {username} added to guild {guild_id}")
 
-# ✅ BIEN: datos estructurados
+# ✅ GOOD: structured data
 logger.info("streamer_added", username=username, guild_id=guild_id)
 ```
 
-### Niveles apropiados
-# Guía de Logging: Niveles, Eventos y Configuración
+### Appropriate levels
+# Logging Guide: Levels, Events, and Configuration
 
-## 📊 Niveles de Log
+## 📊 Log Levels
 
-| Nivel | Cuándo usarlo | Ejemplo |
+| Level | When to use | Example |
 |---|---|---|
-| `debug` | Información de desarrollo | `"query_executed"` |
-| `info` | Eventos normales del sistema | `"streamer_added"` |
-| `warning` | Algo raro pero no crítico | `"twitch_rate_limit"` |
-| `error` | Fallos que requieren atención | `"db_connection_lost"` |
+| `debug` | Development information | `"query_executed"` |
+| `info` | Normal system events | `"streamer_added"` |
+| `warning` | Something odd but not critical | `"twitch_rate_limit"` |
+| `error` | Failures requiring attention | `"db_connection_lost"` |
 
 ---
 
-## 💡 Ejemplos de Uso
+## 💡 Usage Examples
 
-### Evento de negocio
+### Business event
 
 ```python
 self._logger.info(
@@ -128,7 +128,7 @@ self._logger.info(
 )
 ```
 
-**Salida esperada:**
+**Expected output:**
 
 ```json
 {
@@ -143,7 +143,7 @@ self._logger.info(
 
 ---
 
-### Warning con contexto
+### Warning with context
 
 ```python
 self._logger.warning(
@@ -155,7 +155,7 @@ self._logger.warning(
 
 ---
 
-### Error con stack trace
+### Error with stack trace
 
 ```python
 self._logger.error(
@@ -163,65 +163,65 @@ self._logger.error(
     error=str(e),
     error_type=type(e).__name__,
     user_id=interaction.user.id,
-    exc_info=True,   # ← incluye el stack trace
+    exc_info=True,   # ← includes stack trace
 )
 ```
 
 ---
 
-## ⚙️ Configuración
+## ⚙️ Configuration
 
-### Nivel de log por entorno
+### Log level by environment
 
-Configura el nivel en **`.env`** según el entorno:
+Set the level in **`.env`** according to the environment:
 
 ```env
-LOG_LEVEL=INFO       # producción
-# LOG_LEVEL=DEBUG    # desarrollo
+LOG_LEVEL=INFO       # production
+# LOG_LEVEL=DEBUG    # development
 ```
 
 ---
 
-## 📋 Eventos Estándar de Nami
+## 📋 Standard Nami Events
 
-| Evento | Cuándo se emite | Datos clave |
+| Event | When emitted | Key data |
 |---|---|---|
-| `postgres_pool_created` | Al crear pool de BD | — |
-| `twitch_client_initialized` | Al iniciar cliente Twitch | — |
-| `bot_ready` | Bot listo | — |
-| `commands_synced` | Comandos sincronizados | — |
-| `streamer_added` | Nuevo streamer registrado | `guild_id`, `username`, `streamer_id` |
-| `streamer_removed` | Streamer eliminado | `guild_id`, `username` |
-| `streamer_went_live` | Detectado en vivo | `streamer_id`, `username` |
-| `streamer_went_offline` | Detectado offline | `streamer_id`, `username` |
-| `stream_announced` | Anuncio publicado | `guild_id`, `username` |
-| `channel_configured` | Canal configurado | `guild_id`, `channel_id` |
-| `domain_error` | Error de negocio | `type`, `user_id`, `guild_id` |
-| `unexpected_error` | Error no esperado | `error`, `error_type`, `exc_info` |
+| `postgres_pool_created` | On DB pool creation | — |
+| `twitch_client_initialized` | On Twitch client startup | — |
+| `bot_ready` | Bot ready | — |
+| `commands_synced` | Commands synced | — |
+| `streamer_added` | New streamer registered | `guild_id`, `username`, `streamer_id` |
+| `streamer_removed` | Streamer removed | `guild_id`, `username` |
+| `streamer_went_live` | Detected live | `streamer_id`, `username` |
+| `streamer_went_offline` | Detected offline | `streamer_id`, `username` |
+| `stream_announced` | Announcement published | `guild_id`, `username` |
+| `channel_configured` | Channel configured | `guild_id`, `channel_id` |
+| `domain_error` | Business error | `type`, `user_id`, `guild_id` |
+| `unexpected_error` | Unexpected error | `error`, `error_type`, `exc_info` |
 
 ---
 
-## 🔍 Cómo Buscar Logs
+## 🔍 How to Search Logs
 
-### Pretty-print en terminal
+### Pretty-print in terminal
 
 ```bash
 python main.py | jq '.'
 ```
 
-### Filtrar por evento
+### Filter by event
 
 ```bash
 python main.py | jq 'select(.event == "streamer_added")'
 ```
 
-### Filtrar por `guild_id`
+### Filter by `guild_id`
 
 ```bash
 python main.py | jq 'select(.guild_id == 123456789)'
 ```
 
-### Guardar a archivo
+### Save to file
 
 ```bash
 python main.py > logs.jsonl 2>&1
@@ -229,9 +229,9 @@ python main.py > logs.jsonl 2>&1
 
 ---
 
-## 🛠️ Añadir un Logger Custom
+## 🛠️ Adding a Custom Logger
 
-Si necesitas logs en archivo rotativo, crea **`src/infrastructure/logging/file_logger.py`**:
+If you need logs in rotating files, create **`src/infrastructure/logging/file_logger.py`**:
 
 ```python
 import logging
@@ -252,13 +252,13 @@ class FileLogger(ILogger):
     def info(self, event: str, **kwargs):
         self._logger.info(f"{event} {kwargs}")
 
-    # ... resto de métodos
+    # ... remaining methods
 ```
 
-Luego actualiza **`container.py`** para usar el nuevo logger:
+Then update **`container.py`** to use the new logger:
 
 ```python
-# Reemplazar StructuredLogger por:
+# Replace StructuredLogger with:
 self._logger = FileLogger("nami.log")
 ```
 
@@ -266,8 +266,8 @@ self._logger = FileLogger("nami.log")
 
 ## ✅ Checklist
 
-- [ ] ¿Usas `snake_case` para nombres de eventos?
-- [ ] ¿Pasas los datos como `kwargs` (no dentro del mensaje)?
-- [ ] ¿El nivel es apropiado (`info` / `warning` / `error`)?
-- [ ] ¿Incluyes `exc_info=True` en errores inesperados?
-- [ ] ¿El use case inyecta `ILogger` (no `structlog` directamente)?
+- [ ] Do you use `snake_case` for event names?
+- [ ] Do you pass data as `kwargs` (not inside the message)?
+- [ ] Is the level appropriate (`info` / `warning` / `error`)?
+- [ ] Do you include `exc_info=True` in unexpected errors?
+- [ ] Does the use case inject `ILogger` (not `structlog` directly)?

@@ -3,44 +3,45 @@
 
 ## **📄 `docs/04-adding-commands.md`**
 
-# ➕ Cómo Añadir un Comando Nuevo
+# ➕ How to Add a New Command
 
-Esta guía te lleva paso a paso para añadir un comando `/ping` que responde con la latencia del bot. Después lo extrapolas a cualquier comando.
+This guide walks you step by step to add a `/ping` command that responds with the bot's latency. Then you can extrapolate to any command.
 
+---
 
-## 🎯 Caso 1: Comando Simple (sin BD ni APIs)
+## 🎯 Case 1: Simple Command (no DB or APIs)
 
-### Paso 1: Añadir el comando en un Cog
+### Step 1: Add the command to a Cog
 
-Abre `src/presentation/discord_bot/cogs/monitor_cog.py` y añade el método:
+Open `src/presentation/discord_bot/cogs/monitor_cog.py` and add the method:
 
 ```python
-@app_commands.command(name="ping", description="Muestra la latencia del bot")
+@app_commands.command(name="ping", description="Shows the bot's latency")
 async def ping(self, interaction: discord.Interaction) -> None:
     latency_ms = round(self.bot.latency * 1000)
     await interaction.response.send_message(
-        f"🏓 Pong! Latencia: **{latency_ms}ms**",
+        f"🏓 Pong! Latency: **{latency_ms}ms**",
         ephemeral=True,
     )
 ```
 
-### Paso 2: Reiniciar el bot
+### Step 2: Restart the bot
 
 ```bash
 python main.py
 ```
 
-El comando `/ping` aparecerá automáticamente (hay sync automático al iniciar).
+The `/ping` command will appear automatically (auto-sync on startup).
 
 ---
 
-## 🎯 Caso 2: Comando con Lógica de Negocio
+## 🎯 Case 2: Command with Business Logic
 
-Supongamos que queremos `/stats` que muestre cuántos streamers tiene el servidor.
+Suppose we want `/stats` to show how many streamers the server has.
 
-### Paso 1: Crear el Caso de Uso
+### Step 1: Create the Use Case
 
-**Archivo:** `src/application/use_cases/get_guild_stats.py`
+**File:** `src/application/use_cases/get_guild_stats.py`
 
 ```python
 from dataclasses import dataclass
@@ -73,22 +74,22 @@ class GetGuildStatsUseCase:
         )
 ```
 
-### Paso 2: Registrar en el Container
+### Step 2: Register in the Container
 
-**Archivo:** `src/composition_root/container.py`
+**File:** `src/composition_root/container.py`
 
 ```python
 from src.application.use_cases.get_guild_stats import GetGuildStatsUseCase
 
-# Dentro de startup(), en la sección de Use Cases:
+# Inside startup(), in the Use Cases section:
 self.get_stats_uc = GetGuildStatsUseCase(
     streamer_repo=self.streamer_repo,
 )
 ```
 
-### Paso 3: Inyectar en el Cog
+### Step 3: Inject into the Cog
 
-**Archivo:** `src/presentation/discord_bot/bot.py`
+**File:** `src/presentation/discord_bot/bot.py`
 
 ```python
 await self.add_cog(
@@ -98,14 +99,14 @@ await self.add_cog(
         remove_streamer_uc=self.container.remove_streamer_uc,
         list_streamers_uc=self.container.list_streamers_uc,
         configure_channel_uc=self.container.configure_channel_uc,
-        get_stats_uc=self.container.get_stats_uc,   # ← NUEVO
+        get_stats_uc=self.container.get_stats_uc,   # ← NEW
     )
 )
 ```
 
-### Paso 4: Modificar el Cog
+### Step 4: Modify the Cog
 
-**Archivo:** `src/presentation/discord_bot/cogs/monitor_cog.py`
+**File:** `src/presentation/discord_bot/cogs/monitor_cog.py`
 
 ```python
 from src.application.use_cases.get_guild_stats import (
@@ -116,13 +117,13 @@ class MonitorCog(commands.Cog):
     def __init__(
         self,
         bot: commands.Bot,
-        # ... otros use cases ...
-        get_stats_uc: GetGuildStatsUseCase,   # ← NUEVO
+        # ... other use cases ...
+        get_stats_uc: GetGuildStatsUseCase,   # ← NEW
     ):
         # ...
         self._stats_uc = get_stats_uc
 
-    @app_commands.command(name="stats", description="Estadísticas del servidor")
+    @app_commands.command(name="stats", description="Server statistics")
     async def stats(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
@@ -130,31 +131,31 @@ class MonitorCog(commands.Cog):
             GuildStatsQuery(guild_id=interaction.guild_id)
         )
 
-        embed = discord.Embed(title="📊 Estadísticas", color=discord.Color.purple())
+        embed = discord.Embed(title="📊 Statistics", color=discord.Color.purple())
         embed.add_field(name="Total", value=str(result.total_streamers))
-        embed.add_field(name="🔴 En vivo", value=str(result.online_count))
+        embed.add_field(name="🔴 Live", value=str(result.online_count))
         embed.add_field(name="⚫ Offline", value=str(result.offline_count))
 
         await interaction.followup.send(embed=embed, ephemeral=True)
 ```
 
-### Paso 5: Probar
+### Step 5: Test
 
 ```bash
 python main.py
 ```
 
-En Discord: `/stats`
+In Discord: `/stats`
 
 ---
 
-## 🎯 Caso 3: Comando con Nueva Tabla en BD
+## 🎯 Case 3: Command with a New DB Table
 
-Supongamos que queremos un sistema de **blacklist** de streamers prohibidos.
+Suppose we want a **blacklist** system for banned streamers.
 
-### Paso 1: Crear migración SQL
+### Step 1: Create SQL migration
 
-**Archivo:** `src/infrastructure/persistence/migrations/002_blacklist.sql`
+**File:** `src/infrastructure/persistence/migrations/002_blacklist.sql`
 
 ```sql
 CREATE TABLE IF NOT EXISTS blacklisted_streamers (
@@ -168,9 +169,9 @@ CREATE TABLE IF NOT EXISTS blacklisted_streamers (
 );
 ```
 
-### Paso 2: Crear entidad
+### Step 2: Create entity
 
-**Archivo:** `src/domain/entities/blacklisted_streamer.py`
+**File:** `src/domain/entities/blacklisted_streamer.py`
 
 ```python
 from dataclasses import dataclass, field
@@ -186,9 +187,9 @@ class BlacklistedStreamer:
     added_at: datetime = field(default_factory=datetime.utcnow)
 ```
 
-### Paso 3: Crear interface
+### Step 3: Create interface
 
-**Archivo:** `src/application/interfaces/blacklist_repository.py`
+**File:** `src/application/interfaces/blacklist_repository.py`
 
 ```python
 from abc import ABC, abstractmethod
@@ -206,9 +207,9 @@ class IBlacklistRepository(ABC):
     async def is_blacklisted(self, guild_id: int, username: str) -> bool: ...
 ```
 
-### Paso 4: Crear implementación
+### Step 4: Create implementation
 
-**Archivo:** `src/infrastructure/persistence/mariadb/blacklist_repository_mysql.py`
+**File:** `src/infrastructure/persistence/mariadb/blacklist_repository_mysql.py`
 
 ```python
 import aiomysql
@@ -260,18 +261,18 @@ class MariaDBBlacklistRepository(IBlacklistRepository):
                 return await cur.fetchone() is not None
 ```
 
-### Paso 5: Crear caso de uso y comando
+### Step 5: Create use case and command
 
-Sigue el patrón del Caso 2.
+Follow the pattern from Case 2.
 
 ---
 
-## ✅ Checklist al Añadir un Comando
+## ✅ Checklist for Adding a Command
 
-- [ ] ¿Usa lógica de negocio? → Crea un **UseCase**
-- [ ] ¿Necesita persistencia? → Crea/amplía un **Repositorio**
-- [ ] ¿Necesita nueva tabla? → Crea **migración SQL**
-- [ ] Registra el UseCase en el **Container**
-- [ ] Inyecta el UseCase en el **Cog** (vía `bot.py`)
-- [ ] Añade el comando en el **Cog**
-- [ ] Prueba con `/comando` en Discord
+- [ ] Does it use business logic? → Create a **UseCase**
+- [ ] Does it need persistence? → Create/extend a **Repository**
+- [ ] Does it need a new table? → Create **SQL migration**
+- [ ] Register the UseCase in the **Container**
+- [ ] Inject the UseCase into the **Cog** (via `bot.py`)
+- [ ] Add the command in the **Cog**
+- [ ] Test with `/comando` in Discord

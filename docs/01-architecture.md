@@ -3,15 +3,15 @@
 
 ## **📄 `docs/01-architecture.md`**
 
-# 🏛️ Arquitectura del Proyecto
+# 🏛️ Project Architecture
 
-## Clean Architecture Aplicada
+## Clean Architecture Applied
 
-Nami sigue los principios de **Clean Architecture** propuestos por Robert C. Martin (*Uncle Bob*). La idea central es que **la lógica de negocio no debe depender de detalles técnicos** como frameworks, bases de datos o librerías externas.
+Nami follows the **Clean Architecture** principles proposed by Robert C. Martin (*Uncle Bob*). The core idea is that **business logic should not depend on technical details** such as frameworks, databases, or external libraries.
 
 ---
 
-## 🎯 Las 4 Capas
+## 🎯 The 4 Layers
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -34,30 +34,30 @@ Nami sigue los principios de **Clean Architecture** propuestos por Robert C. Mar
 
 ---
 
-## 📐 Regla de Oro: Dependencia hacia el Centro
+## 📐 Golden Rule: Dependencies Point Inward
 
-**Las flechas de dependencia siempre apuntan hacia adentro.**
+**Dependency arrows always point inward.**
 
-- ✅ `Infrastructure` conoce `Application` (para implementar interfaces)
-- ✅ `Application` conoce `Domain` (usa entidades)
-- ❌ `Domain` **NO** conoce a nadie (es el núcleo)
-- ❌ `Application` **NO** conoce `Infrastructure`
+- ✅ `Infrastructure` knows `Application` (to implement interfaces)
+- ✅ `Application` knows `Domain` (uses entities)
+- ❌ `Domain` does **NOT** know anyone (it's the core)
+- ❌ `Application` does **NOT** know `Infrastructure`
 
 ---
 
-## 🟣 Capa Domain (Núcleo)
+## 🟣 Domain Layer (Core)
 
-**Ubicación:** `src/domain/`
+**Location:** `src/domain/`
 
-Contiene el corazón del negocio. **Sin dependencias externas.**
+Contains the heart of the business. **No external dependencies.**
 
-### Componentes
+### Components
 
-- **Entidades** (`entities/`): Objetos con identidad (`Streamer`, `GuildConfig`)
-- **Value Objects** (`value_objects/`): Objetos inmutables sin identidad (`TwitchUsername`)
-- **Excepciones** (`exceptions/`): Errores del dominio (`StreamerAlreadyExistsError`)
+- **Entities** (`entities/`): Objects with identity (`Streamer`, `GuildConfig`)
+- **Value Objects** (`value_objects/`): Immutable objects without identity (`TwitchUsername`)
+- **Exceptions** (`exceptions/`): Domain errors (`StreamerAlreadyExistsError`)
 
-### Ejemplo
+### Example
 
 ```python
 # src/domain/entities/streamer.py
@@ -72,30 +72,30 @@ class Streamer:
         self.is_online = True
 ```
 
-**⚠️ Regla:** Aquí NO hay `import discord`, NO hay `import aiomysql`.
+**⚠️ Rule:** No `import discord`, no `import aiomysql` here.
 
 ---
 
-## 🟡 Capa Application (Lógica de Negocio)
+## 🟡 Application Layer (Business Logic)
 
-**Ubicación:** `src/application/`
+**Location:** `src/application/`
 
-Contiene los **casos de uso** (reglas de negocio) y define las **interfaces** que la infraestructura debe implementar.
+Contains **use cases** (business rules) and defines the **interfaces** that infrastructure must implement.
 
-### Componentes
+### Components
 
-- **Use Cases** (`use_cases/`): Un archivo = un caso de uso (`AddStreamerUseCase`)
-- **Interfaces** (`interfaces/`): Contratos abstractos (`IStreamerRepository`)
-- **DTOs** (`dtos/`): Objetos de transferencia de datos
+- **Use Cases** (`use_cases/`): One file = one use case (`AddStreamerUseCase`)
+- **Interfaces** (`interfaces/`): Abstract contracts (`IStreamerRepository`)
+- **DTOs** (`dtos/`): Data Transfer Objects
 
-### Ejemplo
+### Example
 
 ```python
 # src/application/use_cases/add_streamer.py
 class AddStreamerUseCase:
     def __init__(
         self,
-        streamer_repo: IStreamerRepository,   # ← interfaz, no implementación
+        streamer_repo: IStreamerRepository,   # ← interface, not implementation
         twitch_service: ITwitchService,
         logger: ILogger,
     ):
@@ -103,89 +103,89 @@ class AddStreamerUseCase:
         # ...
 
     async def execute(self, command: AddStreamerCommand) -> Streamer:
-        # Reglas de negocio puras
+        # Pure business rules
         if not await self._twitch.user_exists(command.username):
             raise StreamerNotOnTwitchError(...)
         # ...
 ```
 
-**⚠️ Regla:** Aquí NO hay SQL, NO hay referencias a Discord.
+**⚠️ Rule:** No SQL, no Discord references here.
 
 ---
 
-## 🔵 Capa Infrastructure (Detalles Técnicos)
+## 🔵 Infrastructure Layer (Technical Details)
 
-**Ubicación:** `src/infrastructure/`
+**Location:** `src/infrastructure/`
 
-Implementa las interfaces definidas en `Application`. Aquí vive todo lo "sucio": SQL, HTTP, Logging.
+Implements the interfaces defined in `Application`. This is where all the "dirty" work lives: SQL, HTTP, Logging.
 
-### Componentes
+### Components
 
-- **Persistence** (`persistence/mariadb/`): Implementaciones de repositorios
-- **External APIs** (`external_apis/`): Clientes HTTP (Twitch)
-- **Logging** (`logging/`): Implementación concreta de logs
-- **Config** (`config/`): Carga de variables de entorno
+- **Persistence** (`persistence/mariadb/`): Repository implementations
+- **External APIs** (`external_apis/`): HTTP clients (Twitch)
+- **Logging** (`logging/`): Concrete logging implementation
+- **Config** (`config/`): Environment variable loading
 
-### Ejemplo
+### Example
 
 ```python
 # src/infrastructure/persistence/mariadb/streamer_repository_mysql.py
-class MariaDBStreamerRepository(IStreamerRepository):   # ← implementa interface
+class MariaDBStreamerRepository(IStreamerRepository):   # ← implements interface
     def __init__(self, pool: aiomysql.Pool):
         self._pool = pool
 
     async def add(self, streamer: Streamer) -> Streamer:
-        # SQL aquí
+        # SQL here
         query = "INSERT INTO streamers ..."
         # ...
 ```
 
 ---
 
-## 🟢 Capa Presentation (Interfaz de Usuario)
+## 🟢 Presentation Layer (User Interface)
 
-**Ubicación:** `src/presentation/`
+**Location:** `src/presentation/`
 
-Traduce interacciones del usuario (comandos Discord) en llamadas a casos de uso.
+Translates user interactions (Discord commands) into use case calls.
 
-### Componentes
+### Components
 
-- **Cogs** (`discord_bot/cogs/`): Controladores de comandos
-- **Tasks** (`discord_bot/tasks/`): Jobs en segundo plano
-- **Views** (`discord_bot/views/`): Constructores de embeds
-- **Error Handler** (`error_handler.py`): Manejo global de errores
+- **Cogs** (`discord_bot/cogs/`): Command controllers
+- **Tasks** (`discord_bot/tasks/`): Background jobs
+- **Views** (`discord_bot/views/`): Embed builders
+- **Error Handler** (`error_handler.py`): Global error handling
 
-### Ejemplo
+### Example
 
 ```python
 # src/presentation/discord_bot/cogs/monitor_cog.py
 @app_commands.command(name="añadir")
 async def add_streamer(self, interaction, usuario: str):
-    # Traduce Discord → Command
+    # Translate Discord → Command
     cmd = AddStreamerCommand(guild_id=interaction.guild_id, username=usuario)
-    # Ejecuta caso de uso
+    # Execute use case
     streamer = await self._add_uc.execute(cmd)
-    # Responde al usuario
+    # Respond to user
     await interaction.followup.send(f"✅ Añadido: {streamer.username}")
 ```
 
 ---
 
-## 🔌 Inyección de Dependencias
+## 🔌 Dependency Injection
 
-El **Composition Root** (`src/composition_root/container.py`) es el único lugar donde se "cablean" las dependencias concretas.
+The **Composition Root** (`src/composition_root/container.py`) is the only place where concrete dependencies are wired together.
 
 ```python
-# Aquí decidimos qué implementaciones usar
+# Here we decide which implementations to use
 self.streamer_repo = MariaDBStreamerRepository(pool)
 self.add_streamer_uc = AddStreamerUseCase(
-    streamer_repo=self.streamer_repo,   # ← inyección
+    streamer_repo=self.streamer_repo,   # ← injection
     # ...
 )
 ```
 
-**Ventaja:** Si mañana cambias MariaDB por PostgreSQL, **solo modificas el Container**.
+**Advantage:** If you switch MariaDB for PostgreSQL tomorrow, **you only modify the Container**.
 
 ---
 
-## ✅ Beneficios de esta Arquitectura
+## ✅ Benefits of this Architecture

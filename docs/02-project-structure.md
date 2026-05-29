@@ -3,49 +3,49 @@
 
 ## **📄 `docs/02-project-structure.md`**
 
-# 📁 Estructura del Proyecto
+# 📁 Project Structure
 
-## Árbol de Directorios
+## Directory Tree
 
 ```
 nami_bot/
 │
-├── docs/                              # 📚 Documentación
+├── docs/                              # 📚 Documentation
 │
-├── scripts/                           # 🔧 Scripts de utilidad
-│   └── run_migrations.py              # Aplica migraciones SQL
+├── scripts/                           # 🔧 Utility scripts
+│   └── run_migrations.py              # Applies SQL migrations
 │
-├── src/                               # 💻 Código fuente
+├── src/                               # 💻 Source code
 │   │
-│   ├── domain/                        # 🟣 NÚCLEO (sin dependencias)
-│   │   ├── entities/                  # Objetos con identidad
+│   ├── domain/                        # 🟣 CORE (no dependencies)
+│   │   ├── entities/                  # Objects with identity
 │   │   │   ├── streamer.py
 │   │   │   └── guild_config.py
-│   │   ├── value_objects/             # Objetos inmutables
+│   │   ├── value_objects/             # Immutable objects
 │   │   │   └── twitch_username.py
-│   │   └── exceptions/                # Errores de negocio
+│   │   └── exceptions/                # Business errors
 │   │       └── domain_exceptions.py
 │   │
-│   ├── application/                   # 🟡 LÓGICA DE NEGOCIO
-│   │   ├── use_cases/                 # Un caso de uso por archivo
+│   ├── application/                   # 🟡 BUSINESS LOGIC
+│   │   ├── use_cases/                 # One use case per file
 │   │   │   ├── add_streamer.py
 │   │   │   ├── remove_streamer.py
 │   │   │   ├── list_streamers.py
 │   │   │   ├── configure_channel.py
 │   │   │   └── check_live_streams.py
-│   │   ├── interfaces/                # Contratos (puertos)
+│   │   ├── interfaces/                # Contracts (ports)
 │   │   │   ├── streamer_repository.py
 │   │   │   ├── guild_repository.py
 │   │   │   ├── twitch_service.py
 │   │   │   └── logger.py
 │   │   └── dtos/                      # Data Transfer Objects
 │   │
-│   ├── infrastructure/                # 🔵 IMPLEMENTACIONES
+│   ├── infrastructure/                # 🔵 IMPLEMENTATIONS
 │   │   ├── persistence/
-│   │   │   ├── mariadb/               # Repositorios MariaDB
+│   │   │   ├── mariadb/               # MariaDB repositories
 │   │   │   │   ├── streamer_repository_mysql.py
 │   │   │   │   └── guild_repository_mysql.py
-│   │   │   └── migrations/            # SQL de migraciones
+│   │   │   └── migrations/            # SQL migrations
 │   │   │       └── 001_initial_schema.sql
 │   │   ├── external_apis/
 │   │   │   └── twitch_api_client.py
@@ -54,57 +54,57 @@ nami_bot/
 │   │   └── config/
 │   │       └── settings.py
 │   │
-│   ├── presentation/                  # 🟢 INTERFAZ DISCORD
+│   ├── presentation/                  # 🟢 DISCORD INTERFACE
 │   │   └── discord_bot/
-│   │       ├── bot.py                 # Clase principal del bot
-│   │       ├── cogs/                  # Comandos slash
+│   │       ├── bot.py                 # Main bot class
+│   │       ├── cogs/                  # Slash commands
 │   │       │   └── monitor_cog.py
-│   │       ├── tasks/                 # Tareas en background
+│   │       ├── tasks/                 # Background tasks
 │   │       │   └── stream_checker.py
-│   │       ├── views/                 # Embeds y componentes UI
+│   │       ├── views/                 # Embeds and UI components
 │   │       │   └── stream_embed.py
-│   │       └── error_handler.py       # Manejo global de errores
+│   │       └── error_handler.py       # Global error handling
 │   │
-│   └── composition_root/              # 🔴 INYECCIÓN DE DEPENDENCIAS
-│       └── container.py               # Ensambla todo
+│   └── composition_root/              # 🔴 DEPENDENCY INJECTION
+│       └── container.py               # Wires everything together
 │
 ├── tests/                             # 🧪 Tests
 │   ├── unit/
 │   └── integration/
 │
-├── .env                               # 🔐 Variables de entorno (NO subir a git)
-├── .env.example                       # Plantilla de variables
+├── .env                               # 🔐 Environment variables (DO NOT commit)
+├── .env.example                       # Variables template
 ├── .gitignore
-├── main.py                            # 🚀 Punto de entrada
-├── requirements.txt                   # Dependencias de producción
-├── requirements-dev.txt               # Dependencias de desarrollo
+├── main.py                            # 🚀 Entry point
+├── requirements.txt                   # Production dependencies
+├── requirements-dev.txt               # Development dependencies
 └── README.md
 ```
 
 ---
 
-## 🎯 Regla Clave: Dónde Poner Cada Cosa
+## 🎯 Key Rule: Where to Put Things
 
-### ¿Quiero modelar un concepto del negocio?
-→ `src/domain/entities/` o `src/domain/value_objects/`
+### I want to model a business concept?
+→ `src/domain/entities/` or `src/domain/value_objects/`
 
-### ¿Quiero añadir lógica de negocio?
+### I want to add business logic?
 → `src/application/use_cases/`
 
-### ¿Quiero añadir un comando de Discord?
+### I want to add a Discord command?
 → `src/presentation/discord_bot/cogs/`
 
-### ¿Quiero integrar una nueva API externa?
+### I want to integrate a new external API?
 → `src/infrastructure/external_apis/`
 
-### ¿Quiero cambiar cómo se guardan los datos?
+### I want to change how data is stored?
 → `src/infrastructure/persistence/`
 
-### ¿Quiero añadir una tarea periódica?
+### I want to add a periodic task?
 → `src/presentation/discord_bot/tasks/`
 
 ---
 
-## 📦 Archivos `__init__.py`
+## 📦 `__init__.py` Files
 
-Cada carpeta bajo `src/` debe tener un `__init__.py` (puede estar vacío). Esto le dice a Python que es un paquete.
+Every folder under `src/` must have an `__init__.py` (can be empty). This tells Python it is a package.

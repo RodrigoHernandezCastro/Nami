@@ -1,77 +1,77 @@
-# 🗄️ Base de Datos
+# 🗄️ Database
 
-## Motor: MariaDB 10.8.8 (Teramont)
-Nami usa **MariaDB** como motor de base de datos, alojado en Teramont.
+## Engine: MariaDB 10.8.8 (Teramont)
+Nami uses **MariaDB** as its database engine, hosted on Teramont.
 
-### 🌐 Conexión
+### 🌐 Connection
 
-| Parámetro | Valor |
+| Parameter | Value |
 | :--- | :--- |
 | **Host** | `panther.teramont.net` |
-| **Puerto** | `3306` |
-| **Base de datos** | `s4356_nami_bot` |
-| **Usuario** | `u4356_D25QQuuYC6` |
+| **Port** | `3306` |
+| **Database** | `s4356_nami_bot` |
+| **User** | `u4356_D25QQuuYC6` |
 | **Charset** | `utf8mb4` |
 
 > [!IMPORTANT]
-> **Credenciales:** Las contraseñas y datos sensibles se gestionan exclusivamente a través del archivo `.env`.
+> **Credentials:** Passwords and sensitive data are managed exclusively through the `.env` file.
 
 ---
 
-## 📊 Esquema Actual
+## 📊 Current Schema
 
-### Tabla: `guild_configs`
-Almacena la configuración específica de cada servidor de Discord.
+### Table: `guild_configs`
+Stores configuration specific to each Discord server.
 
-| Columna | Tipo | Descripción |
+| Column | Type | Description |
 | :--- | :--- | :--- |
-| `guild_id` | `BIGINT` (PK) | ID único del servidor Discord. |
-| `announcement_channel_id` | `BIGINT` | ID del canal de anuncios. |
-| `streamer_limit` | `INTEGER` | Máximo de streamers permitidos (Default: 15). |
-| `default_mention_type` | `VARCHAR(20)` | Tipo de mención predeterminada. |
-| `language` | `VARCHAR(5)` | Código de idioma (Default: 'es'). |
-| `created_at` | `TIMESTAMP` | Marca de tiempo de creación. |
-| `updated_at` | `TIMESTAMP` | Marca de tiempo de última actualización. |
+| `guild_id` | `BIGINT` (PK) | Unique Discord server ID. |
+| `announcement_channel_id` | `BIGINT` | Announcement channel ID. |
+| `streamer_limit` | `INTEGER` | Maximum allowed streamers (Default: 15). |
+| `default_mention_type` | `VARCHAR(20)` | Default mention type. |
+| `language` | `VARCHAR(5)` | Language code (Default: 'es'). |
+| `created_at` | `TIMESTAMP` | Creation timestamp. |
+| `updated_at` | `TIMESTAMP` | Last update timestamp. |
 
-### Tabla: `streamers`
-Almacena los canales de Twitch monitoreados por servidor.
+### Table: `streamers`
+Stores Twitch channels monitored per server.
 
-| Columna | Tipo | Descripción |
+| Column | Type | Description |
 | :--- | :--- | :--- |
-| `id` | `INT AUTO_INCREMENT` (PK) | ID interno secuencial. |
-| `guild_id` | `BIGINT` (FK) | Relación con el servidor asociado. |
-| `username` | `VARCHAR(50)` | Nombre de usuario en Twitch. |
-| `custom_message` | `TEXT` | Mensaje personalizado para el anuncio. |
+| `id` | `INT AUTO_INCREMENT` (PK) | Sequential internal ID. |
+| `guild_id` | `BIGINT` (FK) | Relation to the associated server. |
+| `username` | `VARCHAR(50)` | Twitch username. |
+| `custom_message` | `TEXT` | Custom message for the announcement. |
 | `mention_type` | `VARCHAR(20)` | `ninguno`, `everyone`, `here`, `rol`. |
-| `mention_role_ids` | `LONGTEXT` | IDs de roles en formato JSON. |
-| `is_online` | `BOOLEAN` | Estado de conexión actual. |
-| `added_at` | `TIMESTAMP` | Fecha de registro. |
+| `mention_role_ids` | `LONGTEXT` | Role IDs in JSON format. |
+| `is_online` | `BOOLEAN` | Current online status. |
+| `added_at` | `TIMESTAMP` | Registration date. |
 
-**Índices y Restricciones:**
-* **Índices:** `idx_streamers_guild_id`, `idx_streamers_username`, `idx_streamers_is_online`.
-* **Constraint Único:** `(guild_id, username)` — Impide duplicar un mismo streamer dentro de un mismo servidor.
+**Indexes and Constraints:**
+* **Indexes:** `idx_streamers_guild_id`, `idx_streamers_username`, `idx_streamers_is_online`.
+* **Unique Constraint:** `(guild_id, username)` — Prevents duplicate streamers within the same server.
 
 ---
 
-# Guía de Gestión del Esquema y Base de Datos
+# Schema and Database Management Guide
 
-## 🛠️ Modificar el Esquema
+## 🛠️ Modifying the Schema
 
-### Paso 1: Crear una nueva migración
+### Step 1: Create a new migration
 
-Crea el archivo con el número secuencial correspondiente dentro de:
+Create the file with the corresponding sequential number inside:
 
 ```
 src/infrastructure/persistence/migrations/
 ├── 001_initial_schema.sql
-└── 002_add_nueva_feature.sql   ← NUEVA
+└── 002_add_nueva_feature.sql   ← NEW
 ```
 
 ---
 
-### Paso 2: Escribir el SQL
+### Step 2: Write the SQL
 
-Ejemplo: añadir la columna `notification_sound` a la tabla `guild_configs`:
+Example: adding the `notification_sound` column to the `guild_configs` table:
 
 ```sql
 -- 002_add_notification_sound.sql
@@ -82,26 +82,26 @@ ADD COLUMN notification_sound VARCHAR(100) DEFAULT NULL;
 
 ---
 
-### Paso 3: Ejecutar las migraciones
+### Step 3: Run migrations
 
-**Opción A — Script automático:**
+**Option A — Automatic script:**
 
 ```bash
 python scripts/run_migrations.py
 ```
 
-**Opción B — Importación manual desde phpMyAdmin en Teramont:**
+**Option B — Manual import via phpMyAdmin on Teramont:**
 
-- Entrar al panel de Teramont
-- Hacer clic en **phpMyAdmin**
-- Seleccionar la base de datos `s4356_nami_bot`
-- Ir a la pestaña **SQL** → pegar el script → **Ejecutar**
+- Log in to the Teramont panel
+- Click **phpMyAdmin**
+- Select the `s4356_nami_bot` database
+- Go to the **SQL** tab → paste the script → **Go**
 
 ---
 
-### Paso 4: Actualizar la entidad
+### Step 4: Update the entity
 
-Edita **`src/domain/entities/guild_config.py`** para reflejar el nuevo campo:
+Edit **`src/domain/entities/guild_config.py`** to reflect the new field:
 
 ```python
 # src/domain/entities/guild_config.py
@@ -113,47 +113,47 @@ class GuildConfig:
     streamer_limit: int = 15
     default_mention_type: str = "ninguno"
     language: str = "es"
-    notification_sound: Optional[str] = None   # ← NUEVO
+    notification_sound: Optional[str] = None   # ← NEW
 ```
 
 ---
 
-### Paso 5: Actualizar el repositorio
+### Step 5: Update the repository
 
-Edita **`guild_repository_mysql.py`** para incluir el nuevo campo en todas las sentencias `SELECT`, `INSERT` y `UPDATE`.
+Edit **`guild_repository_mysql.py`** to include the new field in all `SELECT`, `INSERT`, and `UPDATE` statements.
 
 ---
 
-## 🔄 Backup y Restore
+## 🔄 Backup and Restore
 
-### Exportar desde Teramont
+### Export from Teramont
 
-- Panel de Teramont → **Export Database to SQL**
-- Se descarga un archivo `.sql`
+- Teramont Panel → **Export Database to SQL**
+- A `.sql` file will be downloaded
 
-### Importar a Teramont
+### Import to Teramont
 
 - Panel → **Import SQL into Database**
-- Seleccionar el archivo → **Upload**
+- Select the file → **Upload**
 
 ---
 
-## 💾 Cambiar de Motor de Base de Datos
+## 💾 Switching Database Engines
 
-Gracias a la **Clean Architecture**, migrar de MariaDB a PostgreSQL solo requiere dos pasos:
+Thanks to **Clean Architecture**, migrating from MariaDB to PostgreSQL only requires two steps:
 
-**1.** Crear `src/infrastructure/persistence/postgres/` con los nuevos repositorios.
+**1.** Create `src/infrastructure/persistence/postgres/` with the new repositories.
 
-**2.** Actualizar **`container.py`** para apuntar a la nueva implementación:
+**2.** Update **`container.py`** to point to the new implementation:
 
 ```python
-# Antes:
+# Before:
 from src.infrastructure.persistence.mariadb.streamer_repository_mysql import (
     MariaDBStreamerRepository,
 )
 self.streamer_repo = MariaDBStreamerRepository(pool)
 
-# Después:
+# After:
 from src.infrastructure.persistence.postgres.streamer_repository_pg import (
     PostgresStreamerRepository,
 )

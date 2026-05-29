@@ -1,41 +1,41 @@
-# 🗃️ Repositorios
+# 🗃️ Repositories
 
-## ¿Qué es un Repositorio?
+## What is a Repository?
 
-Un **repositorio** es una clase que encapsula el acceso a datos. Su trabajo es **traducir entre entidades de dominio y registros de base de datos**.
+A **repository** is a class that encapsulates data access. Its job is to **translate between domain entities and database records**.
 
-**Regla clave:** Los casos de uso NUNCA hablan directamente con la BD. Siempre lo hacen a través de un repositorio.
+**Key rule:** Use cases NEVER talk directly to the database. They always do so through a repository.
 
 ---
 
-## 🏛️ Estructura del Patrón
+## 🏛️ Pattern Structure
 
 ```
 ┌────────────────────────────┐
 │     Use Case               │
-│  (lógica de negocio)       │
+│  (business logic)          │
 └────────────┬───────────────┘
-             │ usa
+             │ uses
              ▼
 ┌────────────────────────────┐
-│  IStreamerRepository       │  ← Interface (contrato)
+│  IStreamerRepository       │  ← Interface (contract)
 │  (abstract)                │
 └────────────┬───────────────┘
-             │ implementa
+             │ implements
              ▼
 ┌────────────────────────────┐
-│  MariaDBStreamerRepository │  ← Implementación concreta
-│  (SQL aquí)                │
+│  MariaDBStreamerRepository │  ← Concrete implementation
+│  (SQL here)                │
 └────────────────────────────┘
 ```
 
 ---
 
-## 📐 Anatomía de un Repositorio
+## 📐 Anatomy of a Repository
 
-### 1. La Interface (contrato)
+### 1. The Interface (contract)
 
-**Ubicación:** `src/application/interfaces/`
+**Location:** `src/application/interfaces/`
 
 ```python
 # src/application/interfaces/streamer_repository.py
@@ -61,9 +61,9 @@ class IStreamerRepository(ABC):
     async def update_status(self, streamer_id: int, is_online: bool) -> None: ...
 ```
 
-### 2. La Implementación
+### 2. The Implementation
 
-**Ubicación:** `src/infrastructure/persistence/mariadb/`
+**Location:** `src/infrastructure/persistence/mariadb/`
 
 ```python
 # src/infrastructure/persistence/mariadb/streamer_repository_mysql.py
@@ -89,9 +89,9 @@ class MariaDBStreamerRepository(IStreamerRepository):
 
 ---
 
-## ✅ Buenas Prácticas
+## ✅ Best Practices
 
-### 1. Un repositorio por entidad raíz
+### 1. One repository per root entity
 
 ```
 streamers        → StreamerRepository
@@ -99,14 +99,15 @@ guild_configs    → GuildRepository
 blacklist        → BlacklistRepository
 ```
 
-### 2. Nombres de métodos expresivos
-# Guía de Repositorios: Convenciones, Implementación y Testing
+### 2. Expressive method names
 
-## ✅ Convenciones de Nomenclatura
+# Repository Guide: Conventions, Implementation, and Testing
 
-Usa nombres descriptivos y consistentes en todos los métodos del repositorio:
+## ✅ Naming Conventions
 
-| ❌ Mal | ✅ Bien |
+Use descriptive and consistent names across all repository methods:
+
+| ❌ Bad | ✅ Good |
 |---|---|
 | `get(id)` | `find_by_id(id)` |
 | `getAll()` | `find_all()` |
@@ -115,22 +116,22 @@ Usa nombres descriptivos y consistentes en todos los métodos del repositorio:
 
 ---
 
-## 📐 Buenas Prácticas Generales
+## 📐 General Best Practices
 
-### 1. Siempre usa el pool de conexiones
+### 1. Always use the connection pool
 
 ```python
-# ❌ MAL: conexión nueva cada vez
+# ❌ BAD: new connection every time
 conn = await aiomysql.connect(...)
 
-# ✅ BIEN: pool compartido
+# ✅ GOOD: shared pool
 async with self._pool.acquire() as conn:
     ...
 ```
 
-### 2. Convierte entre Entity ↔ DB Row
+### 2. Convert between Entity ↔ DB Row
 
-Implementa siempre un método estático `_row_to_entity` para desacoplar la capa de datos:
+Always implement a static `_row_to_entity` method to decouple the data layer:
 
 ```python
 @staticmethod
@@ -145,13 +146,13 @@ def _row_to_entity(row: dict) -> Streamer:
 
 ---
 
-## 🛠️ Crear un Repositorio Nuevo
+## 🛠️ Creating a New Repository
 
-> **Caso de ejemplo:** crear `FavoritesRepository` para guardar streamers favoritos.
+> **Example case:** Create `FavoritesRepository` to save favorite streamers.
 
-### Paso 1: Migración SQL
+### Step 1: SQL Migration
 
-Crea el archivo en **`src/infrastructure/persistence/migrations/003_favorites.sql`**:
+Create the file in **`src/infrastructure/persistence/migrations/003_favorites.sql`**:
 
 ```sql
 -- 003_favorites.sql
@@ -168,9 +169,9 @@ CREATE TABLE IF NOT EXISTS favorite_streamers (
 
 ---
 
-### Paso 2: Entidad
+### Step 2: Entity
 
-Crea **`src/domain/entities/favorite.py`**:
+Create **`src/domain/entities/favorite.py`**:
 
 ```python
 from dataclasses import dataclass, field
@@ -187,9 +188,9 @@ class Favorite:
 
 ---
 
-### Paso 3: Interface
+### Step 3: Interface
 
-Crea **`src/application/interfaces/favorite_repository.py`**:
+Create **`src/application/interfaces/favorite_repository.py`**:
 
 ```python
 from abc import ABC, abstractmethod
@@ -210,9 +211,9 @@ class IFavoriteRepository(ABC):
 
 ---
 
-### Paso 4: Implementación
+### Step 4: Implementation
 
-Crea **`src/infrastructure/persistence/mariadb/favorite_repository_mysql.py`**:
+Create **`src/infrastructure/persistence/mariadb/favorite_repository_mysql.py`**:
 
 ```python
 import aiomysql
@@ -263,29 +264,29 @@ class MariaDBFavoriteRepository(IFavoriteRepository):
 
 ---
 
-### Paso 5: Registrar en el Container
+### Step 5: Register in the Container
 
-Edita **`src/composition_root/container.py`**:
+Edit **`src/composition_root/container.py`**:
 
 ```python
 from src.infrastructure.persistence.mariadb.favorite_repository_mysql import (
     MariaDBFavoriteRepository,
 )
 
-# Dentro de startup():
+# Inside startup():
 self.favorite_repo = MariaDBFavoriteRepository(self._pool)
 ```
 
 ---
 
-## 🔄 Manejo de Transacciones
+## 🔄 Transaction Handling
 
-Cuando necesitas ejecutar varias queries como un bloque atómico, usa `begin` / `commit` / `rollback` explícitamente:
+When you need to run multiple queries as an atomic block, use explicit `begin` / `commit` / `rollback`:
 
 ```python
-async def transferir_streamers(self, from_guild: int, to_guild: int) -> None:
+async def transfer_streamers(self, from_guild: int, to_guild: int) -> None:
     async with self._pool.acquire() as conn:
-        await conn.begin()   # ← inicia transacción
+        await conn.begin()   # ← start transaction
         try:
             async with conn.cursor() as cur:
                 await cur.execute(
@@ -296,19 +297,19 @@ async def transferir_streamers(self, from_guild: int, to_guild: int) -> None:
                     "DELETE FROM guild_configs WHERE guild_id = %s;",
                     (from_guild,)
                 )
-            await conn.commit()   # ← confirma
+            await conn.commit()   # ← commit
         except Exception:
-            await conn.rollback()   # ← revierte si falla
+            await conn.rollback()   # ← rollback on failure
             raise
 ```
 
 ---
 
-## 🧪 Testear un Repositorio
+## 🧪 Testing a Repository
 
-### Tests de integración (BD real)
+### Integration tests (real DB)
 
-Idealmente con un contenedor Docker efímero:
+Ideally with an ephemeral Docker container:
 
 ```python
 # tests/integration/test_streamer_repository.py
@@ -338,9 +339,9 @@ async def test_add_and_find():
     await pool.wait_closed()
 ```
 
-### Tests unitarios de Use Cases (mock)
+### Unit tests for Use Cases (mock)
 
-Para aislar la lógica de negocio sin tocar la BD:
+To isolate business logic without touching the DB:
 
 ```python
 from unittest.mock import AsyncMock

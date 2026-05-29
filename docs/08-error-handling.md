@@ -3,16 +3,16 @@
 
 ## **📄 `docs/08-error-handling.md`**
 
-# ⚠️ Manejo de Errores
+# ⚠️ Error Handling
 
-Nami usa un sistema de errores en **dos niveles**:
+Nami uses a **two-level** error system:
 
-1. **Excepciones de dominio** (lógica de negocio)
-2. **Handler global** (captura todo lo que sale mal)
+1. **Domain exceptions** (business logic)
+2. **Global handler** (catches everything that goes wrong)
 
 ---
 
-## 🏛️ Jerarquía de Excepciones
+## 🏛️ Exception Hierarchy
 
 ```
 Exception
@@ -24,98 +24,98 @@ Exception
         └── ChannelNotConfiguredError
 ```
 
-**Ubicación:** `src/domain/exceptions/domain_exceptions.py`
+**Location:** `src/domain/exceptions/domain_exceptions.py`
 
 ```python
 class DomainError(Exception):
-    """Base para todos los errores de negocio."""
+    """Base for all business errors."""
     pass
 
 
 class StreamerAlreadyExistsError(DomainError):
-    """Cuando se intenta añadir un streamer que ya existe."""
+    """When trying to add a streamer that already exists."""
     pass
 
 
 class StreamerNotFoundError(DomainError):
-    """Cuando se busca un streamer que no existe."""
+    """When searching for a streamer that does not exist."""
     pass
 
 
 class StreamerLimitReachedError(DomainError):
-    """Cuando se excede el límite permitido."""
+    """When the allowed limit is exceeded."""
     pass
 
 
 class StreamerNotOnTwitchError(DomainError):
-    """Cuando el usuario no existe en Twitch."""
+    """When the user does not exist on Twitch."""
     pass
 
 
 class ChannelNotConfiguredError(DomainError):
-    """Cuando no hay canal de anuncios configurado."""
+    """When no announcement channel is configured."""
     pass
 ```
 
 ---
 
-## 🎯 Cuándo Lanzar Cada Tipo
+## 🎯 When to Throw Each Type
 
-### En el **Dominio** → `DomainError`
+### In **Domain** → `DomainError`
 
-Cuando se viola una **regla de negocio**:
+When a **business rule** is violated:
 
 ```python
 # src/application/use_cases/add_streamer.py
 if current_count >= guild_config.streamer_limit:
     raise StreamerLimitReachedError(
-        f"Límite alcanzado: {guild_config.streamer_limit}"
+        f"Limit reached: {guild_config.streamer_limit}"
     )
 ```
 
-### En la **Infraestructura** → Convertir a `DomainError`
+### In **Infrastructure** → Convert to `DomainError`
 
-Las excepciones técnicas (SQL, HTTP) deben **traducirse** al dominio:
+Technical exceptions (SQL, HTTP) should be **translated** to the domain:
 
 ```python
-# ❌ MAL: exponer excepción técnica
+# ❌ BAD: expose technical exception
 async def add(self, streamer):
-    await cursor.execute(...)   # puede lanzar IntegrityError
+    await cursor.execute(...)   # may raise IntegrityError
 
-# ✅ BIEN: traducir a excepción de dominio
+# ✅ GOOD: translate to domain exception
 async def add(self, streamer):
     try:
         await cursor.execute(...)
     except aiomysql.IntegrityError as e:
         if e.args[0] == 1062:   # Duplicate entry
             raise StreamerAlreadyExistsError(
-                f"'{streamer.username}' ya existe."
+                f"'{streamer.username}' already exists."
             ) from e
         raise
 ```
 
 ---
 
-## 🛡️ Handler Global
+## 🛡️ Global Handler
 
-Captura **todas** las excepciones no manejadas en comandos slash.
+Catches **all** unhandled exceptions in slash commands.
 
-**Ubicación:** `src/presentation/discord_bot/error_handler.py`
+**Location:** `src/presentation/discord_bot/error_handler.py`
 
 ```python
 class GlobalErrorHandler:
     ERROR_MAP = {
-        StreamerAlreadyExistsError: ("⚠️", "Ese streamer ya está registrado."),
-        StreamerLimitReachedError:  ("📛", "Has alcanzado el límite."),
-        StreamerNotOnTwitchError:   ("❌", "Ese usuario no existe en Twitch."),
-        ChannelNotConfiguredError:  ("⚙️", "Configura primero el canal."),
-        StreamerNotFoundError:      ("🔍", "No encontré ese streamer."),
+        StreamerAlreadyExistsError: ("⚠️", "That streamer is already registered."),
+        StreamerLimitReachedError:  ("📛", "You have reached the limit."),
+        StreamerNotOnTwitchError:   ("❌", "That user does not exist on Twitch."),
+        ChannelNotConfiguredError:  ("⚙️", "Configure the channel first."),
+        StreamerNotFoundError:      ("🔍", "I couldn't find that streamer."),
     }
 
     async def _on_app_command_error(self, interaction, error):
         original = getattr(error, "original", error)
 
-        # 1) Errores mapeados
+        # 1) Mapped errors
         for exc_type, (emoji, default_msg) in self.ERROR_MAP.items():
             if isinstance(original, exc_type):
                 await interaction.followup.send(
@@ -124,97 +124,97 @@ class GlobalErrorHandler:
                 )
                 return
 
-        # 2) Cualquier otro DomainError
+        # 2) Any other DomainError
         if isinstance(original, DomainError):
             await interaction.followup.send(f"⚠️ {original}", ephemeral=True)
             return
 
-        # 3) Errores inesperados → log + mensaje genérico
+        # 3) Unexpected errors → log + generic message
         self.logger.error("unexpected_error", error=str(original), exc_info=True)
         await interaction.followup.send(
-            "💥 Ocurrió un error inesperado.",
+            "💥 An unexpected error occurred.",
             ephemeral=True,
         )
 ```
 
 ---
 
-## ➕ Crear una Nueva Excepción
+## ➕ Creating a New Exception
 
-### Paso 1: Definir la clase
+### Step 1: Define the class
 
 ```python
 # src/domain/exceptions/domain_exceptions.py
 
 class InvalidTimezoneError(DomainError):
-    """Cuando la zona horaria proporcionada no es válida."""
+    """When the provided timezone is not valid."""
     pass
 ```
 
-### Paso 2: Lanzarla en el Use Case
+### Step 2: Throw it in the Use Case
 
 ```python
 if timezone not in VALID_TIMEZONES:
-    raise InvalidTimezoneError(f"Zona horaria inválida: {timezone}")
+    raise InvalidTimezoneError(f"Invalid timezone: {timezone}")
 ```
 
-### Paso 3: Mapearla en el Error Handler
+### Step 3: Map it in the Error Handler
 
 ```python
 ERROR_MAP = {
-    # ... existentes
-    InvalidTimezoneError: ("🌐", "Zona horaria no válida."),
+    # ... existing
+    InvalidTimezoneError: ("🌐", "Invalid timezone."),
 }
 ```
 
 ---
 
-## 🎨 Patrones Útiles
+## 🎨 Useful Patterns
 
-### 1. Exception Chaining con `raise ... from ...`
+### 1. Exception Chaining with `raise ... from ...`
 
-Preserva el stack trace original:
+Preserves the original stack trace:
 
 ```python
 try:
     await cursor.execute(...)
 except aiomysql.IntegrityError as e:
-    raise StreamerAlreadyExistsError("Ya existe") from e
-                                                   # ^^^^^^
-                                                   # preserva origen
+    raise StreamerAlreadyExistsError("Already exists") from e
+                                                        # ^^^^^^
+                                                        # preserves origin
 ```
 
-### 2. Respuestas Informativas
+### 2. Informative Responses
 
-Pasa el mensaje específico, no solo el genérico:
+Pass the specific message, not just the generic one:
 
 ```python
-# ❌ MENOS INFO
+# ❌ LESS INFO
 raise StreamerLimitReachedError()
 
-# ✅ MÁS INFO
-raise StreamerLimitReachedError(f"Tu servidor permite máximo {limit} streamers")
+# ✅ MORE INFO
+raise StreamerLimitReachedError(f"Your server allows a maximum of {limit} streamers")
 ```
 
-### 3. Logging de Errores
+### 3. Error Logging
 
-El handler global **ya loggea**. No lo hagas manualmente en cada use case:
+The global handler **already logs**. Don't do it manually in every use case:
 
 ```python
-# ❌ REDUNDANTE
+# ❌ REDUNDANT
 try:
     ...
 except Exception as e:
     logger.error("failed", error=e)
     raise
 
-# ✅ DEJA QUE EL HANDLER LO HAGA
-# El handler global lo capturará y loggeará
+# ✅ LET THE HANDLER DO IT
+# The global handler will catch and log it
 ```
 
 ---
 
-## 🧪 Testeando Excepciones
+## 🧪 Testing Exceptions
 
 ```python
 import pytest
@@ -225,7 +225,7 @@ from src.domain.exceptions.domain_exceptions import StreamerLimitReachedError
 async def test_raises_limit_error():
     # ... setup
 
-    with pytest.raises(StreamerLimitReachedError, match="Límite alcanzado"):
+    with pytest.raises(StreamerLimitReachedError, match="Limit reached"):
         await use_case.execute(command)
 ```
 
@@ -233,8 +233,8 @@ async def test_raises_limit_error():
 
 ## 📋 Checklist
 
-- [ ] ¿La excepción hereda de `DomainError`?
-- [ ] ¿Tiene un docstring explicativo?
-- [ ] ¿Está mapeada en `GlobalErrorHandler.ERROR_MAP`?
-- [ ] ¿Las excepciones técnicas (SQL, HTTP) se convierten a `DomainError`?
-- [ ] ¿Usas `raise X from e` para preservar el stack trace?
+- [ ] Does the exception inherit from `DomainError`?
+- [ ] Does it have an explanatory docstring?
+- [ ] Is it mapped in `GlobalErrorHandler.ERROR_MAP`?
+- [ ] Are technical exceptions (SQL, HTTP) converted to `DomainError`?
+- [ ] Do you use `raise X from e` to preserve the stack trace?

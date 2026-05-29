@@ -5,106 +5,106 @@
 
 # 🐛 Troubleshooting
 
-Errores comunes y cómo resolverlos.
+Common errors and how to solve them.
 
 ---
 
 ## ❌ `ImportError: cannot import name 'X' from '...'`
 
-**Causa:** El archivo está vacío o la clase no existe.
+**Cause:** The file is empty or the class doesn't exist.
 
-**Solución:**
-1. Verifica que el archivo exista y tenga contenido
-2. Revisa que el nombre de la clase coincida
-3. Asegúrate de que la carpeta tenga `__init__.py`
+**Solution:**
+1. Verify the file exists and has content
+2. Check that the class name matches
+3. Make sure the folder has `__init__.py`
 
 ---
 
 ## ❌ `asyncpg.InvalidPasswordError` / `aiomysql.OperationalError`
 
-**Causa:** Credenciales incorrectas en `.env`.
+**Cause:** Incorrect credentials in `.env`.
 
-**Solución:**
+**Solution:**
 ```env
 DB_HOST=panther.teramont.net
 DB_PORT=3306
 DB_USER=u4356_D25QQuuYC6
-DB_PASSWORD=tu_password_real   ← Verifica esto
+DB_PASSWORD=your_real_password   ← Verify this
 DB_NAME=s4356_nami_bot
 ```
 
 ---
 
-## ❌ Los comandos slash no aparecen en Discord
+## ❌ Slash commands don't appear in Discord
 
-**Causa:** No se sincronizaron o el bot no tiene el scope `applications.commands`.
+**Cause:** They weren't synced or the bot doesn't have the `applications.commands` scope.
 
-**Solución:**
-1. Verifica que al iniciar veas: `bot_ready commands_synced=4`
-2. Si no, espera 1 hora (Discord cachea comandos globales)
-3. O invita el bot con el scope correcto
+**Solution:**
+1. Verify on startup you see: `bot_ready commands_synced=4`
+2. If not, wait 1 hour (Discord caches global commands)
+3. Or invite the bot with the correct scope
 
 ---
 
 ## ❌ `discord.errors.Forbidden`
 
-**Causa:** El bot no tiene permisos para enviar mensajes en el canal.
+**Cause:** The bot doesn't have permission to send messages in the channel.
 
-**Solución:** Dale al bot los permisos `Send Messages` y `Embed Links` en el canal configurado.
-
----
-
-## ❌ `StreamerNotOnTwitchError` pero el usuario sí existe
-
-**Causa:** Token de Twitch expirado o credenciales incorrectas.
-
-**Solución:**
-1. Verifica `TWITCH_CLIENT_ID` y `TWITCH_CLIENT_SECRET`
-2. Reinicia el bot (genera token nuevo)
+**Solution:** Give the bot `Send Messages` and `Embed Links` permissions in the configured channel.
 
 ---
 
-## ❌ El bot no detecta streams en vivo
+## ❌ `StreamerNotOnTwitchError` but the user does exist
 
-**Causa:** La tarea en background no está corriendo.
+**Cause:** Expired Twitch token or incorrect credentials.
 
-**Solución:**
-1. Revisa los logs al iniciar: debe aparecer `stream_checker_started`
-2. Verifica `CHECK_INTERVAL_SECONDS` en `.env` (default: 60)
-3. Confirma que hay streamers con canal configurado
+**Solution:**
+1. Verify `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`
+2. Restart the bot (generates a new token)
+
+---
+
+## ❌ The bot doesn't detect live streams
+
+**Cause:** The background task is not running.
+
+**Solution:**
+1. Check the logs on startup: `stream_checker_started` should appear
+2. Verify `CHECK_INTERVAL_SECONDS` in `.env` (default: 60)
+3. Confirm there are streamers with a configured channel
 
 ---
 
 ## ❌ `Duplicate entry for key 'unique_streamer_per_guild'`
 
-**Causa:** Intentaste añadir un streamer que ya existe.
+**Cause:** You tried to add a streamer that already exists.
 
-**Solución:** Esto es un comportamiento esperado. El bot lo maneja con `StreamerAlreadyExistsError`.
+**Solution:** This is expected behavior. The bot handles it with `StreamerAlreadyExistsError`.
 
 ---
 
-## 🔍 Cómo Debuggear
+## 🔍 How to Debug
 
-### 1. Activa logs DEBUG
+### 1. Enable DEBUG logs
 
 ```env
 LOG_LEVEL=DEBUG
 ```
 
-### 2. Revisa la base de datos
+### 2. Check the database
 
 ```sql
 SELECT * FROM guild_configs;
 SELECT * FROM streamers;
 ```
 
-### 3. Usa `print()` temporales
+### 3. Use temporary `print()`
 
 ```python
-print(f"🔍 DEBUG: streamers encontrados = {streamers}")
+print(f"🔍 DEBUG: streamers found = {streamers}")
 ```
 
-### 4. Verifica conectividad
+### 4. Check connectivity
 
 ```bash
 ping panther.teramont.net

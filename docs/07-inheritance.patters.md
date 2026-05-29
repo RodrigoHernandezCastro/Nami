@@ -1,27 +1,27 @@
-# 🧬 Patrones y Herencia
+# 🧬 Patterns and Inheritance
 
-## Patrones Aplicados en Nami
+## Patterns Applied in Nami
 
 ---
 
 ## 1️⃣ Repository Pattern
 
-**Problema:** Desacoplar la lógica de negocio del acceso a datos.
+**Problem:** Decouple business logic from data access.
 
-**Solución:** Una interfaz por entidad, múltiples implementaciones posibles.
+**Solution:** One interface per entity, multiple possible implementations.
 
 ```python
-# Interface (contrato)
+# Interface (contract)
 class IStreamerRepository(ABC):
     @abstractmethod
     async def add(self, streamer: Streamer) -> Streamer: ...
 
-# Implementación MariaDB
+# MariaDB implementation
 class MariaDBStreamerRepository(IStreamerRepository):
     async def add(self, streamer: Streamer) -> Streamer:
-        # SQL aquí
+        # SQL here
 
-# Implementación en memoria (para tests)
+# In-memory implementation (for tests)
 class InMemoryStreamerRepository(IStreamerRepository):
     def __init__(self):
         self._data = []
@@ -35,35 +35,35 @@ class InMemoryStreamerRepository(IStreamerRepository):
 
 ## 2️⃣ Dependency Injection
 
-**Problema:** Evitar acoplamiento directo entre clases.
+**Problem:** Avoid direct coupling between classes.
 
-**Solución:** Pasar dependencias por el constructor (inyección).
+**Solution:** Pass dependencies through the constructor (injection).
 
 ```python
-# ❌ MAL: dependencia directa
+# ❌ BAD: direct dependency
 class AddStreamerUseCase:
     def __init__(self):
-        self.repo = MariaDBStreamerRepository(...)   # acoplado
+        self.repo = MariaDBStreamerRepository(...)   # coupled
 
-# ✅ BIEN: inyección
+# ✅ GOOD: injection
 class AddStreamerUseCase:
     def __init__(self, repo: IStreamerRepository):
-        self.repo = repo   # desacoplado
+        self.repo = repo   # decoupled
 ```
 
 ---
 
 ## 3️⃣ Command Pattern
 
-**Problema:** Pasar muchos parámetros a un método.
+**Problem:** Passing many parameters to a method.
 
-**Solución:** Encapsular los parámetros en un objeto.
+**Solution:** Encapsulate parameters in an object.
 
 ```python
-# ❌ MAL
+# ❌ BAD
 await use_case.execute(guild_id, username, message, mention_type, role_ids)
 
-# ✅ BIEN
+# ✅ GOOD
 cmd = AddStreamerCommand(
     guild_id=123,
     username="shroud",
@@ -78,9 +78,9 @@ await use_case.execute(cmd)
 
 ## 4️⃣ Factory Pattern (Composition Root)
 
-**Problema:** Centralizar la creación de objetos complejos.
+**Problem:** Centralize creation of complex objects.
 
-**Solución:** Una clase que "arma" todo al iniciar.
+**Solution:** A class that "wires" everything at startup.
 
 ```python
 class Container:
@@ -95,25 +95,25 @@ class Container:
 
 ---
 
-## 🧬 Cuándo Usar Herencia
+## 🧬 When to Use Inheritance
 
-### ✅ Casos Válidos
+### ✅ Valid Cases
 
-**1. Implementar una interfaz**
+**1. Implementing an interface**
 
 ```python
 class MariaDBStreamerRepository(IStreamerRepository):
-    # Implementa todos los métodos abstractos
+    # Implements all abstract methods
 ```
 
-**2. Extender un Cog de discord.py**
+**2. Extending a discord.py Cog**
 
 ```python
 class MonitorCog(commands.Cog):
     # ...
 ```
 
-**3. Jerarquía de excepciones**
+**3. Exception hierarchy**
 
 ```python
 class DomainError(Exception): ...
@@ -123,88 +123,88 @@ class StreamerAlreadyExistsError(DomainError): ...
 
 ---
 
-### ❌ Casos a Evitar
+### ❌ Cases to Avoid
 
-**1. Herencia para reutilizar código**
+**1. Inheritance for code reuse**
 
 ```python
-# ❌ MAL
+# ❌ BAD
 class BaseUseCase:
     def log_something(self):
         print("...")
 
 class AddStreamerUseCase(BaseUseCase):
-    # heredó log_something "gratis"
+    # inherited log_something "for free"
 ```
 
-**Mejor:** **Composición**
+**Better:** **Composition**
 
 ```python
-# ✅ BIEN
+# ✅ GOOD
 class AddStreamerUseCase:
     def __init__(self, logger: ILogger):
-        self._logger = logger   # composición
+        self._logger = logger   # composition
 ```
 
-**Regla de oro:** *"Prefiere composición sobre herencia"*
+**Golden rule:** *"Prefer composition over inheritance"*
 
 ---
 
-## 🎨 Herencia en la Práctica
+## 🎨 Inheritance in Practice
 
-### Crear una nueva excepción
+### Creating a new exception
 
 ```python
 # src/domain/exceptions/domain_exceptions.py
 
 class DomainError(Exception):
-    """Base para todos los errores de negocio."""
+    """Base for all business errors."""
     pass
 
-# Tus excepciones heredan de DomainError
-class MiNuevoError(DomainError):
-    """Descripción."""
+# Your exceptions inherit from DomainError
+class MyNewError(DomainError):
+    """Description."""
     pass
 ```
 
-### Crear un nuevo Cog
+### Creating a new Cog
 
 ```python
 from discord.ext import commands
 
-class MiNuevoCog(commands.Cog):
+class MyNewCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="mi_comando")
-    async def mi_comando(self, interaction):
-        await interaction.response.send_message("Hola!")
+    @app_commands.command(name="my_command")
+    async def my_command(self, interaction):
+        await interaction.response.send_message("Hello!")
 ```
 
-### Crear un nuevo Repositorio
+### Creating a new Repository
 
 ```python
-from src.application.interfaces.mi_repo import IMiRepo
+from src.application.interfaces.my_repo import IMyRepo
 
-class MariaDBMiRepo(IMiRepo):
+class MariaDBMyRepo(IMyRepo):
     def __init__(self, pool):
         self._pool = pool
 
-    # Implementa TODOS los métodos abstractos
-    async def metodo1(self): ...
-    async def metodo2(self): ...
+    # Implements ALL abstract methods
+    async def method1(self): ...
+    async def method2(self): ...
 ```
 
 ---
 
-## 📋 Resumen
-### 🛠️ Arquitectura y Patrones de Diseño
+## 📋 Summary
+### 🛠️ Architecture and Design Patterns
 
-| Patrón | Dónde se usa | Para qué |
+| Pattern | Where it's used | Purpose |
 | :--- | :--- | :--- |
-| **Repository** | `infrastructure/persistence/` | Acceso a datos y persistencia. |
-| **Dependency Injection** | Toda la aplicación | Desacoplar las clases y facilitar las pruebas. |
-| **Command** | `use_cases/` | Encapsular la información para pasar parámetros. |
-| **Factory** | `composition_root/` | Centralizar la lógica de ensamblado de objetos. |
-| **Herencia** | Cogs, excepciones, repositorios | Implementar contratos y extender funcionalidades base. |
-| **Composición** | Use cases | Reutilizar funcionalidad de forma flexible sin jerarquías rígidas. |
+| **Repository** | `infrastructure/persistence/` | Data access and persistence. |
+| **Dependency Injection** | Entire application | Decouple classes and facilitate testing. |
+| **Command** | `use_cases/` | Encapsulate information for passing parameters. |
+| **Factory** | `composition_root/` | Centralize object assembly logic. |
+| **Inheritance** | Cogs, exceptions, repositories | Implement contracts and extend base functionality. |
+| **Composition** | Use cases | Reuse functionality flexibly without rigid hierarchies. |

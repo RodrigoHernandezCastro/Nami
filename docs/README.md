@@ -1,54 +1,54 @@
 <div align="center">
 
 # 🌊 Nami Bot
-### *Tu navegante de streams en Discord*
+### *Your stream navigator on Discord*
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Discord.py](https://img.shields.io/badge/discord.py-2.4-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
 [![MariaDB](https://img.shields.io/badge/MariaDB-11-003545?style=for-the-badge&logo=mariadb&logoColor=white)](https://mariadb.org/)
 [![Twitch](https://img.shields.io/badge/Twitch_API-9146FF?style=for-the-badge&logo=twitch&logoColor=white)](https://dev.twitch.tv/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-blueviolet?style=flat-square)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)](https://github.com/RodrigoHernandezCastro/Nami)
 
-**Nami** es un bot de Discord profesional que monitorea streamers de Twitch en tiempo real y anuncia automáticamente cuando están en vivo, con soporte para múltiples servidores, menciones personalizadas y arquitectura escalable.
+**Nami** is a professional Discord bot that monitors Twitch streamers in real-time and automatically announces when they go live, with multi-server support, customizable mentions, and a scalable architecture.
 
-[🚀 Instalación](#-instalación) • [⚙️ Configuración](#️-configuración) • [📖 Comandos](#-comandos) • [🏗️ Arquitectura](#️-arquitectura) • [🤝 Contribuir](#-contribuir)
+[🚀 Installation](#-installation) • [⚙️ Configuration](#️-configuration) • [📖 Commands](#-commands) • [🏗️ Architecture](#️-architecture) • [🤝 Contribute](#-contribute)
 
 </div>
 
 ---
 
-## 📋 Tabla de Contenidos
+## 📋 Table of Contents
 
-- [✨ Características](#-características)
+- [✨ Features](#-features)
 - [🎯 Demo](#-demo)
-- [🛠️ Stack Tecnológico](#️-stack-tecnológico)
-- [🚀 Instalación](#-instalación)
-- [⚙️ Configuración](#️-configuración)
-- [📖 Comandos](#-comandos)
-- [🏗️ Arquitectura](#️-arquitectura)
-- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [📖 Commands](#-commands)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Project Structure](#-project-structure)
 - [🧪 Testing](#-testing)
 - [🐳 Docker](#-docker)
 - [🛣️ Roadmap](#️-roadmap)
-- [🤝 Contribuir](#-contribuir)
-- [📜 Licencia](#-licencia)
+- [🤝 Contribute](#-contribute)
+- [📜 License](#-license)
 
 ---
 
-## ✨ Características
+## ✨ Features
 
-- 🔴 **Monitoreo en Tiempo Real** — Detecta automáticamente cuándo tus streamers favoritos pasan a estar en vivo.
-- 🎨 **Anuncios Personalizables** — Mensajes únicos por streamer, con embeds enriquecidos.
-- 👥 **Menciones Flexibles** — `@everyone`, `@here` o hasta **3 roles específicos** por streamer.
-- 🌐 **Multi-Servidor** — Un solo bot puede servir a múltiples comunidades simultáneamente.
-- ⚡ **Alta Disponibilidad** — Arquitectura asíncrona con pool de conexiones MariaDB.
-- 🔐 **Seguro por Diseño** — Validación a nivel de dominio, manejo robusto de errores.
-- 📊 **Logging Estructurado** — Logs en JSON listos para observabilidad (Loki, Datadog, ELK).
-- 🏛️ **Clean Architecture** — Código mantenible, testeable y extensible.
-- 🔌 **Extensible** — Añade nuevas features sin tocar el núcleo (Open/Closed Principle).
+- 🔴 **Real-Time Monitoring** — Automatically detects when your favorite streamers go live.
+- 🎨 **Customizable Announcements** — Unique messages per streamer with rich embeds.
+- 👥 **Flexible Mentions** — `@everyone`, `@here` or up to **3 specific roles** per streamer.
+- 🌐 **Multi-Server** — A single bot can serve multiple communities simultaneously.
+- ⚡ **High Availability** — Async architecture with MariaDB connection pooling.
+- 🔐 **Secure by Design** — Domain-level validation, robust error handling.
+- 📊 **Structured Logging** — JSON logs ready for observability (Loki, Datadog, ELK).
+- 🏛️ **Clean Architecture** — Maintainable, testable, and extensible code.
+- 🔌 **Extensible** — Add new features without touching the core (Open/Closed Principle).
 
 ---
 
@@ -56,95 +56,95 @@
 
 <div align="center">
 
-### Anuncio de Stream en Vivo
+### Live Stream Announcement
 
-> 🔴 **shroud está EN VIVO**
+> 🔴 **shroud is LIVE**
 >
 > **Ranked Valorant — Road to Radiant**
 >
-> 🎮 **Jugando:** VALORANT
-> 👥 **Espectadores:** 42,531
-> 🔗 **[Ver stream](https://twitch.tv/shroud)**
+> 🎮 **Playing:** VALORANT
+> 👥 **Viewers:** 42,531
+> 🔗 **[Watch stream](https://twitch.tv/shroud)**
 
 </div>
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tech Stack
 
-| Categoría | Tecnología |
+| Category | Technology |
 | :--- | :--- |
-| **Lenguaje** | Python 3.12+ |
-| **Framework Bot** | discord.py 2.4 |
-| **Base de Datos** | MariaDB 11 + aiomysql |
-| **API Externa** | Twitch Helix API |
-| **Configuración** | Pydantic Settings |
+| **Language** | Python 3.12+ |
+| **Bot Framework** | discord.py 2.4 |
+| **Database** | MariaDB 11 + aiomysql |
+| **External API** | Twitch Helix API |
+| **Configuration** | Pydantic Settings |
 | **Logging** | structlog (JSON) |
 | **Testing** | pytest + pytest-asyncio |
 | **Linting** | ruff + black + mypy |
-| **Arquitectura** | Clean Architecture / Hexagonal |
+| **Architecture** | Clean Architecture / Hexagonal |
 
 ---
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### 📦 Requisitos Previos
+### 📦 Prerequisites
 
-- Python 3.12 o superior.
-- MariaDB 11 o superior.
-- Una aplicación de [Discord Developer Portal](https://discord.com/developers/applications).
-- Credenciales de [Twitch Developer Console](https://dev.twitch.tv/console).
+- Python 3.12 or higher.
+- MariaDB 11 or higher.
+- An application from [Discord Developer Portal](https://discord.com/developers/applications).
+- Credentials from [Twitch Developer Console](https://dev.twitch.tv/console).
 
-### 🔧 Pasos de Instalación
+### 🔧 Installation Steps
 
-1. **Clonar el repositorio:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/RodrigoHernandezCastro/Nami.git
    cd Nami
    ```
 
-2. **Crear entorno virtual:**
+2. **Create a virtual environment:**
    ```bash
    # Windows
    python -m venv env
    .\env\Scripts\activate
    ```
 
-3. **Instalar dependencias:**
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configurar variables de entorno:**
+4. **Configure environment variables:**
    ```bash
    cp .env.example .env
    ```
-   *Edita el archivo `.env` con tus credenciales reales.*
+   *Edit the `.env` file with your actual credentials.*
 
-5. **Crear la base de datos:**
+5. **Create the database:**
    ```bash
    mysql -u root -p
    CREATE DATABASE nami_bot;
    \q
    ```
 
-6. **Ejecutar migraciones:**
+6. **Run migrations:**
    ```bash
    python scripts/run_migrations.py
    ```
 
-7. **Iniciar el bot:**
+7. **Start the bot:**
    ```bash
    python main.py
    ```
 
 ---
 
-## ⚙️ Configuración
+## ⚙️ Configuration
 
-### 🔑 Variables de Entorno
+### 🔑 Environment Variables
 
-Crea un archivo `.env` en la raíz del proyecto basándote en lo siguiente:
+Create a `.env` file in the project root based on the following:
 
 ```env
 # Discord
@@ -154,7 +154,7 @@ DISCORD_TOKEN=<DISCORD_TOKEN>
 TWITCH_CLIENT_ID=<TWITCH_CLIENT_ID>
 TWITCH_CLIENT_SECRET=<TWITCH_CLIENT_SECRET>
 
-# Base de datos (MariaDB)
+# Database (MariaDB)
 DB_HOST=<DB_HOST>
 DB_PORT=<DB_PORT>
 DB_USER=<DB_USER>
@@ -164,60 +164,60 @@ DB_NAME=<DB_NAME>
 # Logging
 LOG_LEVEL=INFO
 
-# Reglas de negocio
+# Business rules
 DEFAULT_STREAMER_LIMIT=15
 CHECK_INTERVAL_SECONDS=60
 ```
 
-### 🔗 Obtener Credenciales
+### 🔗 Obtaining Credentials
 
-<details> <summary><b>Cómo obtener el token de Discord</b></summary>
+<details> <summary><b>How to get your Discord token</b></summary>
 
-1. Ve a [Discord Developer Portal](https://discord.com/developers/applications).
-2. Crea una **New Application**.
-3. En la pestaña **Bot**, haz clic en **Reset Token** para obtener tu clave secreta.
-4. Bajo la sección "Privileged Gateway Intents", activa **Server Members Intent** y **Message Content Intent**.
-5. Invita al bot usando la pestaña **OAuth2 -> URL Generator** con los scopes `bot` y `applications.commands`.
-</details> 
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications).
+2. Create a **New Application**.
+3. In the **Bot** tab, click **Reset Token** to get your secret key.
+4. Under "Privileged Gateway Intents", enable **Server Members Intent** and **Message Content Intent**.
+5. Invite the bot using the **OAuth2 -> URL Generator** tab with the `bot` and `applications.commands` scopes.
+</details>
 
-<details> <summary><b>Cómo obtener credenciales de Twitch</b></summary>
+<details> <summary><b>How to get Twitch credentials</b></summary>
 
-1. Entra en [Twitch Developer Console](https://dev.twitch.tv/console).
-2. Registra una nueva aplicación.
-3. Configura el **OAuth Redirect URL** como `http://localhost`.
-4. Selecciona la categoría **Chat Bot** o **Application Integration**.
-5. Copia el **Client ID** y genera un **Client Secret**.
+1. Go to [Twitch Developer Console](https://dev.twitch.tv/console).
+2. Register a new application.
+3. Set the **OAuth Redirect URL** to `http://localhost`.
+4. Select the **Chat Bot** or **Application Integration** category.
+5. Copy the **Client ID** and generate a **Client Secret**.
 </details>
 
 ---
 
-## 📖 Comandos
+## 📖 Commands
 
-Nami utiliza **Slash Commands** (`/`) para una integración nativa y moderna.
+Nami uses **Slash Commands** (`/`) for native and modern integration.
 
-| Comando | Parámetros | Descripción | Permisos |
+| Command | Parameters | Description | Permissions |
 | :--- | :--- | :--- | :--- |
-| `/configurar` | `canal` | Establece el canal donde se enviarán las alertas. | Administrador |
-| `/añadir` | `usuario`, `mensaje`, `mencion` | Añade un streamer al monitoreo. | Administrador |
-| `/eliminar` | `usuario` | Remueve un streamer de la base de datos. | Administrador |
-| `/listar` | - | Muestra todos los streamers seguidos en el servidor. | Todos |
+| `/configurar` | `channel` | Sets the channel where alerts will be sent. | Administrator |
+| `/añadir` | `user`, `message`, `mention` | Adds a streamer to monitoring. | Administrator |
+| `/eliminar` | `user` | Removes a streamer from the database. | Administrator |
+| `/listar` | - | Shows all followed streamers in the server. | Everyone |
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
-El bot sigue los principios de **Clean Architecture** (Arquitectura Hexagonal), separando la lógica de negocio de los detalles técnicos.
+The bot follows **Clean Architecture** (Hexagonal Architecture) principles, separating business logic from technical details.
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    PRESENTATION                            │
-│          (Discord Cogs, Tareas Background)                  │
+│          (Discord Cogs, Background Tasks)                   │
 ├─────────────────────────────────────────────────────────────┤
 │                    APPLICATION                              │
-│        (Use Cases — Lógica de Negocio Pura)                 │
+│        (Use Cases — Pure Business Logic)                    │
 ├─────────────────────────────────────────────────────────────┤
 │                    DOMAIN                                   │
-│       (Entidades, Value Objects, Excepciones)               │
+│       (Entities, Value Objects, Exceptions)                 │
 ├─────────────────────────────────────────────────────────────┤
 │                    INFRASTRUCTURE                           │
 │    (MariaDB, Twitch API, Logging, Config)                   │
@@ -226,20 +226,20 @@ El bot sigue los principios de **Clean Architecture** (Arquitectura Hexagonal), 
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```text
 nami_bot/
 ├── src/
-│   ├── domain/              # Entidades y reglas fundamentales
-│   ├── application/         # Casos de uso e interfaces (Puertos)
-│   ├── infrastructure/      # Adaptadores (DB, APIs, Logging)
-│   ├── presentation/        # Entrada de Discord (Cogs, Tasks)
-│   └── composition_root/    # Inyección de dependencias
-├── scripts/                 # Scripts de migración y mantenimiento
-├── tests/                   # Pruebas unitarias
-├── main.py                  # Punto de entrada
-└── .env.example             # Ejemplo de variables de entorno
+│   ├── domain/              # Entities and core business rules
+│   ├── application/         # Use cases and interfaces (Ports)
+│   ├── infrastructure/      # Adapters (DB, APIs, Logging)
+│   ├── presentation/        # Discord entry points (Cogs, Tasks)
+│   └── composition_root/    # Dependency injection
+├── scripts/                 # Migration and maintenance scripts
+├── tests/                   # Unit tests
+├── main.py                  # Entry point
+└── .env.example             # Example environment variables
 ```
 
 ---
@@ -247,7 +247,7 @@ nami_bot/
 ## 🧪 Testing
 
 ```bash
-# Ejecutar tests con pytest
+# Run tests with pytest
 pytest
 ```
 
@@ -256,7 +256,7 @@ pytest
 ## 🐳 Docker
 
 ```bash
-# Despliegue rápido con Docker Compose
+# Quick deployment with Docker Compose
 docker-compose up -d
 ```
 
@@ -264,30 +264,30 @@ docker-compose up -d
 
 ## 🛣️ Roadmap
 
-- [x] Refactorización a Clean Architecture.
-- [x] Soporte para MariaDB.
-- [ ] Implementación de Twitch EventSub (Webhooks).
-- [ ] Dashboard Web de gestión.
-- [ ] Soporte para Kick y YouTube Live.
+- [x] Refactored to Clean Architecture.
+- [x] MariaDB support.
+- [ ] Twitch EventSub (Webhooks) implementation.
+- [ ] Web management dashboard.
+- [ ] Kick and YouTube Live support.
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contribute
 
-1. Haz un **Fork** del proyecto.
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`).
-3. Haz un **Commit** de tus cambios (`git commit -m 'Add AmazingFeature'`).
-4. Haz un **Push** a la rama (`git push origin feature/AmazingFeature`).
-5. Abre un **Pull Request**.
+1. **Fork** the project.
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`).
+3. **Commit** your changes (`git commit -m 'Add AmazingFeature'`).
+4. **Push** to the branch (`git push origin feature/AmazingFeature`).
+5. Open a **Pull Request**.
 
 ---
 
-## 📜 Licencia
+## 📜 License
 
-Distribuido bajo la Licencia **MIT**. Ver `LICENSE` para más información.
+Distributed under the **GNU General Public License v3**. See `LICENSE` for more information.
 
 ---
 
 <div align="center">
-Desarrollado por <a href="https://github.com/RodrigoHernandezCastro">Rodrigo Hernández Castro</a>
+Built by <a href="https://github.com/RodrigoHernandezCastro">Rodrigo Hernández Castro</a>
 </div>
